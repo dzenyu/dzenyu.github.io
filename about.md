@@ -19,8 +19,8 @@ A seasoned software engineering leader with over 18 years of experience in desig
 
 - **Cloud Infrastructure as a Service (IaaS)**  
   Extensive hands-on experience with AWS cloud platforms, managing complex hybrid deployments spanning on-premise and cloud environments. Proficient in:  
-  - S3, EC2, DynamoDB, ElastiCache  
-  - CloudFormation, Elastic Beanstalk  
+  - S3, EC2, DynamoDB, ElastiCache (Redis, Memcached) 
+  - CloudFormation, Elastic Beanstalk, ECS  
   - Kinesis, Lambda, Step Functions  
   - CloudWatch, AWS MSK (Managed Streaming for Kafka)  
 
@@ -28,15 +28,22 @@ A seasoned software engineering leader with over 18 years of experience in desig
   Expert in Java Enterprise ecosystems, leading large-scale server deployments using the Spring Framework. Skilled in leveraging Docker, Apache, Nginx, and Node.js for resilient and scalable architectures.  
 
 - **Batch Processing & Data Pipelines**  
-  Extensive experience in designing and implementing batch processing workflows using **Spring Batch**, enabling robust data processing pipelines.  
+  Extensive experience in designing and implementing batch processing workflows using **Spring Batch**, **AWS Batch** as well as **AWS DMS**, enabling robust data processing pipelines.  
 
 - **REST & GraphQL Web Services**  
-  Expertise in designing and developing scalable web services with **REST** and **GraphQL**, ensuring high performance, flexibility, and developer-friendly APIs.  
+  Expertise in designing and developing scalable APIs using **REST** and **GraphQL**, ensuring high performance, flexibility, and developer-friendly APIs.  
 
 - **Database Enthusiast**  
   Deep expertise in relational and NoSQL databases, with hands-on experience in:  
-  - Oracle, SQL Server, MySQL, MongoDB  
-  - AWS DynamoDB, Neo4j (Graph DB)  
+  - Relational DBs: Oracle, SQL Server, MySQL
+  - NOSQL: MongoDB, AWS DynamoDB  
+  - Graph DB: Neo4j, dGraph
 
 - **Data Insights & Graph Relationships**  
-  Passionate about uncovering data insights and exploring graph relationships using Neo4j, enabling advanced analytics and innovative solutions.
+  Passionate about uncovering data insights and exploring graph relationships using Graph Databases like Neo4j/dGraph, enabling advanced analytics and innovative solutions.
+
+- **Payment Gateway**
+  Experience interfacing with multiple payment gateways like Braintree, Stripe, Recurly as well as BillDesk for UPI based payments. 
+
+- **Mentoring**
+  Committed to fostering collaboration and mentoring engineers to achieve technical excellence.

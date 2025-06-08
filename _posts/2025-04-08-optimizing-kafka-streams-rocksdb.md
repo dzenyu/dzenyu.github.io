@@ -116,6 +116,7 @@ props.put(StreamsConfig.ROCKSDB_CONFIG_SETTER_CLASS_CONFIG, CustomRocksDBConfig.
 - [RocksDB Tuning Guide](https://github.com/facebook/rocksdb/wiki/RocksDB-Tuning-Guide)
 - [Monitoring Kafka Streams State Stores](https://www.confluent.io/blog/kafka-streams-monitoring-operating/)
 
+```
 (StreamsConfig.ROCKSDB_CONFIG_SETTER_CLASS_CONFIG, CustomRocksDBConfig.class);
 ```
 
