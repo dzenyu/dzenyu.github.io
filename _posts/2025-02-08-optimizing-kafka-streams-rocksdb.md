@@ -1,9 +1,9 @@
 ---
-layout: post
+layout: single
 title: "Optimizing Kafka Streams State Store with RocksDB"
-date: 2025-04-08
+date: 2025-02-08
 categories: [kafka, streams, performance, rocksdb]
-tags: [kafka-streams, rocksdb, optimization, spring-boot]
+tags: [kafka, kafka-streams, rocksdb, optimization, spring-boot]
 ---
 
 Kafka Streams is a powerful library for building real-time stream processing applications on Apache Kafka. One of its key features is local state management using **RocksDB**, a high-performance embedded key-value store.

@@ -1,12 +1,32 @@
-_site
-.DS_Store
-.jekyll
+# Jekyll build output and caches
+_site/
+.jekyll-cache/
+.jekyll/
 .jekyll-metadata
-.bundle
-.sass-cache
-Gemfile
+.sass-cache/
+
+# Ruby/Bundler
+.bundle/
+vendor/bundle/
 Gemfile.lock
-node_modules
-package.json
-.idea
+
+# Node (if you add any tooling)
+node_modules/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editors/IDEs
+.idea/
+.vscode/
 *.iml
+
+# Logs and temp files
+*.log
+*.tmp
+.cache/
+
+# Env files (if you ever add secrets for local testing)
+.env
+.env.*
