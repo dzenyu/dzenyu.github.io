@@ -1,49 +1,62 @@
 ---
-layout: page
-title: About
-permalink: /about
+layout: single
+title: "About"
+permalink: /about/
+author_profile: true
 ---
 
-A seasoned software engineering leader with over 18 years of experience in designing, developing, and delivering robust solutions across diverse domains and global teams. Renowned for leading and mentoring offshore teams across multiple countries, including India, Israel, Romania, and the United States, fostering collaboration and delivering high-impact results.  
+Hi, I’m **Dzenyu Mukangara** — a Principal Engineer passionate about building resilient systems, scaling distributed architectures, and mentoring the next generation of engineers. I specialize in **Java, Spring, Kafka, AWS, and cloud-native engineering**, and I enjoy bringing clarity and simplicity to complex technical challenges.
 
-### Key Areas of Expertise:  
+This blog is where I share **architecture lessons, deep dives into distributed systems, and leadership insights** from my years of building high-scale platforms.
+
+---
+
+### A Little About Me
+
+Beyond the world of tech, I’m a husband and proud dad of two amazing kids. Family is at the heart of everything I do — whether it’s cheering on my kids’ adventures, enjoying movie nights, or exploring the world together.
+
+Travel is one of our favorite ways to connect as a family. We’ve created lasting memories in the **Australia, Jamaica, South Africa, UK, Zambia, Zimbabwe** and more, with our home base in **DFW, Texas**.
+
+When I’m not building systems or spending time with my family, you’ll often find me listening to music. My playlists are usually a mix of **Afrobeat, Gospel, RnB, Sungura, and Reggae** — music that keeps me energized, inspired, and grounded.
+
+---
+
+### Key Areas of Expertise
 
 - **Database Tooling**  
-  Developed enterprise-grade solutions for database administrators, simplifying database management across platforms. Contributed to tools at Embarcadero Technologies (now Idera) used by professionals worldwide.  
+  Built enterprise-grade solutions simplifying database management across platforms. Contributed to tools at Embarcadero Technologies (now Idera) used by professionals worldwide.
 
 - **Media Metadata Distribution**  
-  Engineered software to create, distribute, and monitor media playlists at scale, powering critical workflows for leading media companies.  
+  Engineered large-scale playlist creation and monitoring systems powering workflows for leading media companies.
 
 - **Electronic Program Guide (EPG) Management**  
-  Designed and managed data distribution systems for the leader in personal video recording (PVR) technology, TiVo Corp., ensuring seamless metadata delivery and integration.  
+  Designed and managed metadata distribution systems for **TiVo Corp.**, ensuring seamless integration and delivery.
 
-- **Cloud Infrastructure as a Service (IaaS)**  
-  Extensive hands-on experience with AWS cloud platforms, managing complex hybrid deployments spanning on-premise and cloud environments. Proficient in:  
-  - S3, EC2, DynamoDB, ElastiCache (Redis, Memcached) 
-  - CloudFormation, Elastic Beanstalk, ECS  
-  - Kinesis, Lambda, Step Functions  
-  - CloudWatch, AWS MSK (Managed Streaming for Kafka)  
+- **Cloud Infrastructure (AWS)**  
+  Deep expertise in AWS, managing complex hybrid deployments across on-prem and cloud. Proficient in:
+    - S3, EC2, DynamoDB, ElastiCache
+    - CloudFormation, Elastic Beanstalk, ECS
+    - Kinesis, Lambda, Step Functions
+    - CloudWatch, AWS MSK (Kafka)
 
 - **Enterprise Application Development**  
-  Expert in Java Enterprise ecosystems, leading large-scale server deployments using the Spring Framework. Skilled in leveraging Docker, Apache, Nginx, and Node.js for resilient and scalable architectures.  
+  Expert in Java Enterprise and Spring-based deployments. Skilled in Docker, Nginx, and Node.js for resilient and scalable apps.
 
 - **Batch Processing & Data Pipelines**  
-  Extensive experience in designing and implementing batch processing workflows using **Spring Batch**, **AWS Batch** as well as **AWS DMS**, enabling robust data processing pipelines.  
+  Designed workflows using **Spring Batch**, **AWS Batch**, and **AWS DMS** to support robust data processing pipelines.
 
 - **REST & GraphQL Web Services**  
-  Expertise in designing and developing scalable APIs using **REST** and **GraphQL**, ensuring high performance, flexibility, and developer-friendly APIs.  
+  Built scalable APIs with REST and GraphQL for high performance and developer experience.
 
-- **Database Enthusiast**  
-  Deep expertise in relational and NoSQL databases, with hands-on experience in:  
-  - Relational DBs: Oracle, SQL Server, MySQL
-  - NOSQL: MongoDB, AWS DynamoDB  
-  - Graph DB: Neo4j, dGraph
+- **Databases & Data Insights**  
+  Hands-on with Oracle, SQL Server, MySQL, MongoDB, DynamoDB, Neo4j, and dGraph. Enthusiastic about uncovering graph-based relationships for deeper insights.
 
-- **Data Insights & Graph Relationships**  
-  Passionate about uncovering data insights and exploring graph relationships using Graph Databases like Neo4j/dGraph, enabling advanced analytics and innovative solutions.
+- **Payments & Subscriptions**  
+  Integrated with gateways like Braintree, Stripe, Recurly, and BillDesk (UPI).
 
-- **Payment Gateway**
-  Experience interfacing with multiple payment gateways like Braintree, Stripe, Recurly as well as BillDesk for UPI based payments. 
+- **Mentorship & Leadership**  
+  Passionate about mentoring engineers, driving technical excellence, and leading teams to deliver impactful systems.
 
-- **Mentoring**
-  Committed to fostering collaboration and mentoring engineers to achieve technical excellence.
+---
+
+Thanks for stopping by my corner of the internet. If you enjoy geeking out on distributed systems, cloud infrastructure, or engineering leadership, you’ll feel right at home here.

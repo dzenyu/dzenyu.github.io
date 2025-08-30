@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="480" height="120" viewBox="0 0 480 120" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Bible: 39 Old Testament books, 27 New Testament books">
+  <defs>
+    <style type="text/css"><![CDATA[
+      .title { font: 700 14px sans-serif; fill: #222; }
+      .label { font: 600 12px sans-serif; fill: #fff; }
+      .count { font: 700 18px sans-serif; fill: #222; }
+      .sub { font: 12px sans-serif; fill: #444; }
+    ]]></style>
+  </defs>
+
+  <!-- Title -->
+  <text x="16" y="20" class="title">The Bible: 66 Books</text>
+  <text x="16" y="38" class="sub">Old Testament (39) and New Testament (27)</text>
+
+  <!-- Bars -->
+  <rect x="16" y="56" width="320" height="28" rx="6" fill="#3b82f6"/>
+  <rect x="16" y="92" width="222" height="20" fill="#d1d5db"/>
+  <text x="26" y="75" class="label">Old Testament</text>
+  <text x="300" y="75" class="label" text-anchor="end">39</text>
+
+  <rect x="344" y="56" width="120" height="28" rx="6" fill="#10b981"/>
+  <rect x="344" y="92" width="94" height="20" fill="#d1d5db"/>
+  <text x="354" y="75" class="label">New Testament</text>
+  <text x="454" y="75" class="label" text-anchor="end">27</text>
+</svg>
