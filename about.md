@@ -15,7 +15,7 @@ This blog is where I share **architecture lessons, deep dives into distributed s
 
 Beyond the world of tech, I’m a husband and proud dad of two amazing kids. Family is at the heart of everything I do — whether it’s cheering on my kids’ adventures, enjoying movie nights, or exploring the world together.
 
-Travel is one of our favorite ways to connect as a family. We’ve created lasting memories in the **UK, Australia, South Africa**, and more, with our home base in **DFW, Texas**.
+Travel is one of our favorite ways to connect as a family. We’ve created lasting memories in the **Australia, Jamaica, South Africa, UK, Zambia, Zimbabwe** and more, with our home base in **DFW, Texas**.
 
 When I’m not building systems or spending time with my family, you’ll often find me listening to music. My playlists are usually a mix of **Afrobeat, Gospel, RnB, Sungura, and Reggae** — music that keeps me energized, inspired, and grounded.
 

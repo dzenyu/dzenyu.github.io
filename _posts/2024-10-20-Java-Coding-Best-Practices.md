@@ -4,7 +4,11 @@ title: Java Coding Best Practices
 date: 2024-10-20
 author_profile: true
 comments: true
-# Optional: add categories/tags if you want them to appear on taxonomy pages
+share: true
+read_time: true
+related: true
+toc: true
+toc_sticky: true
 categories: [java, coding best-practices]
 tags: [best-practices, java]
 ---
@@ -151,7 +155,7 @@ Good ✅:
 
 ```java
 for (String item : list) {
-System.out.println(item);
+    System.out.println(item);
 }
 ```
 

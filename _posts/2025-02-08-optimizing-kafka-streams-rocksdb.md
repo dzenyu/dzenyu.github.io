@@ -2,6 +2,13 @@
 layout: single
 title: "Optimizing Kafka Streams State Store with RocksDB"
 date: 2025-02-08
+author_profile: true
+comments: true
+share: true
+read_time: true
+related: true
+toc: true
+toc_sticky: true
 categories: [kafka, streams, performance, rocksdb]
 tags: [kafka, kafka-streams, rocksdb, optimization, spring-boot]
 ---

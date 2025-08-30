@@ -29,7 +29,8 @@ search: true
 # Author profile
 author:
   name   : "Dzenyu Mukangara"
-  avatar : "/assets/images/avatar.jpg"
+#  avatar : "/assets/images/avatar.jpg"
+  avatar : "/assets/images/my-avatar.png"
   bio    : "Principal Engineer, Engineering Leadership | Java, Spring, Kafka, AWS | Mentoring, Coaching, Micro Services"
   links:
     - label: "GitHub"

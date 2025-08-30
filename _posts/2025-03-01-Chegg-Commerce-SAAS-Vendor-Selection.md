@@ -159,6 +159,12 @@ Key KPIs:
 - **Payment gateway flexibility**, reducing lock‑in and enabling regional optimization.  
 - Demonstrated **rate‑limit flexibility** for peak events without punitive costs.
 
+### Key Takeaway
+
+For Chegg, **Recurly’s strengths in subscription flexibility, churn management, and native In-App support outweighed Stripe’s broader ecosystem**.
+
+This evaluation highlights the importance of **POC-driven vendor selection**, balancing cost, feature coverage, and long-term scalability.  
+
 ---
 
 ## Architecture Notes (At a Glance)
@@ -182,5 +188,3 @@ Key KPIs:
 - [India Unified Payment Interface](https://en.wikipedia.org/wiki/Unified_Payments_Interface)
 
 ---
-
-## Appendix: Evaluation Checklist (Template)

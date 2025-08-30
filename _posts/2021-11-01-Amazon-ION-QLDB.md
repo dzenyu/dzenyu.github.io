@@ -3,10 +3,14 @@ layout: single
 title: "AMAZON QLDB"
 date: 2021-11-01
 author_profile: true
+comments: true
+share: true
+read_time: true
+related: true
+toc: true
+toc_sticky: true
 categories: [aws, quantum, databases]
 tags: [qldb, ledger, ion, java]
-# Optional: keep or adjust as needed
-# last_modified_at: 2025-07-15
 ---
 
 > Deprecated — Amazon QLDB was retired by AWS in July 2025.

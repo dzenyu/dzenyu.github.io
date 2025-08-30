@@ -4,7 +4,11 @@ title: Merge Request Best Practices
 date: 2024-10-30
 author_profile: true
 comments: true
-# Optional: add categories/tags if you want them to appear on taxonomy pages
+share: true
+read_time: true
+related: true
+toc: true
+toc_sticky: true
 categories: [best-practices, mr, pr]
 tags: [best-practices, merge-request, pr]
 ---
