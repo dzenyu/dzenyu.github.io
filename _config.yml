@@ -46,15 +46,12 @@ author:
       icon: "fab fa-twitter"
       url: "https://x.com/dzenyu"
 
-# Comments provider (Utterances)
+# Comments provider (disqus)
 repository: "dzenyu/dzenyu.github.io"
 comments:
-  provider: "utterances"
-  utterances:
-    repo: "dzenyu/dzenyu.github.io"
-    issue_term: "pathname"
-    label: "💬 comment"
-    theme: "github-light"
+  provider: "disqus"
+  disqus:
+    shortname: "dzenyu"  # <-- replace with your Disqus shortname
 
 # Front matter defaults
 defaults:
