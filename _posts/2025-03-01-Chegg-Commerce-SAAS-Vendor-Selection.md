@@ -12,7 +12,10 @@ tags:
   - SaaS
   - Stripe
   - subscriptions
+featured: true
 ---
+
+Led the evaluation to migrate Chegg's commerce infrastructure to a SaaS platform, ultimately selecting Recurly for its In-App subscription support and gateway flexibility.
 
 ## Executive Summary
 

@@ -44,8 +44,8 @@ When I’m not building systems or spending time with my family, you’ll often 
 - I share practical notes on architecture, Java/Spring practices, and platform thinking.
 - Popular topics: testing strategies, migration playbooks, and production debugging.
 - Explore by taxonomy:
-  - Tags: /tags/
-  - Categories: /categories/
+  - Tags: [/tags/](/tags/)
+  - Categories: [/categories/](/categories/)
 
 ## Tech stack (abridged)
 - Languages/Frameworks: Java, Spring Boot, Spring Cloud, GraphQL, REST

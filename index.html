@@ -5,4 +5,18 @@ title: "Welcome"
 
 <p>Welcome to my site. I share architecture insights, coding practices, and engineering leadership lessons.</p>
 
+<section id="featured-articles">
+    <h2>Featured Articles</h2>
+    <ul>
+        {% for post in site.posts %}
+        {% if post.featured == true %}
+        <li>
+            <a href="{{ post.url }}">{{ post.title }}</a>
+            <p>{{ post.excerpt }}</p>
+        </li>
+        {% endif %}
+        {% endfor %}
+    </ul>
+</section>
+
 <p><a class="btn btn--primary" href="/blog/">Visit the Blog →</a></p>
