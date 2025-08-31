@@ -12,7 +12,7 @@ The Bible consists of 66 books: 39 in the Old Testament and 27 in the New Testam
 
 ## A Playful Mnemonic Story
 
-The text below is a light‑hearted way to remember book names in order. After the story, you’ll find a corrected list of the books and minor spelling fixes.
+The text below is a light‑hearted way to remember book names in order.
 
 - In the beginning, there was a man called "**Genesis**". He started a great journey named "**Exodus**", and he arrived at the village named “**Leviticus**", where he found people who knew “**Numbers**” and "**Deuteronomy**".
 - At the same village, **Joshua** was amongst the **Judges**.
@@ -24,7 +24,7 @@ The text below is a light‑hearted way to remember book names in order. After t
 - **Job** was a deacon who knew **Psalms** and listed **Proverbs** and read the book of **Ecclesiastes** and he also sang the **Song of Solomon**.
 - **Isaiah** and **Jeremiah** were great prophets.
 - But behold, there were great **Lamentations** within the land when prophet **Ezekiel** died.
-- **Daniel** was the governor and **Hosea** was the administrator who had brothers that were also prophets: **Joel**, **Amos**, **Obadiah**, and **Jonah**.
+- **Daniel** was the governor, and **Hosea** was the administrator who had brothers that were also prophets: **Joel**, **Amos**, **Obadiah**, and **Jonah**.
 - But remember, **Micah** and **Nahum** were ushers in the church of **Habakkuk**.
 - **Zephaniah** helped **Haggai**, and **Zechariah** was a weeping prophet; **Malachi** closed the Old Testament.
 - In the New Testament, **Matthew**, **Mark**, **Luke**, and **John** told the gospel story.
