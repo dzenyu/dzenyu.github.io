@@ -11,6 +11,7 @@ tags:
   - sqs
   - webhooks
 featured: true
+mermaid: true
 ---
 
 Webhooks are a critical integration pattern for modern SaaS platforms. They allow us to notify downstream services and partners in near real-time whenever important business events occur – enabling everything from order updates and payment confirmations to security alerts and workflow automation. Designing a reliable, scalable webhook publisher is far from trivial—especially when you need to guarantee ordering, retries, and throughput.
