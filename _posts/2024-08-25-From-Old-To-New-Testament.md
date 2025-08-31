@@ -1,15 +1,7 @@
 ---
-layout: single
 title: "The Bible: From Old to New Testament"
 date: 2024-08-15
-author_profile: true
-comments: true
-share: true
-read_time: true
-related: true
-toc: true
-toc_sticky: true
-categories: [faith, bible]
+categories: [faith]
 tags: [old-testament, new-testament, overview]
 
 ---

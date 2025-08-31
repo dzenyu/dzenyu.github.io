@@ -1,16 +1,17 @@
 ---
-layout: single
 title: "Chegg Commerce: SaaS Vendor Selection (Stripe vs Recurly)"
 date: 2025-03-01
-author_profile: true
-comments: true
-share: true
-read_time: true
-related: true
-toc: true
-toc_sticky: true
-categories: [case-study, commerce]
-tags: [SaaS, payments, subscriptions, Stripe, Recurly, evaluation, architecture, product]
+categories: [case-study]
+tags:
+  - architecture
+  - commerce
+  - evaluation
+  - payments
+  - product
+  - Recurly
+  - SaaS
+  - Stripe
+  - subscriptions
 ---
 
 ## Executive Summary

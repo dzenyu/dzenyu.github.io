@@ -1,15 +1,8 @@
 ---
-layout: single
 title: "General Coding Best Practices"
 date: 2024-10-21
-author_profile: true
-comments: true
-share: true
-read_time: true
-related: true
-toc: true
-toc_sticky: true
-categories: [coding best-practices]
+categories: [best-practices]
+tags: [best-practices, coding]
 ---
 
 | **Category**               | **Best Practices**                                                                 |

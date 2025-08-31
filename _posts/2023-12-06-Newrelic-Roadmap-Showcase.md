@@ -1,14 +1,7 @@
 ---
 title: "Highlights from New Relic’s Roadmap Showcase"
 date: 2023-12-06
-author_profile: true
-comments: true
-share: true
-read_time: true
-related: true
-toc: true
-toc_sticky: true
-categories: [observability, apm, newrelic]
+categories: [conference]
 tags: [newrelic, apm360, open-telemetry, dev-sec-ops, observability]
 ---
 
@@ -23,7 +16,7 @@ New Relic continues to expand its **Application Performance Monitoring (APM)** s
 ### 🧠 New Relic Grok
 - Integration with **OpenAI** to act as a **personal assistant for observability**.
 - Natural language queries: Ask questions about performance metrics, anomalies, or logs.
-- [Learn more →](https://newrelic.com/grok)
+- [Learn more →](https://newrelic.com/platform/new-relic-ai)
 
 ### 🔄 APM 360 – Session Replay
 - Built into the **browser agent**.
