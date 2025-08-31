@@ -21,7 +21,7 @@ The text below is a light‑hearted way to remember book names in order. After t
 - Together, they wrote 2 books, **1 Chronicles** and **2 Chronicles**.
 - They gave the books to pastor **Ezra**.
 - **Nehemiah** was an elder and **Esther** was his wife.
-- Job was a deacon who knew **Psalms** and listed **Proverbs** and read the book of **Ecclesiastes** and he also sang the **Song of Solomon**.
+- **Job** was a deacon who knew **Psalms** and listed **Proverbs** and read the book of **Ecclesiastes** and he also sang the **Song of Solomon**.
 - **Isaiah** and **Jeremiah** were great prophets.
 - But behold, there were great **Lamentations** within the land when prophet **Ezekiel** died.
 - **Daniel** was the governor and **Hosea** was the administrator who had brothers that were also prophets: **Joel**, **Amos**, **Obadiah**, and **Jonah**.
