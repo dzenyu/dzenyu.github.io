@@ -13,7 +13,7 @@ remote_theme: "mmistakes/minimal-mistakes@4.26.2"
 # Available skins you can try:
 #   default, air, aqua, contrast, dark, dirt, neon, mint, plum, sunrise
 # To test: change the value below, then `bundle exec jekyll serve` and refresh.
-minimal_mistakes_skin: "sunrise"
+minimal_mistakes_skin: "contrast"
 locale: "en-US"
 
 enable_copy_code_button: true
@@ -33,7 +33,7 @@ author:
   name   : "Dzenyu Mukangara"
 #  avatar : "/assets/images/avatar.jpg"
   avatar : "/assets/images/my-avatar.png"
-  bio    : "Principal Engineer, Engineering Leadership | Java, Spring, Kafka, AWS | Mentoring, Coaching, Micro Services"
+  bio    : "Principal Engineer, Engineering Leadership | Mentoring, Coaching, Micro Services, Cloud Computing, AI"
   location : "Dallas, USA"
   links:
     - label: "GitHub"
