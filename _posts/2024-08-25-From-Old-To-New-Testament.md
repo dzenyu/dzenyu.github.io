@@ -14,26 +14,26 @@ The Bible consists of 66 books: 39 in the Old Testament and 27 in the New Testam
 
 The text below is a light‑hearted way to remember book names in order. After the story, you’ll find a corrected list of the books and minor spelling fixes.
 
-- In the beginning, there was a man called **“Genesis.”** He started a great journey named **“Exodus"**, and he arrived at the village named “Leviticus,” where he found people who knew “Numbers” and **“Deuteronomy"**.
-- At the same village, Joshua was amongst the Judges.
-- Ruth was his wife who later had sons, 1 Samuel and 2 Samuel.
-- They later became kings, 1 Kings and 2 Kings.
-- Together, they wrote 2 books, 1 Chronicles and 2 Chronicles.
+- In the beginning, there was a man called "**Genesis**". He started a great journey named "**Exodus**", and he arrived at the village named “**Leviticus**", where he found people who knew “**Numbers**” and "**Deuteronomy**".
+- At the same village, **Joshua** was amongst the **Judges**.
+- **Ruth** was his wife who later had sons, **1 Samuel** and **2 Samuel**.
+- They later became kings, **1 Kings** and **2 Kings**.
+- Together, they wrote 2 books, **1 Chronicles** and **2 Chronicles**.
 - They gave the books to pastor **Ezra**.
 - **Nehemiah** was an elder and **Esther** was his wife.
 - Job was a deacon who knew **Psalms** and listed **Proverbs** and read the book of **Ecclesiastes** and he also sang the **Song of Solomon**.
 - **Isaiah** and **Jeremiah** were great prophets.
 - But behold, there were great **Lamentations** within the land when prophet **Ezekiel** died.
-- **Daniel** was the governor and **Hosea** was the administrator who had brothers that were also prophets: **Joel**, **Amos, **Obadiah**, and **Jonah**.
-- But remember, **Micah** and **Nahum** were ushers in the church of Habakkuk.
+- **Daniel** was the governor and **Hosea** was the administrator who had brothers that were also prophets: **Joel**, **Amos**, **Obadiah**, and **Jonah**.
+- But remember, **Micah** and **Nahum** were ushers in the church of **Habakkuk**.
 - **Zephaniah** helped **Haggai**, and **Zechariah** was a weeping prophet; **Malachi** closed the Old Testament.
 - In the New Testament, **Matthew**, **Mark**, **Luke**, and **John** told the gospel story.
-- When these gospels were read, they discovered the Acts of the Apostles.
+- When these gospels were read, they discovered the **Acts of the Apostles**.
 - The good news spread to the **Romans**, then to **1 Corinthians** and **2 Corinthians**.
 - The church decided the message should be taken to the **Galatians**, **Ephesians**, and **Philippians**, and later to the **Thessalonians (1 and 2)**.
-- They chose two great men, **1 Timothy** and **2 Timothy**, who went to share the message with **Titus** and **Philemon, who knew how to speak the **Hebrews**’ language.
+- They chose two great men, **1 Timothy** and **2 Timothy**, who went to share the message with **Titus** and **Philemon**, who knew how to speak the **Hebrews**’ language.
 - **James** had two brothers who were twins, **1 Peter** and **2 Peter**.
-- Together, they wrote three general letters—**1 John**, **2 John**, and **3 John**—and gave them to Jude.
+- Together, they wrote three general letters—**1 John**, **2 John**, and **3 John**—and gave them to **Jude**.
 - When **Jude** read them, he saw the **Revelation** of Jesus Christ. Amen.
 
 Note: The story is a mnemonic aid, not a historical account.
