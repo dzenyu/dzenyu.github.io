@@ -1,16 +1,8 @@
 ---
-layout: single
 title: "AMAZON QLDB"
 date: 2021-11-01
-author_profile: true
-comments: true
-share: true
-read_time: true
-related: true
-toc: true
-toc_sticky: true
-categories: [aws, quantum, databases]
-tags: [qldb, ledger, ion, java]
+categories: [conference]
+tags: [databases, qldb, ledger, ion, java]
 ---
 
 > Deprecated — Amazon QLDB was retired by AWS in July 2025.
@@ -52,7 +44,8 @@ udo update-alternatives --config javac
 java -version
 javac -version
 
-curl -s "https://get.sdkman.io" | bashsource "$HOME/.sdkman/bin/sdkman-init.sh"sdk install gradle
+curl -s "https://get.sdkman.io" | bashsource "$HOME/.sdkman/bin/sdkman-init.sh"
+sdk install gradle
 
 gradle -version
 ```
@@ -69,13 +62,13 @@ gradle init --type java-application
 
 ```java
 dependencies {    
-// This dependency is used by the application.    
-implementation 'com.google.guava:guava:29.0-jre'    
-// Use JUnit test framework    
-testImplementation 'junit:junit:4.13'    
-compile group: 'com.amazon.ion', name: 'ion-java', version: '1.6.1'    
-compile group: 'software.amazon.qldb', name: 'amazon-qldb-driver-java', version: '2.0.0-rc.1'    
-compile group: 'com.amazonaws', name: 'aws-java-sdk-qldb', version: '1.11.785'
+    // This dependency is used by the application.    
+    implementation 'com.google.guava:guava:29.0-jre'    
+    // Use JUnit test framework    
+    testImplementation 'junit:junit:4.13'    
+    compile group: 'com.amazon.ion', name: 'ion-java', version: '1.6.1'    
+    compile group: 'software.amazon.qldb', name: 'amazon-qldb-driver-java', version: '2.0.0-rc.1'    
+    compile group: 'com.amazonaws', name: 'aws-java-sdk-qldb', version: '1.11.785'
 }
 
 mavenCentral()
@@ -84,7 +77,9 @@ mavenCentral()
 ### Application.java
 
 ```java
-package lab2;public class App {
+package lab2;
+
+public class App {
     public static void main(String[] args) {        
          System.out.println("Let's play with Ion!");    
     }
@@ -94,7 +89,44 @@ package lab2;public class App {
 The code
 
 ```java
- package lab2;import com.amazon.ion.*;import com.amazon.ion.system.*;import com.amazon.ion.util.*;import software.amazon.awssdk.services.qldbsession.*;import software.amazon.awssdk.services.qldbsession.model.OccConflictException;import software.amazon.qldb.*;import software.amazon.qldb.exceptions.TransactionAbortedException;import java.util.Iterator;public class SlowUpdate {    public static void main(String[] args) throws Exception {        QldbSessionClientBuilder sessionClientBuilder = QldbSessionClient.builder();        //RetryPolicy retryPolicy = RetryPolicy.builder().maxRetries(3).build();        RetryPolicy retryPolicy = RetryPolicy.none();        QldbDriver driver = QldbDriver          .builder()          .ledger("ion-lab")          .sessionClientBuilder(sessionClientBuilder)          .transactionRetryPolicy(retryPolicy)          .build();        try {            driver.execute(txn -> {                Result result = txn.execute("SELEC
+package lab2;
+
+import java.util.Iterator;
+
+import com.amazon.ion.*;
+import com.amazon.ion.system.*;
+import com.amazon.ion.util.*;
+import software.amazon.awssdk.services.qldbsession.*;
+import software.amazon.awssdk.services.qldbsession.model.OccConflictException;
+import software.amazon.qldb.*;
+import software.amazon.qldb.exceptions.TransactionAbortedException;
+ 
+public class SlowUpdate {
+    public static void main(String[] args) throws Exception {
+        QldbSessionClientBuilder sessionClientBuilder = QldbSessionClient.builder();
+        //RetryPolicy retryPolicy = RetryPolicy.builder().maxRetries(3).build();
+        RetryPolicy retryPolicy = RetryPolicy.none();
+        QldbDriver driver = QldbDriver.builder()
+                .ledger("ion-lab")
+                .sessionClientBuilder(sessionClientBuilder)
+                .transactionRetryPolicy(retryPolicy)
+                .build();
+         try {
+         driver.execute(txn -> { 
+             Result result = txn.execute("SELECT * FROM myTable");
+             Iterator<IonValue> iterator = result.iterator();
+             while (iterator.hasNext()) {
+                 IonValue ionValue = iterator.next();
+                 System.out.println(ionValue);
+             }
+            });
+         } catch (TransactionAbortedException e) {
+             System.out.println("Transaction aborted: " + e.getMessage());
+         } catch (OccConflictException e) {
+             System.out.println("Occ conflict: " + e.getMessage());
+         }
+    }
+}
 ```
 
 # References

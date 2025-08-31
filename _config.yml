@@ -16,6 +16,8 @@ remote_theme: "mmistakes/minimal-mistakes@4.26.2"
 minimal_mistakes_skin: "sunrise"
 locale: "en-US"
 
+enable_copy_code_button: true
+
 # GitHub Pages–compatible plugins
 plugins:
   - jekyll-include-cache
@@ -32,6 +34,7 @@ author:
 #  avatar : "/assets/images/avatar.jpg"
   avatar : "/assets/images/my-avatar.png"
   bio    : "Principal Engineer, Engineering Leadership | Java, Spring, Kafka, AWS | Mentoring, Coaching, Micro Services"
+  location : "Dallas, USA"
   links:
     - label: "GitHub"
       icon: "fab fa-github"
@@ -39,8 +42,12 @@ author:
     - label: "LinkedIn"
       icon: "fab fa-linkedin"
       url: "https://linkedin.com/in/smukangara"
+    - label: "Twitter"
+      icon: "fab fa-twitter"
+      url: "https://x.com/dzenyu"
 
 # Comments provider (Utterances)
+repository: "dzenyu/dzenyu.github.io"
 comments:
   provider: "utterances"
   utterances:
@@ -55,12 +62,15 @@ defaults:
       path: ""
       type: posts
     values:
-      layout: single
       author_profile: true
+      comments: true
+      layout: single
       read_time: true
+      related: true
       share: true
-      comments: false
       show_date: true
+      toc: true
+      toc_sticky: true
   - scope:
       path: ""
       type: pages
@@ -68,3 +78,25 @@ defaults:
       layout: single
       author_profile: true
       comments: false
+
+seo:
+  type: "Blog"
+  name: "Dzenyu Mukangara"
+
+pagination:
+  enabled: true
+  collection: 'posts'
+  per_page: 5
+  permalink: '/page/:num/'  # Pages are index.html inside this folder (default)
+  title: ':title - page :num'
+  limit: 0
+  sort_field: 'date'
+  sort_reverse: true
+  trail:
+    before: 2
+    after: 2
+
+compress_html:
+  clippings: all
+#  ignore:
+#    envs: development  # disable compression in dev environment

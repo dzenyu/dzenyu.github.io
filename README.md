@@ -1,6 +1,6 @@
 # code.dzenyu.com
 
-Personal site and blog built with Jekyll using the Minimal Mistakes theme.
+Personal site and blog built with Jekyll using the [Minimal Mistakes theme](https://mmistakes.github.io/minimal-mistakes/.
 
 ## Local Development
 

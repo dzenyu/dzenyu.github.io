@@ -1,16 +1,8 @@
 ---
-layout: single
 title: Java Coding Best Practices
 date: 2024-10-20
-author_profile: true
-comments: true
-share: true
-read_time: true
-related: true
-toc: true
-toc_sticky: true
-categories: [java, coding best-practices]
-tags: [best-practices, java]
+categories: [best-practices]
+tags: [best-practices, coding, java]
 ---
 
 ## Engineers:
