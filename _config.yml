@@ -34,7 +34,7 @@ author:
 #  avatar : "/assets/images/avatar.jpg"
   avatar : "/assets/images/my-avatar.png"
   bio    : "Principal Engineer, Engineering Leadership | Mentoring, Coaching, Micro Services, Cloud Computing, AI"
-  location : "Dallas, USA"
+  location : "DFW, USA"
   links:
     - label: "GitHub"
       icon: "fab fa-github"
