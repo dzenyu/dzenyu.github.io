@@ -10,7 +10,7 @@ toc_sticky: true
 description: "Principal Engineer specializing in Java, Spring, Kafka, AWS, and building resilient, high-throughput systems."
 ---
 
-Hi, I’m Dzenyu Mukangara — a Principal Engineer who enjoys turning complex requirements into simple, maintainable systems. I work across architecture, hands-on coding, and engineering leadership to help teams ship reliable software at scale.
+Hi, I’m **Dzenyu Samuel Mukangara** — a Principal Engineer who enjoys turning complex requirements into simple, maintainable systems. I work across architecture, hands-on coding, and engineering leadership to help teams ship reliable software at scale.
 
 ## A Little About Me
 
