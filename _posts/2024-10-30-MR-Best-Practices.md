@@ -2,7 +2,11 @@
 title: Merge Request Best Practices
 date: 2024-10-30
 categories: [best-practices]
-tags: [best-practices, merge-request, mr, pr]
+tags: 
+  - best-practices
+  - merge-request
+  - mr
+  - pr
 ---
 
 # Overview

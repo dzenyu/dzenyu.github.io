@@ -2,7 +2,12 @@
 title: "AMAZON QLDB"
 date: 2021-11-01
 categories: [conference]
-tags: [databases, qldb, ledger, ion, java]
+tags:
+  - databases
+  - ion
+  - java
+  - ledger
+  - qldb
 ---
 
 > Deprecated — Amazon QLDB was retired by AWS in July 2025.

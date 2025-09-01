@@ -2,8 +2,12 @@
 title: "The Bible: From Old to New Testament"
 date: 2024-08-15
 categories: [faith]
-tags: [old-testament, new-testament, overview]
-
+tags:
+  - bible
+  - faith
+  - new-testament
+  - old-testament
+  - overview
 ---
 
 The Bible consists of 66 books: 39 in the Old Testament and 27 in the New Testament.

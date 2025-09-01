@@ -1,22 +1,26 @@
 title: ""
 name: "Dzenyu Mukangara"
-description: >-
-  Principal Software Engineer sharing architecture insights, coding practices,
-  and engineering leadership lessons.
+description: "Engineering leadership, architecture, and system design insights"
 url: "https://code.dzenyu.com"
 baseurl: ""
 
 remote_theme: "mmistakes/minimal-mistakes@4.26.2"
 
-# Theme skin and locale
-# minimal_mistakes_skin controls the color scheme for the Minimal Mistakes theme.
-# Available skins you can try:
-#   default, air, aqua, contrast, dark, dirt, neon, mint, plum, sunrise
-# To test: change the value below, then `bundle exec jekyll serve` and refresh.
 minimal_mistakes_skin: "contrast"
 locale: "en-US"
 
+# Enable site-wide Mermaid toggle so layouts/includes can conditionally load the script
+mermaid: false
+
 enable_copy_code_button: true
+
+# Markdown + syntax highlighting
+markdown: kramdown
+highlighter: rouge
+kramdown:
+  input: GFM
+  hard_wrap: false
+  syntax_highlighter: rouge
 
 # GitHub Pages–compatible plugins
 plugins:
@@ -24,6 +28,8 @@ plugins:
   - jekyll-seo-tag
   - jekyll-sitemap
   - jekyll-feed
+  # NOTE: If you want advanced pagination (v2), you'll need to build with GitHub Actions and add:
+  # - jekyll-paginate-v2
 
 # Site features
 search: true
@@ -31,10 +37,9 @@ search: true
 # Author profile
 author:
   name   : "Dzenyu Mukangara"
-#  avatar : "/assets/images/avatar.jpg"
   avatar : "/assets/images/my-avatar.png"
-  bio    : "Principal Engineer, Engineering Leadership | Mentoring, Coaching, Micro Services, Cloud Computing, AI"
-  location : "Dallas, USA"
+  bio    : "Principal Engineer, Engineering Leadership, Micro Services, Cloud (AWS), Mentoring, AI"
+  location : "DFW, USA"
   links:
     - label: "GitHub"
       icon: "fab fa-github"
@@ -51,7 +56,7 @@ repository: "dzenyu/dzenyu.github.io"
 comments:
   provider: "disqus"
   disqus:
-    shortname: "dzenyu"  # <-- replace with your Disqus shortname
+    shortname: "dzenyu"
 
 # Front matter defaults
 defaults:
@@ -68,6 +73,8 @@ defaults:
       show_date: true
       toc: true
       toc_sticky: true
+      # Optionally let posts opt-out of Mermaid by setting mermaid: false in a post
+      mermaid: false
   - scope:
       path: ""
       type: pages
@@ -80,11 +87,14 @@ seo:
   type: "Blog"
   name: "Dzenyu Mukangara"
 
+# Pagination:
+# These options are for jekyll-paginate-v2. If you are using GitHub Pages' native build,
+# either migrate to GitHub Actions and enable the plugin, or remove this block for now.
 pagination:
   enabled: true
   collection: 'posts'
   per_page: 5
-  permalink: '/page/:num/'  # Pages are index.html inside this folder (default)
+  permalink: '/page/:num/'
   title: ':title - page :num'
   limit: 0
   sort_field: 'date'
@@ -93,10 +103,13 @@ pagination:
     before: 2
     after: 2
 
+# Optional: pretty permalinks
+#permalink: /:categories/:year/:month/:day/:title/
+
 compress_html:
   clippings: all
 #  ignore:
-#    envs: development  # disable compression in dev environment
+#    envs: development
 
 # Analytics: G-QNVTKW04G1
 analytics:

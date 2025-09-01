@@ -2,8 +2,12 @@
 title: "General Coding Best Practices"
 date: 2024-10-21
 categories: [best-practices]
-tags: [best-practices, coding]
+tags:
+  - best-practices
+  - coding
 ---
+
+Writing clean, maintainable, and scalable code is a critical skill for every engineer. Below are best practices that can help you and your team build reliable systems.
 
 | **Category**               | **Best Practices**                                                                 |
 |-----------------------------|------------------------------------------------------------------------------------|
@@ -19,8 +23,6 @@ tags: [best-practices, coding]
 | **Maintainability**         | Refactor regularly, keep code DRY (Don’t Repeat Yourself), modularize components.  |
 
 ## Coding Best Practices
-
-Writing clean, maintainable, and scalable code is a critical skill for every engineer. Below are best practices that can help you and your team build reliable systems.
 
 ### 1. Code Readability
 - Write clear, self-documenting code with meaningful variable, method, and class names.

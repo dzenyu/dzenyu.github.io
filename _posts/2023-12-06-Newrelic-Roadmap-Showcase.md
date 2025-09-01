@@ -2,7 +2,12 @@
 title: "Highlights from New Relic’s Roadmap Showcase"
 date: 2023-12-06
 categories: [conference]
-tags: [newrelic, apm360, open-telemetry, dev-sec-ops, observability]
+tags:
+  - apm
+  - dev-sec-ops
+  - newrelic
+  - observability
+  - telemetry
 ---
 
 At a recent New Relic business meeting, I had the opportunity to see a preview of their upcoming features and long-term vision. The roadmap was packed with innovation in observability, security, and developer productivity. Below are the highlights and my takeaways from the session.

@@ -2,8 +2,13 @@
 title: Java Coding Best Practices
 date: 2024-10-20
 categories: [best-practices]
-tags: [best-practices, coding, java]
+tags: 
+  - best-practices
+  - coding
+  - java
 ---
+
+Here are a few Java Coding Best Practices that I have learned over the years.
 
 ## Engineers:
 
