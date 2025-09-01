@@ -97,3 +97,11 @@ compress_html:
   clippings: all
 #  ignore:
 #    envs: development  # disable compression in dev environment
+
+# Analytics: G-E89W2WZVYE
+analytics:
+  provider: "google-gtag"
+  google:
+    tracking_id: "G-E89W2WZVYE"
+    anonymize_ip: false # true/false
+
