@@ -4,7 +4,7 @@ date: 2023-12-06
 categories: [conference]
 tags:
   - apm
-  - dev-sec-ops
+  - devops
   - newrelic
   - observability
   - telemetry
