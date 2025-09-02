@@ -48,11 +48,14 @@ When I’m not building systems or spending time with my family, you’ll often 
   - Categories: [/categories/](/categories/)
 
 ## Tech stack (abridged)
-- Languages/Frameworks: Java, Spring Boot, Spring Cloud, GraphQL, REST
-- Data/Streaming: Kafka, Kafka Streams, Kinesis, DynamoDB, Redis, MySQL/Postgres
-- Cloud/Platform: AWS (CloudFormation, ECS, Lambda, Step Functions), Docker, Nginx
-- Build/Quality: Gradle/Maven, JUnit 5, Testcontainers, AssertJ, Spotless, Checkstyle
-- Observability: CloudWatch, OpenTelemetry, Grafana (as applicable)
+- **Core Java & Algorithms**: Extensive experience with Java concurrency, memory management, and data IO.  
+- **Distributed Systems**: 7+ years of experience designing, building, and operating high-scale distributed systems. 
+- **Performance Optimization**: Expertise in identifying and eliminating bottlenecks, improving data flow, and
+optimizing performance. 
+- **Cloud & DevOps**: Highly proficient in AWS (ECS, Lambda, MKS, S3, RDS, Batch, SQS, SNS), Docker, Kubernetes,
+and CI/CD practices (Terraform) to ensure operational excellence (Splunk, Newrelic, Cortex). 
+- **Architectural Expertise**: Microservices, Event-Driven Systems, Scalable Distributed Systems, API Design, Platform Engineering.
+- **Other Proficiencies**: Graph DB (Neo4j, dGraph), AI (Cursor AI, Gemini, ChatGPT).
 
 ## How I work
 - Bias for clarity: simple designs, small PRs, and production-first thinking
