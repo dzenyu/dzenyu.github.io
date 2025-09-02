@@ -21,3 +21,8 @@ Personal site and blog built with Jekyll using the [Minimal Mistakes theme](http
 - `_data/navigation.yml` — site navigation
 - `about.md`, `blog.md`, `tags.md`, `categories.md`, `search.md`, `404.md` — pages
 - `assets/images/avatar.jpg` — author avatar
+
+## References
+
+- [Minimal Mistakes theme](https://mmistakes.github.io/minimal-mistakes/)
+- Customizing Minimal Mistakes by [Renato Golia](https://renatogolia.com/2020/10/22/creating-this-blog-theme/)

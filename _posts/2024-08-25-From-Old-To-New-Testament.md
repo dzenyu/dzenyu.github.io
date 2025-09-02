@@ -7,7 +7,6 @@ tags:
   - faith
   - new-testament
   - old-testament
-  - overview
 ---
 
 The Bible consists of 66 books: 39 in the Old Testament and 27 in the New Testament.
