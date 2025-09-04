@@ -1,12 +1,7 @@
 ---
-layout: single
 title: "About"
 permalink: /about/
-author_profile: true
-read_time: true
-share: true
-toc: true
-toc_sticky: true
+mermaid: true
 description: "Principal Engineer specializing in Java, Spring, Kafka, AWS, and building resilient, high-throughput systems."
 ---
 
@@ -55,7 +50,7 @@ optimizing performance.
 - **Cloud & DevOps**: Highly proficient in AWS (ECS, Lambda, MKS, S3, RDS, Batch, SQS, SNS), Docker, Kubernetes,
 and CI/CD practices (Terraform) to ensure operational excellence (Splunk, Newrelic, Cortex). 
 - **Architectural Expertise**: Microservices, Event-Driven Systems, Scalable Distributed Systems, API Design, Platform Engineering.
-- **Other Proficiencies**: Graph DB (Neo4j, dGraph), AI (Cursor AI, Gemini, ChatGPT).
+- **Other Proficiencies**: Graph DB (Neo4j, Dgraph), AI (Cursor AI, Gemini, ChatGPT).
 
 ## How I work
 - Bias for clarity: simple designs, small PRs, and production-first thinking
