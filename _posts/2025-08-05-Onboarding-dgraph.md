@@ -227,7 +227,7 @@ To load the schema into Dgraph, run the following command:
 
 {% gist dc75f33d5979298789d81bd11f34487a %}
 
-Belowe is the output of the command:
+Below is the output of the command:
 
 ```bash
 sh load-schema.sh schema.graphql
@@ -266,7 +266,7 @@ Once it is installed, you can find it in your Applications folder.
 
 Once launched, use the endpoint `http://localhost:8080/graphql` to connect to the GraphQL server.
 
-> NOTE that when any of the mutations or queries below fail, it could be due to the Dgraph `id` values being different. Please make sure to ran GraphQL query to understand the IDs of your data.
+> NOTE that when any of the mutations or queries below fail, it could be due to the Dgraph `id` values being different. Please run a GraphQL query to understand the IDs of your data.
 
 ### 1. Add an Author
 
