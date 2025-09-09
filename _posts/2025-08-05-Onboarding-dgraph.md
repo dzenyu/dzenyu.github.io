@@ -74,7 +74,7 @@ docker-compose up -d
 
 ### Verifying Dgraph
 
-Verify that the containers are running by running the following command:
+Verify that the containers are running by running by following the instructions below.
 
 #### Check dgraph-alpha
 
@@ -139,7 +139,7 @@ The output is very long but should contain the following:
 
 ## BlogPost Schema Overview
 
-We will model a simple blog system with **Authors**, **BlogPosts**, and **Comments** with support for replies and ratings. Here's a Mermaid diagram to illustrate the entity relationships:
+We will model a simple blog system with **Authors**, **BlogPosts**, and **Comments** with support for replies and ratings. Here's an entity relationships diagram:
 
 ```mermaid
 classDiagram
@@ -252,17 +252,17 @@ sh load-schema.sh schema.graphql
 
 ## Adding Data via GraphQL
 
-In this section are GraphQL mutations and queries that you can use to add data to the graph.
+In this section are GraphQL mutations and queries that you can use to add data to Dgraph server.
 
-Unfortunately, you cannot use this in Dgraph Ratel console, but you can use the [GraphQL Playground](https://github.com/graphql/graphql-playground) to test the mutations and queries.
+Unfortunately, you cannot use GraphQL mutations/queries in Dgraph Ratel console, but you can use the [GraphQL Playground](https://github.com/graphql/graphql-playground) to test the mutations and queries.
 
-Install the GraphQL Playground by running the following command:
+Install the **GraphQL Playground** by running the following command:
 
 ```bash
 brew install --cask graphql-playground
 ```
 
-Once it is installed, you can find it in your Applications folder.
+Once it is installed, you can find it in your **Applications** folder.
 
 Once launched, use the endpoint `http://localhost:8080/graphql` to connect to the GraphQL server.
 

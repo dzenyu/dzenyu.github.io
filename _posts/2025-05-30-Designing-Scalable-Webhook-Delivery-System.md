@@ -7,7 +7,7 @@ tags:
   - distributed-systems
   - kafka
   - resilience4j
-  - springboot
+  - spring-boot
   - sqs
   - webhooks
 featured: true
