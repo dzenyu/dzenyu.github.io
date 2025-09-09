@@ -144,43 +144,38 @@ public class MetadataIngestionJobConfig {
 
 ```mermaid
 flowchart TD
-    subgraph Providers
-        A1[US Metadata Provider] 
-        A2[Ono Metadata Provider (Spain)]
-        A3[Other Providers...]
-    end
-
-    subgraph Transformer Layer
-        T1[US Movie Genre Transform Strategy]
-        T2[US TV Show Transform Strategy]
-        T3[Ono Movie Genre Transform Strategy]
-        Tn[...]
-    end
-
-    subgraph Canonical Model
-        C[TiVoProgram]
-    end
-
-    subgraph Outputs
-        O1[Ingestion CSVs]
-        O2[Downstream APIs]
-        O3[Analytics Pipelines]
-    end
-
-    A1 -->|SourceProgram| T1
-    A1 -->|SourceProgram| T2
-    A2 -->|SourceProgram| T3
-    A3 -->|SourceProgram| Tn
-
+ subgraph Providers["Providers"]
+        A1["US Metadata Provider"]
+        A2["Ono Metadata Provider - Spain"]
+        A3["Other Providers..."]
+  end
+ subgraph subGraph1["Transformer Layer"]
+        T1["US Movie Genre Transform Strategy"]
+        T2["US TV Show Transform Strategy"]
+        T3["Ono Movie Genre Transform Strategy"]
+        Tn["..."]
+  end
+ subgraph subGraph2["Canonical Model"]
+        C["TiVoProgram"]
+  end
+ subgraph Outputs["Outputs"]
+        O1["Ingestion CSVs"]
+        O2["Downstream APIs"]
+        O3["Analytics Pipelines"]
+  end
+    A1 -- SourceProgram --> T1 & T2
+    A2 -- SourceProgram --> T3
+    A3 -- SourceProgram --> Tn
     T1 --> C
     T2 --> C
     T3 --> C
     Tn --> C
+    C --> O1 & O2 & O3
 
-    C --> O1
-    C --> O2
-    C --> O3
-
+    style Providers fill:#FFF9C4
+    style subGraph1 fill:#FFD600
+    style subGraph2 fill:#FFE0B2
+    style Outputs fill:#FFCDD2
 ```
 
 ### 🔑Key points:
