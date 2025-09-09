@@ -188,7 +188,8 @@ This evaluation highlights the importance of **POC-driven vendor selection**, ba
 - [Recurly Documentation](https://docs.recurly.com/)  
 - [Webhooks Best Practices](https://webhooks.guide/)  
 - [Subscription Business Model](https://en.wikipedia.org/wiki/Subscription_business_model)
-- [Stripe vs Recurly: Capability Overview](https://www.recurly.com/blog/stripe-vs-recurly-capability-overview/) 
+- [Recurly: Stripe Alternative](https://recurly.com/demo/stripe-alternative/)
+- [Stripe Vs. Recurly: Which one Should You Choose?](https://baremetrics.com/blog/stripe-vs-recurly-which-one-should-you-choose)
 - [India Unified Payment Interface](https://en.wikipedia.org/wiki/Unified_Payments_Interface)
 
 ---
