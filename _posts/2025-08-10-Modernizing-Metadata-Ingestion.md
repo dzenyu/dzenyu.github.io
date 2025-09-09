@@ -10,6 +10,7 @@ tags:
   - modernization
   - perl
   - script
+  - spring-boot
   - spring-batch
   - testing
   - transformation
