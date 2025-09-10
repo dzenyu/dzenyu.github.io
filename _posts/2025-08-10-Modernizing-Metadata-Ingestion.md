@@ -70,10 +70,10 @@ interface ProgramTransformer<T extends SourceProgram> {
     /**
      * Determines whether this strategy supports the given source.
      *
-     * @param source Instance of the source metadata to be transformed
-     * @return {@code true} if this instanc e is capable of transforming this source metadata
+     * @param metadataContext Contextual information about the metadata provider
+     * @return {@code true} if this instance is capable of transforming this source metadata
      */
-    boolean supports(T source);
+    boolean supports(MetadataContext metadataContext);
 
     /**
      * Transforms the given source into a canonical {@link TiVoProgram} format.
@@ -95,6 +95,7 @@ Here’s how it worked:
   - `USTvShowTransformStrategy` - transforms US TV show genre details.
   - `OnoMovieGenreTransformStrategy` (for a Spanish metadata provider called Ono)
   - `OnoTVGenreTransformStrategy` (for a Spanish metadata provider called Ono)
+  - Many more others. Too many to mention here.
 
 The strategy pattern was also used to **validate** and **transform** metadata.
 
@@ -102,7 +103,61 @@ Instead of maintaining one massive script that tried to cover every case, we now
 
 ### Strategy Chains
 
-Once we had the ProgramTransformer interface, assembling provider-specific pipelines became straightforward. For example, a US metadata provider might require a chain of transformers for TV shows, while a European provider like Ono required a slightly different chain for movies.
+Once we had the `ProgramTransformer` interface, assembling provider-specific pipelines became straightforward. For example, a US metadata provider might require a chain of transformers for TV shows, while a European provider like Ono required a slightly different chain for movies.
+
+A `ProgramImporter` class was introduced to encapsulate the logic of importing metadata from a specific metadata provider:
+
+```java
+class abstract ProgramImporter<SourceProgram> {
+    private final List<ProgramTransformer<? extends SourceProgram>> transformers;
+    ...
+
+    /**
+     * Determines whether this importer supports the given source.
+     * 
+     * @param metadataContext Contextual information about the metadata provider
+     * @return {@code true} if this importer supports the given source  
+     */
+    public abstract boolean supports(MetadataContext metadataContext);
+
+    /**
+     * Transforms the given source into a canonical {@link TiVoProgram} format.
+     * 
+     * @param source Instance of the source metadata to be transformed
+     * @param metadataContext Contextual information about the metadata provider 
+     * @return A canonical representation of the source metadata
+     */
+    public TiVoProgram transform(SourceProgram source, MetadataContext metadataContext) {
+        TiVoProgram program = null;
+        for (ProgramTransformer<? extends SourceProgram> transformer : transformers) {
+            if (transformer.supports(metadataContext)) {
+                program = transformer.transform(source, metadataContext);
+            }
+        }
+        return program;
+    }
+}
+```
+
+Each `ProgramImporter` instance was configured with a list of `ProgramTransformer` instances that were specific to the metadata provider.
+
+**Example ONO metadata provider configuration:**
+
+```java
+@Prototype // The transformer will be dynamically instantiated by Spring only when importing metadata from ONO metadata provider.
+public OnoProgramImporter extends ProgramImporter<OnoProgram> {
+    ... // register the transformer here specific to this metadata provider.
+}
+```
+
+**Example US metadata provider configuration:**
+
+```java
+@Prototype // The transformer will be dynamically instantiated by Spring only when importing metadata from US metadata provider. 
+public USProgramImporter extends ProgramImporter<USProgram> {
+    ... // register the transformer here specific to this metadata provider.
+} 
+```
 
 Here’s a simplified example of how we configured this in Spring Batch:
 
