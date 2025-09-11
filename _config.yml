@@ -57,9 +57,12 @@ author:
     - label: "LinkedIn"
       icon: "fab fa-linkedin"
       url: "https://linkedin.com/in/smukangara"
-    - label: "Twitter"
-      icon: "fab fa-twitter"
+    - label: "X"
+      icon: "fab fa-x-twitter"
       url: "https://x.com/dzenyu"
+    - label: "Bluesky"
+      icon: "fa-brands fa-bluesky"
+      url: "https://bsky.app/profile/dzenyum.bsky.social"
 
 footer:
   links:
@@ -69,9 +72,12 @@ footer:
     - label: "LinkedIn"
       icon: "fab fa-linkedin"
       url: "https://linkedin.com/in/smukangara"
-    - label: "Twitter"
-      icon: "fab fa-twitter"
+    - label: "X"
+      icon: "fab fa-x-twitter"
       url: "https://x.com/dzenyu"
+    - label: "Bluesky"
+      icon: "fa-brands fa-bluesky"
+      url: "https://bsky.app/profile/dzenyum.bsky.social"
 
 # Comments provider (disqus)
 repository: "dzenyu/dzenyu.github.io"
