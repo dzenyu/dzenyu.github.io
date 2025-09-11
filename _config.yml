@@ -60,7 +60,7 @@ author:
     - label: "X"
       icon: "fab fa-x-twitter"
       url: "https://x.com/dzenyu"
-    - label: "BlueSky"
+    - label: "Bluesky"
       icon: "fa-brands fa-bluesky"
       url: "https://bsky.app/profile/dzenyum.bsky.social"
 
@@ -75,7 +75,7 @@ footer:
     - label: "X"
       icon: "fab fa-x-twitter"
       url: "https://x.com/dzenyu"
-    - label: "BlueSky"
+    - label: "Bluesky"
       icon: "fa-brands fa-bluesky"
       url: "https://bsky.app/profile/dzenyum.bsky.social"
 
