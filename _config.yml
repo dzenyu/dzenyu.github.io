@@ -78,6 +78,9 @@ footer:
     - label: "Bluesky"
       icon: "fa-brands fa-bluesky"
       url: "https://bsky.app/profile/dzenyum.bsky.social"
+    - label: "Buy Me Coffee"  
+      icon: "fa-solid fa-mug-hot"
+      url: https://buymeacoffee.com/dzenyu
 
 # Comments provider (disqus)
 repository: "dzenyu/dzenyu.github.io"
