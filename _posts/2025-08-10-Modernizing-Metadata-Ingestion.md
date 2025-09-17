@@ -63,6 +63,27 @@ The Perl script didn’t just slow us down; it was a ticking time bomb threateni
 
 I saw an opportunity for a fundamental shift. I advocated for a complete overhaul, proposing a move to a Java-based application, specifically leveraging the **Spring Boot** framework with **Spring Batch**. My proposal wasn't just about rewriting code; it was about introducing robust engineering practices, testability, and a flexible architecture.
 
+_Figure: The new ingestion pipeline—modular, provider-agnostic, and scalable._
+```mermaid
+flowchart TD
+    A["Metadata Provider(s)"] --> B["ProgramImporter"]
+    B --> C["ProgramTransformer(s)"]
+    C --> D["Canonical Model (TiVoProgram)"]
+    D --> E["Outputs"]
+    E --> F1["Ingestion CSVs"]
+    E --> F2["Downstream APIs"]
+    E --> F3["Analytics Pipelines"]
+
+    style A fill:#FFF9C4
+    style B fill:#FFD600
+    style C fill:#FFECB3
+    style D fill:#FFE0B2
+    style E fill:#FFCDD2
+    style F1 fill:#B2DFDB
+    style F2 fill:#B2DFDB
+    style F3 fill:#B2DFDB
+```
+
 The goal was clear:
 
 * **Introduce Unit and End-To-End Testing:** Ensure code reliability and prevent regressions.  
@@ -73,6 +94,32 @@ The goal was clear:
 ## The New Architecture: A Strategy-Based Pipeline
 
 Our solution leveraged the power of **Spring Batch** to create a highly configurable and testable ingestion pipeline. The most significant architectural change was the complete elimination of the monolithic `if-else` logic in favor of a **strategy pattern**.
+
+_Figure: The strategy pattern enables pluggable, provider-specific transformations via modular ProgramTransformer classes._
+```mermaid
+classDiagram
+    class ProgramTransformer {
+        +supports(metadataContext): boolean
+        +transform(source, metadataContext): TiVoProgram
+    }
+
+    class USMovieGenreTransformStrategy
+    class USTvShowTransformStrategy
+    class OnoMovieGenreTransformStrategy
+    class OnoTVGenreTransformStrategy
+
+    ProgramTransformer <|-- USMovieGenreTransformStrategy
+    ProgramTransformer <|-- USTvShowTransformStrategy
+    ProgramTransformer <|-- OnoMovieGenreTransformStrategy
+    ProgramTransformer <|-- OnoTVGenreTransformStrategy
+
+    class ProgramImporter {
+        -List~ProgramTransformer~ transformers
+        +transform(source, metadataContext): TiVoProgram
+    }
+
+    ProgramImporter "1" o-- "*" ProgramTransformer
+```
 
 ### Strategy Interface
 
@@ -260,6 +307,21 @@ Instead of one giant script trying to handle every scenario, we now had:
 4. **Database-Backed Storage:** By utilizing MySQL as our persistence layer, we moved away from in-memory limitations, enabling data to be stored, queried, and manipulated more effectively. This also allowed us to generate CSV outputs from the database.
 
 ## Deployment Strategy: Parallel Run and Shadow Mode
+
+_Figure: Parallel deployment strategy—Perl and Spring Boot outputs are compared in real time to validate correctness before cutover._
+```mermaid
+sequenceDiagram
+    participant PerlScript as Perl Script
+    participant SpringApp as Spring Boot App
+    participant Engineer as Engineer
+
+    PerlScript->>PerlScript: Parse input file, produce CSV output
+    PerlScript->>SpringApp: Trigger Spring Boot app with same input
+    SpringApp->>SpringApp: Parse input file, produce CSV output
+    SpringApp->>Engineer: Compare outputs (diff)
+    Engineer->>Engineer: Analyze discrepancies, validate outputs
+    Engineer->>SpringApp: Approve cutover after confidence built
+```
 
 Migrating such a critical system required a careful, low-risk deployment strategy. We chose a **parallel run** approach with a **shadow mode**:
 
