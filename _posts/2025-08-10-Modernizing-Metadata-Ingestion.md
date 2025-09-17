@@ -16,13 +16,13 @@ tags:
   - transformation
   - validation
 featured_image: /assets/images/From-Perl-to-Spring-Batch-Featured.png
-excerpt:
+excerpt: "A case study on migrating a critical 5,000-line Perl script to a modern, scalable Spring Batch application at TiVo, enabling global expansion and accelerating development."
 featured: true
 ---
 
 Imagine a global entertainment company’s metadata pipeline held together by a **5,000-line Perl script**—so complex, undocumented, and fragile that every new market or provider felt like defusing a bomb. **Back in 2010–2012, at TiVo, this was our reality.** As the engineer responsible for modernizing this critical system, I saw first-hand how technical debt can throttle business growth and innovation.
 
-Metadata ingestion powers everything from accurate TV listings to personalized recommendations for millions of TiVo users. But as our ambitions grew—to onboard new features and expand into European markets—the legacy Perl script became our biggest bottleneck. It was time for a change.
+Metadata ingestion powers everything from accurate TV and movie listings to personalized recommendations for millions of TiVo users. But as our ambitions grew—to onboard new features and expand into European markets—the legacy Perl script became our biggest bottleneck. It was time for a change.
 
 > **Note:** The challenges and solutions described here reflect TiVo’s metadata ingestion pipeline from over a decade ago. The current architecture has evolved significantly since then.
 
@@ -37,18 +37,6 @@ Our ingestion pipeline’s backbone—a **5,000-line Perl monolith**—was:
 - **Blocked business growth:** Expanding into Europe meant retrofitting for new metadata providers, a process so labor-intensive it jeopardized TiVo’s global ambitions.
 
 The Perl script wasn’t just technical debt—it was a barrier to innovation, agility, and market expansion.
-
----
-
-At TiVo, our metadata ingestion pipeline relied on a **5,000-line Perl script** — a critical but undocumented monolith that became a growing obstacle to innovation. Each new metadata provider, feature update, or market expansion meant diving into a labyrinth of nested `if-else` statements.  
-
-This script wasn’t just hard to maintain—it was holding us back.
-
-- **Opaque logic:** Problems surfaced only when end users reported them. 
-- **Slow iteration:** Testing required running the entire ingestion stack on VM servers.
-- **Poor scalability:** The system could only scale vertically, limited by a single machine. 
-- **Blocked expansion:** Onboarding new European markets became an engineering nightmare.
----
 
 ![TiVo Metadata Ingestion](/assets/images/From-Perl-to-Spring-Batch-Featured.png)
 
