@@ -11,7 +11,7 @@ Hi, I’m **Dzenyu Samuel Mukangara** — a Principal Software Engineer who thri
 > Helping teams deliver **resilient, high-throughput microservices** with clarity, reliability, and scale.  
 
 ## 👨‍👩‍👧‍👦 A Little About Me
-Outside of technology, I’m first and foremost a **husband and proud dad of two amazing kids**. Family is at the heart of everything I do — whether it’s cheering my kids on at their adventures, enjoying movie nights, or exploring the world together.  
+Outside of technology, I’m first and foremost a **husband and proud dad of two amazing kids**. Family is at the heart of everything I do — whether it’s cheering my kids on in their adventures, enjoying movie nights, or exploring the world together.  
 
 Travel has been one of our favorite ways to connect as a family. We’ve made memories in **Australia, Jamaica, South Africa, Qatar, Dubai, the UK, Zambia, Zimbabwe**, and more — always returning to our home base in **DFW, Texas**.  
 
