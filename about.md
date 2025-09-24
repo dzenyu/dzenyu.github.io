@@ -2,10 +2,10 @@
 title: "About"
 permalink: /about/
 mermaid: true
-description: "Principal Engineer specializing in Java, Spring, Kafka, AWS, and building resilient, high-throughput systems."
+description: "Principal Software Engineer specializing in Java, Spring, Kafka, AWS, and building resilient, high-throughput microservices."
 ---
 
-Hi, I’m **Dzenyu Samuel Mukangara** — a Principal Engineer who enjoys turning complex requirements into simple, maintainable systems. I work across architecture, hands-on coding, and engineering leadership to help teams ship reliable software at scale.
+Hi, I’m **Dzenyu Samuel Mukangara** — a Principal Software Engineer who enjoys turning complex requirements into simple, maintainable systems. I work across architecture, hands-on coding, and engineering leadership to help teams ship reliable software at scale.
 
 ## A Little About Me
 
