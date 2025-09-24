@@ -2,17 +2,20 @@
 title: "About"
 permalink: /about/
 mermaid: true
-description: "Principal Software Engineer specializing in Java, Spring, Kafka, AWS, and building resilient, high-throughput microservices"
+description: "Principal Software Engineer specializing in Java, Spring, Kafka, AWS, and building resilient, high-throughput microservices."
 ---
 
 Hi, I’m **Dzenyu Samuel Mukangara** — a Principal Software Engineer who thrives on turning complex requirements into **simple, resilient, and maintainable systems**. Over the years, I’ve built a career at the intersection of **architecture, hands-on coding, and engineering leadership**, helping teams ship reliable software at scale.
+
+> **Principal Software Engineer | Java & Spring | Kafka & Event-Driven Systems | AWS Cloud | Platform & Team Builder**  
+> Helping teams deliver **resilient, high-throughput microservices** with clarity, reliability, and scale.  
 
 ## 👨‍👩‍👧‍👦 A Little About Me
 Outside of technology, I’m first and foremost a **husband and proud dad of two amazing kids**. Family is at the heart of everything I do — whether it’s cheering my kids on at their adventures, enjoying movie nights, or exploring the world together.  
 
 Travel has been one of our favorite ways to connect as a family. We’ve made memories in **Australia, Jamaica, South Africa, Qatar, Dubai, the UK, Zambia, Zimbabwe**, and more — always returning to our home base in **DFW, Texas**.  
 
-When it’s time to recharge, I turn to music. My playlists are a mix of **Afrobeat, Gospel, RnB, Sungura, and Reggae** — sounds that keep me energized, inspired, and grounded.
+When it’s time to recharge, I turn to music. My playlists are a mix of **Afrobeat, Country, Gospel, Reggae, RnB, Soul, Sungura** — sounds that keep me energized, inspired, and grounded.
 
 ## 💻 What I Do
 - **Architecture & Delivery** → data-intensive services (batch + streaming)  
@@ -20,7 +23,6 @@ When it’s time to recharge, I turn to music. My playlists are a mix of **Afrob
 - **Event-Driven Design** → Kafka (streams, schema management, state stores)  
 - **System Hardening** → observability, reliability, and cost-aware scaling  
 - **Leadership & Mentorship** → growing high-performing engineering teams  
-
 
 ## 🎯 Current Focus
 - Advanced **stream processing** with Kafka Streams & RocksDB performance tuning  
@@ -61,10 +63,12 @@ Explore more:
 - **Operational empathy** → logs/metrics/traces by default; SLOs guide design  
 - **Collaborative leadership** → unblock fast, mentor often, document always  
 
+---
+
 ## 🤝 Mentorship
 I enjoy **coaching engineers** on system design, testing, and platform fundamentals.  
 If you’re looking to level up your team, bootstrap a new service, or improve platform reliability, I’m glad to help.  
 
 ## 📬 Contact
 If you’re tackling challenges around **data, scale, or reliability**—and need a clear path to production—let’s talk.  
-You can reach me on **[LinkedIn](https://www.linkedin.com/)**.  
+You can reach me on **[LinkedIn](https://linkedin.com/in/smukangara)**.  
