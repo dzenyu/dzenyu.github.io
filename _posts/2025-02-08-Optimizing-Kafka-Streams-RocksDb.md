@@ -8,6 +8,7 @@ tags:
   - optimization
   - rocksdb
   - spring-boot
+featured: true
 ---
 
 Kafka Streams is a powerful library for building real-time stream processing applications on Apache Kafka. One of its key features is local state management using **RocksDB**, a high-performance embedded key-value store.
