@@ -1,6 +1,6 @@
 title: ""
 name: "Dzenyu Mukangara"
-description: "Engineering leadership, architecture, and system design insights"
+description: "I share architecture insights, coding practices, and engineering leadership lessons"
 url: "https://code.dzenyu.com"
 baseurl: ""
 
@@ -48,7 +48,7 @@ search: true
 author:
   name   : "Dzenyu Mukangara"
   avatar : "/assets/images/my-avatar.png"
-  bio    : "Principal Engineer, Engineering Leadership, Micro Services, Cloud (AWS), Mentoring, AI"
+  bio    : "Principal Software Engineer, Engineering Leadership, Micro Services, Cloud (AWS), Mentoring, AI"
   location : "DFW, USA"
   links:
     - label: "GitHub"
