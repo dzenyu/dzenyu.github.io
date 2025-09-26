@@ -71,6 +71,7 @@ We didn’t flip the switch overnight. Using **Optimizely**, we:
 
 This meant the frontend never had to decide which backend to call. It also gave us confidence: if something broke, only a small cohort was affected.
 
+**Figure: Incremental Rollout Strategy Using Optimizely Cohorts**  
 ```mermaid
 flowchart TD
     A[Users] -->|Legacy Cohort| B[Legacy Checkout]
