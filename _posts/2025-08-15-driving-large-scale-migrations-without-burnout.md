@@ -4,13 +4,13 @@ description: "Lessons and strategies from Chegg’s migration to Recurly — bal
 featured_image: /assets/images/chegg-commerce-migration-recurly.png
 categories: [architecture]
 tags: 
- - aws
- - graphql
- - kafka
- - leadership
- - migration
- - recurly
- - spring-boot
+  - aws
+  - graphql
+  - kafka
+  - leadership
+  - migration
+  - recurly
+  - spring-boot
 featured: true
 ---
 
