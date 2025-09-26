@@ -1,156 +1,146 @@
 ---
-title: "How to Drive Large-Scale Migrations Without Burning Out Your Team"
+title: "Leading Large-Scale Migrations: Lessons from Chegg’s Move to Recurly"
 description: "Lessons and strategies from Chegg’s migration to Recurly — balancing technical complexity with protecting team energy."
+featured_image: /assets/images/chegg-commerce-migration-recurly.png
 categories: [architecture]
 tags: 
+ - aws
+ - graphql
+ - kafka
  - leadership
  - migration
- - architecture
  - recurly
- - graphql
  - spring-boot
- - kafka
- - aws
 featured: true
 ---
 
-Large-scale system migrations are the engineering equivalent of open-heart surgery—you can’t afford to get it wrong, but you also can’t keep the patient on the table forever. At Chegg, I led the migration of our in-house Commerce system to Recurly, a SaaS billing provider.  
+When our team at Chegg decided to migrate our in-house commerce system to a SaaS vendor, Recurly, the stakes couldn’t have been higher. Tens of millions of students depended on seamless billing and subscription access. A single mistake could have led to broken checkouts, canceled subscriptions, and lost trust.  
 
-This effort touched **subscriptions, payments, data pipelines, and customer experience.** The migration was ultimately successful, but the bigger win was that the team emerged stronger, not burned out.  
+![Architecture Overview](/assets/images/chegg-commerce-migration-recurly.png)
 
-In this post, I’ll share both the **technical approach we took** and the **leadership lessons learned** about driving massive change while protecting team morale and energy.  
+But large-scale migrations don’t have to be fire drills that burn out your engineering team. With careful planning, incremental rollout, and trust in both people and process, you can deliver a successful migration without sleepless nights.  
 
+This is the story of how we approached our migration to Recurly and the lessons we learned along the way.  
 
+## Why We Started With a Proof of Concept
 
-## Starting With the “Why”
+Every migration begins with uncertainty. Instead of jumping straight into code, we started with a **Proof of Concept (POC)** for both front-end and backend flows.  
 
-Big migrations often begin as a technical mandate, but people need a **mission**, not just a task list. Our “why” was clear:  
+- We tested checkout, payments, product management, and subscription lifecycles (creation, renewals, cancellations) for both web and mobile.  
+- We documented where Recurly provided parity with Chegg and where it didn’t.  
 
-- Our legacy billing system couldn’t scale with Chegg’s global growth.  
-- Students needed more flexible subscription options.  
-- The business wanted agility without reinventing billing.  
+This forced alignment across stakeholders: some legacy features were no longer worth carrying forward, while others required vendor collaboration. The POC became our map for what to build, drop, or renegotiate.  
 
-We didn’t just say, *“We’re moving to Recurly.”* We said, *“This will unlock global scale, smoother student experiences, and allow us to ship faster.”* That context was critical for keeping the team engaged over a long journey.  
+## Data Decisions: Proxy or Local Copy?
 
+Recurly was set to become our **source of truth** for billing, payments, and subscriptions. Initially, we considered building a proxy service to call Recurly directly for everything.  
 
+Recurly, however, recommended a different approach:  
+- Store **local copies of subscription data** (since subscriptions drive checkout, renewals, and cancellations).  
+- Query Recurly directly for other data.  
 
-## Preparing the Groundwork
+This tradeoff balanced performance, resilience, and simplicity. It also meant defining new **GraphQL schemas** to provide business-friendly APIs that abstracted away vendor-specific quirks.  
 
-### Proof of Concept (POC)  
-We began with a **POC across web and mobile** to understand Recurly’s checkout, payments, product management, and subscription lifecycle (creation, renewal, cancellation). This revealed:  
-- Which Chegg features had **direct parity** with Recurly.  
-- Which features would need business trade-offs or Recurly extensions.  
+```mermaid
+flowchart LR
+    A[Chegg Checkout] --> B[GraphQL API]
+    B --> C[Local Subscription Store]
+    B --> D[Recurly API]
+    C <--> E[Legacy Chegg Subscriptions]
+```
 
-This helped the business **drop unnecessary legacy features** and push for vendor support where needed.  
+By designing GraphQL schemas first, we gave frontend and business teams clear contracts. This became a critical leadership tool — APIs as alignment mechanisms.
 
-### Understanding the Data Model  
-The POC also clarified Recurly’s underlying **data structures and flows**. Since Recurly would become the **source of truth for billing, payments, and subscriptions**, we needed a plan for how Chegg systems would integrate without becoming tightly coupled.  
+## Document First, Then Build
 
+Before we built new services, we:
 
+- Created detailed field mappings from legacy schemas to new GraphQL schemas.
+- Shared documentation internally to gather early feedback.
+- Designed database tables to hold migrated Recurly subscriptions alongside legacy data.
 
-## Key Design Decisions
+This deliberate, documentation-first approach helped us move faster later — teams were aligned before code was written.
 
-### Local Subscription Copy  
-Our initial instinct was to **proxy all calls through a service to Recurly**. But based on vendor guidance, we instead chose to **store a local copy of subscription data** at Chegg.  
-- Subscriptions drove checkout, renewals, and cancellations.  
-- Local persistence reduced latency and improved resilience.  
-- All other billing and payment queries went directly to Recurly.  
+## Incremental Rollouts With Optimizely
 
-### New GraphQL Schema  
-We defined new **GraphQL schemas** that reflected Chegg’s subscription business model. This:  
-- Exposed business-friendly APIs to front-end teams.  
-- Abstracted vendor-specific differences.  
-- Remained extensible in case of future SaaS vendor changes.  
+We didn’t flip the switch overnight. Using **Optimizely**, we:
 
-We documented **field mappings** from legacy → GraphQL schema and sought feedback across Chegg teams.  
+- Directed new cohorts of users to the Recurly checkout flow.
+- Served subscription data for all users through the new GraphQL APIs.
 
-### Data Persistence & Services  
-With the schema locked, we designed new **database tables** for Recurly data while retaining legacy subscription stores. A new **microservice** handled:  
-- Persisting Recurly subscriptions locally.  
-- Fetching both Recurly and legacy subscriptions.  
-- Powering the new GraphQL APIs.  
+This meant the frontend never had to decide which backend to call. It also gave us confidence: if something broke, only a small cohort was affected.
 
-### Gradual Frontend Rollout  
-Using **Optimizely**, we:  
-- Routed a subset of users to the **Recurly-powered checkout**.  
-- Served subscription data via the new GraphQL APIs for all users (legacy and Recurly).  
+```mermaid
+flowchart TD
+    A[Users] -->|Legacy Cohort| B[Legacy Checkout]
+    A -->|Experiment Cohort| C[Recurly Checkout]
+    B --> D[GraphQL Subscriptions API]
+    C --> D[GraphQL Subscriptions API]
+```
 
-This allowed the frontend to integrate seamlessly without complex conditional logic.  
+The incremental rollout was not just a technical choice — it was a leadership choice to protect both customers and engineers from high-stress cutovers.
 
+## The Migration Pipeline
 
+Once our APIs and rollout plan were in place, we turned to the hardest part: migrating millions of active subscriptions.
 
-## Migration Process
+The migration process was async and CSV-driven:
 
-When the foundation was ready, we tackled **migrating legacy subscriptions into Recurly**.  
+1. **Prepare CSV files** in Recurly’s format (users, products, billing tokens, subscriptions).
+2. **Publish to S3**, where Recurly ingested them.
+3. **Validate**: Recurly returned validation errors, which we reviewed before ingestion.
+4. **Ingest**: Records were imported, triggering webhook events.
+5. **Distribute**: Webhook events were pushed into Kafka and consumed by subscription services.
+6. **Compensate**: A compensation microservice reconciled async state mismatches (e.g., cancellations during migration).
 
-### Data Migration Order  
-Recurly migrations required **CSV files**, ingested asynchronously. The sequence was:  
-1. Users  
-2. Products (mapped to Recurly Plans)  
-3. Billing information (e.g., Braintree billing tokens)  
-4. Active subscriptions  
+```mermaid
+sequenceDiagram
+    participant CheggDB
+    participant MigrationService
+    participant S3
+    participant Recurly
+    participant Kafka
+    participant CompensationService
 
-### Understanding the Data  
-Before moving anything, we analyzed:  
-- User distribution across different segments.  
-- Billing records by type, expiration, and validity.  
-- Subscription counts and segments.  
+    CheggDB->>MigrationService: Extract subscription data
+    MigrationService->>S3: Publish CSV
+    Recurly->>S3: Read CSV
+    Recurly->>Recurly: Validate and Ingest
+    Recurly->>Kafka: Publish Webhook Events
+    Kafka->>CompensationService: Events Consumed
+    CompensationService->>Recurly: Apply Fixes
+```
 
-We started with **US active subscriptions** that had *just renewed*—minimizing risk of near-term renewal or cancellation conflicts.  
+This pipeline reduced manual effort and gave us confidence in correctness.
 
-### Migration Mechanics  
-The CSV migration flow worked like this:  
-1. **Generate CSVs** in Recurly-approved format.  
-2. **Publish files** to S3/Google Drive.  
-3. **Notify Recurly** of new migration batches.  
-4. **Validation phase**: Recurly runs checks and shares a validation report.  
-5. If validation errors < threshold, we authorized ingestion.  
-6. For each ingested record, **Recurly published webhook events** back to Chegg.  
-   - A webhook microservice received these events.  
-   - Events were published to Kafka.  
-   - Downstream services updated their data stores.  
+## Avoiding Bottlenecks in Production
 
-### Compensation Handling  
-Because ingestion was **asynchronous**, subscriptions could change state mid-migration (e.g., a user canceled during ingestion). To handle this:  
-- We built a **Compensation microservice** listening to webhook events.  
-- It reconciled subscription states and issued corrective actions in Recurly.  
+Migration ETL jobs can overwhelm live databases. To avoid bottlenecks:
 
+- We replicated legacy data into migration-specific tables using **AWS DMS**.
+- We ran **Spring Batch jobs on AWS Batch** to generate CSVs asynchronously.
 
+This separation ensured regular users weren’t impacted while migration jobs crunched millions of records.
 
-## Data Preparation Without Impacting Live Systems
+## Leadership Lessons: Avoiding Burnout
 
-ETL-heavy migrations risk **slowing down production databases**. To avoid this:  
-- We built a **migration service** using **Spring Boot + Spring Batch**.  
-- It generated CSVs asynchronously and published them to S3.  
-- We created two sets of tables:  
-  - Tables mirroring the CSV format.  
-  - Tables for replicated legacy data (using AWS DMS).  
+Technical success alone isn’t enough. Large migrations can easily turn into multi-month slogs that drain morale. Here’s what worked for us:
 
-This separation ensured migration work **never interfered with live read/write operations**.  
+- Cohort rollouts reduced stress by lowering blast radius.
+- Automation everywhere (batch jobs, CSV pipelines, compensation services) prevented long nights of manual fixes.
+- Cross-team alignment: GraphQL schemas and documentation acted as contracts, preventing rework.
+- Celebrating milestones kept morale high — every batch migrated was a reason to celebrate.
 
+## Key Takeaways
 
+Looking back, here’s our playbook for running large migrations without burning out your team:
 
-## Leadership Lessons
+- Start with a **POC** to align stakeholders and clarify tradeoffs.
+- Define **APIs** and schemas first — they are the contracts across business and engineering.
+- Roll out incrementally with feature flags or experiments.
+- Invest in compensation workflows — async migrations will always have edge cases.
+- Protect your team with automation, observability, and clear milestones.
 
-Looking back, a few leadership principles stand out:  
+Large-scale migrations will never be trivial. But with the right approach, they can be opportunities to build trust, strengthen culture, and modernize systems — all without burning out the people who make it possible.
 
-- **Anchor on the mission**: Remind the team *why* the migration matters.  
-- **Break the monolith of work**: Celebrate incremental wins, not just the finish line.  
-- **Build guardrails, not heroics**: Automated validation and compensation reduced stress.  
-- **Protect the team’s energy**: No death marches—clear hours, fair rotations, and recognition.  
-- **Communicate constantly**: Dashboards, updates, and transparency reduced anxiety.  
-
-
-
-## Closing Thoughts
-
-This migration wasn’t just about moving data. It was about moving people—through uncertainty, pressure, and complexity.  
-
-By combining **sound technical design** with **intentional leadership**, we not only moved millions of subscriptions safely to Recurly but also ensured our engineers emerged stronger, not burned out.  
-
-If you’re facing a large migration, remember:  
-- Define the mission.  
-- Slice the work into digestible chunks.  
-- Protect energy as much as uptime.  
-
-Done right, migrations don’t just upgrade systems. They upgrade teams.  
+Done right, migrations don’t just upgrade systems. They upgrade teams.
