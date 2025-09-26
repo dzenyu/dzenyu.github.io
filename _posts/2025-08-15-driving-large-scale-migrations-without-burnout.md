@@ -1,6 +1,6 @@
 ---
-title: "Leading Large-Scale Migrations: Lessons from Chegg’s Move to Recurly"
-description: "Lessons and strategies from Chegg’s migration to Recurly — balancing technical complexity with protecting team energy."
+title: "Leading Large-Scale Migrations: Lessons from Chegg's Move to Recurly"
+description: "Lessons and strategies from Chegg's migration to Recurly — balancing technical complexity with protecting team energy."
 featured_image: /assets/images/chegg-commerce-migration-recurly.png
 categories: [architecture]
 tags: 
@@ -14,11 +14,11 @@ tags:
 featured: true
 ---
 
-When our team at Chegg decided to migrate our in-house commerce system to a SaaS vendor, Recurly, the stakes couldn’t have been higher. Tens of millions of students depended on seamless billing and subscription access. A single mistake could have led to broken checkouts, canceled subscriptions, and lost trust.  
+When our team at Chegg decided to migrate our in-house commerce system to a SaaS vendor, Recurly, the stakes couldn't have been higher. Tens of millions of students depended on seamless billing and subscription access. A single mistake could have led to broken checkouts, canceled subscriptions, and lost trust.  
 
 ![Architecture Overview](/assets/images/chegg-commerce-migration-recurly.png)
 
-But large-scale migrations don’t have to be fire drills that burn out your engineering team. With careful planning, incremental rollout, and trust in both people and process, you can deliver a successful migration without sleepless nights.  
+But large-scale migrations don't have to be fire drills that burn out your engineering team. With careful planning, incremental rollout, and trust in both people and process, you can deliver a successful migration without sleepless nights.  
 
 This is the story of how we approached our migration to Recurly and the lessons we learned along the way.  
 
@@ -27,7 +27,7 @@ This is the story of how we approached our migration to Recurly and the lessons 
 Every migration begins with uncertainty. Instead of jumping straight into code, we started with a **Proof of Concept (POC)** for both front-end and backend flows.  
 
 - We tested checkout, payments, product management, and subscription lifecycles (creation, renewals, cancellations) for both web and mobile.  
-- We documented where Recurly provided parity with Chegg and where it didn’t.  
+- We documented where Recurly provided parity with Chegg and where it didn't.  
 
 This forced alignment across stakeholders: some legacy features were no longer worth carrying forward, while others required vendor collaboration. The POC became our map for what to build, drop, or renegotiate.  
 
@@ -64,7 +64,7 @@ This deliberate, documentation-first approach helped us move faster later — te
 
 ## Incremental Rollouts With Optimizely
 
-We didn’t flip the switch overnight. Using **Optimizely**, we:
+We didn't flip the switch overnight. Using **Optimizely**, we:
 
 - Directed new cohorts of users to the Recurly checkout flow.
 - Served subscription data for all users through the new GraphQL APIs.
@@ -88,7 +88,7 @@ Once our APIs and rollout plan were in place, we turned to the hardest part: mig
 
 The migration process was async and CSV-driven:
 
-1. **Prepare CSV files** in Recurly’s format (users, products, billing tokens, subscriptions).
+1. **Prepare CSV files** in Recurly's format (users, products, billing tokens, subscriptions).
 2. **Publish to S3**, where Recurly ingested them.
 3. **Validate**: Recurly returned validation errors, which we reviewed before ingestion.
 4. **Ingest**: Records were imported, triggering webhook events.
@@ -122,11 +122,11 @@ Migration ETL jobs can overwhelm live databases. To avoid bottlenecks:
 - We replicated legacy data into migration-specific tables using **AWS DMS**.
 - We ran **Spring Batch jobs on AWS Batch** to generate CSVs asynchronously.
 
-This separation ensured regular users weren’t impacted while migration jobs crunched millions of records.
+This separation ensured regular users weren't impacted while migration jobs crunched millions of records.
 
 ## Leadership Lessons: Avoiding Burnout
 
-Technical success alone isn’t enough. Large migrations can easily turn into multi-month slogs that drain morale. Here’s what worked for us:
+Technical success alone isn't enough. Large migrations can easily turn into multi-month slogs that drain morale. Here's what worked for us:
 
 - Cohort rollouts reduced stress by lowering blast radius.
 - Automation everywhere (batch jobs, CSV pipelines, compensation services) prevented long nights of manual fixes.
@@ -135,7 +135,7 @@ Technical success alone isn’t enough. Large migrations can easily turn into mu
 
 ## Key Takeaways
 
-Looking back, here’s our playbook for running large migrations without burning out your team:
+Looking back, here's our playbook for running large migrations without burning out your team:
 
 - Start with a **POC** to align stakeholders and clarify tradeoffs.
 - Define **APIs** and schemas first — they are the contracts across business and engineering.
@@ -145,4 +145,4 @@ Looking back, here’s our playbook for running large migrations without burning
 
 Large-scale migrations will never be trivial. But with the right approach, they can be opportunities to build trust, strengthen culture, and modernize systems — all without burning out the people who make it possible.
 
-Done right, migrations don’t just upgrade systems. They upgrade teams.
+Done right, migrations don't just upgrade systems. They upgrade teams.
