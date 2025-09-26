@@ -3,7 +3,7 @@ title: "Leading Large-Scale Migrations: Lessons from Chegg's Move to Recurly"
 description: "Lessons and strategies from Chegg's migration to Recurly — balancing technical complexity with protecting team energy."
 featured_image: /assets/images/chegg-commerce-migration-recurly.png
 categories: [architecture]
-tags: 
+tags:
   - aws
   - graphql
   - kafka
