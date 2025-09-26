@@ -10,5 +10,5 @@ gem "jekyll-include-cache"
 gem "webrick", "~> 1.8"
 
 # Retry middleware with Faraday v2.0+
-gem "faraday-retry"
+gem "faraday-retry", "~> 2.0"
 gem "faraday", "~> 2.0"
