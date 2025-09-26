@@ -129,6 +129,23 @@ Migration ETL jobs can overwhelm live databases. To avoid bottlenecks:
 
 This separation ensured regular users weren't impacted while migration jobs crunched millions of records.
 
+
+## Challenges We Encountered
+
+Despite careful planning, we hit several significant roadblocks that taught us valuable lessons:
+
+**Data Inconsistencies**: Legacy data had accumulated years of edge cases — subscriptions with missing billing tokens, orphaned records, and inconsistent state transitions. What seemed like clean data in our POC revealed complexities at scale.
+
+**Vendor API Limitations**: Recurly's bulk import had undocumented rate limits and timeout behaviors that only surfaced when processing millions of records. We had to implement exponential backoff and chunking strategies mid-migration.
+
+**Webhook Delivery Delays**: During peak processing, Recurly's webhook delivery experienced delays of several minutes. Our compensation service had to handle out-of-order events and duplicate deliveries more gracefully than initially designed.
+
+**Cross-System Dependencies**: Other Chegg services that depended on subscription data had assumptions about data freshness and consistency that broke during the async migration. We discovered these dependencies through production alerts, not testing.
+
+**Team Coordination**: With multiple teams working in parallel (frontend, backend, data, QA), staying synchronized became increasingly difficult. Feature branches diverged, integration environments fell out of sync, and communication overhead grew exponentially.
+
+The key insight: **plan for 3x more edge cases than your POC reveals**. Production data and production scale always surprise you.
+
 ## Leadership Lessons: Avoiding Burnout
 
 Technical success alone isn't enough. Large migrations can easily turn into multi-month slogs that drain morale. Here's what worked for us:
