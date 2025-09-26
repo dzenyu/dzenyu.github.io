@@ -46,7 +46,7 @@ Recurly, however, recommended a different approach:
 
 This tradeoff balanced performance, resilience, and simplicity. It also meant defining new **GraphQL schemas** to provide business-friendly APIs that abstracted away vendor-specific quirks.  
 
-**Chegg-Recurly Migration Architecture Overview**
+**Figure 1: Chegg-Recurly Migration Architecture Overview**
 ```mermaid
 flowchart LR
     A[Chegg Checkout] --> B[GraphQL API]
