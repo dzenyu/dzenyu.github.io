@@ -46,7 +46,7 @@ Recurly, however, recommended a different approach:
 
 This tradeoff balanced performance, resilience, and simplicity. It also meant defining new **GraphQL schemas** to provide business-friendly APIs that abstracted away vendor-specific quirks.  
 
-**Figure 1: Chegg-Recurly Migration Architecture Overview**
+**Chegg-Recurly Migration Architecture Overview**
 ```mermaid
 flowchart LR
     A[Chegg Checkout] --> B[GraphQL API]
@@ -76,7 +76,7 @@ We didn't flip the switch overnight. Using **Optimizely** (a feature flagging an
 
 This meant the frontend never had to decide which backend to call. It also gave us confidence: if something broke, only a small cohort was affected.
 
-**Figure: Incremental Rollout Strategy Using Optimizely Cohorts**  
+**Figure 2: Incremental Rollout Strategy Using Optimizely Cohorts**  
 ```mermaid
 flowchart TD
     A[Users] -->|Legacy Cohort| B[Legacy Checkout]
