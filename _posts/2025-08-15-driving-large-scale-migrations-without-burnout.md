@@ -17,6 +17,7 @@ tags:
   - subscriptions
   - spring-boot
 featured: true
+class: wide
 ---
 
 When our team at Chegg decided to migrate our in-house commerce system to a SaaS vendor, Recurly, the stakes couldn't have been higher. Tens of millions of students depended on seamless billing and subscription access. A single mistake could have led to broken checkouts, canceled subscriptions, and lost trust.  
@@ -47,12 +48,46 @@ Recurly, however, recommended a different approach:
 This tradeoff balanced performance, resilience, and simplicity. It also meant defining new **GraphQL schemas** to provide business-friendly APIs that abstracted away vendor-specific quirks.  
 
 **Chegg-Recurly Migration Architecture Overview**
+
+**Component Diagram** 
+
 ```mermaid
-flowchart LR
-    A[Chegg Checkout] --> B[GraphQL API]
-    B --> C[Local Subscription Store]
-    B --> D[Recurly API]
-    C <--> E[Legacy Chegg Subscriptions]
+flowchart TB
+ subgraph CheggBackend["🏢 Chegg Backend Services"]
+        GraphQL["🔗 Apollo Gateway<br>GraphQL API"]
+        Proxy["⚡ Chegg Proxy Service<br>Spring Boot"]
+        SubSvc["📋 Subscription Service<br>Spring Boot"]
+        Webhook["🎣 Webhook Ingestion<br>Service"]
+        RecurlyDB[("🗄️ Local DB<br>Recurly Subscriptions")]
+        Legacy["🏛️ Legacy Subscription<br>Services"]
+        Kafka["📨 Kafka Topic<br>subscription.events"]
+  end
+    User["👤 User"] --> Frontend["🖥️ Frontend<br>React/Mobile App"]
+    Frontend --> GraphQL
+    Recurly["💳 Recurly<br>External SaaS"] -.-> Webhook
+    GraphQL --> Proxy & SubSvc
+    Proxy --> Recurly
+    SubSvc --> RecurlyDB & Legacy
+    Webhook --> Kafka
+    Kafka --> SubSvc
+
+    Recurly@{ shape: procs}
+     GraphQL:::cheggGateway
+     Proxy:::cheggService
+     SubSvc:::cheggService
+     Webhook:::cheggService
+     RecurlyDB:::cheggData
+     Legacy:::cheggData
+     Kafka:::cheggMessaging
+     User:::external
+     Frontend:::external
+     Recurly:::external
+    classDef external fill:#ffebee,stroke:#d32f2f,stroke-width:2px
+    classDef cheggService fill:#e8f5e8,stroke:#388e3c,stroke-width:1px
+    classDef cheggData fill:#fff3e0,stroke:#f57c00,stroke-width:1px
+    classDef cheggMessaging fill:#f1f8e9,stroke:#689f38,stroke-width:1px
+    classDef cheggGateway fill:#f3e5f5,stroke:#7b1fa2,stroke-width:1px
+    style CheggBackend fill:#f8f9fa,stroke:#1976d2,stroke-width:3px,stroke-dasharray: 5 5
 ```
 
 By designing GraphQL schemas first, we gave frontend and business teams clear contracts. This became a critical leadership tool — APIs as alignment mechanisms.
@@ -168,3 +203,4 @@ Looking back, here's our playbook for running large migrations without burning o
 Large-scale migrations will never be trivial. But with the right approach, they can be opportunities to build trust, strengthen culture, and modernize systems — all without burning out the people who make it possible.
 
 Done right, migrations don't just upgrade systems. They upgrade teams.
+
