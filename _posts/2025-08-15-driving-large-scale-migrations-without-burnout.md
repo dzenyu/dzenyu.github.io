@@ -5,11 +5,16 @@ featured_image: /assets/images/chegg-commerce-migration-recurly.png
 categories: [architecture]
 tags:
   - aws
+  - commerce
   - graphql
   - kafka
   - leadership
   - migration
-  - recurly
+  - Optimizely
+  - Recurly
+  - SaaS
+  - schema
+  - subscriptions
   - spring-boot
 featured: true
 ---
@@ -64,7 +69,7 @@ This deliberate, documentation-first approach helped us move faster later — te
 
 ## Incremental Rollouts With Optimizely
 
-We didn't flip the switch overnight. Using **Optimizely**, we:
+We didn't flip the switch overnight. Using **Optimizely** (a feature flagging and experimentation platform that allows controlled rollouts to specific user segments), we:
 
 - Directed new cohorts of users to the Recurly checkout flow.
 - Served subscription data for all users through the new GraphQL APIs.
