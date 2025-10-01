@@ -129,8 +129,8 @@ The migration process was async and CSV-driven:
 1. **Prepare CSV files** in Recurly's format (users, products, billing tokens, subscriptions).
 2. **Publish to S3**, where Recurly ingested them.
 3. **Validate**: Recurly returned validation errors, which we reviewed before ingestion.
-4. **Ingest**: Records were imported, triggering webhook events.
-5. **Distribute**: Webhook events were pushed into Kafka and consumed by subscription services.
+4. **Ingest**: Recurly imported the validated CSV files from S3 (its bulk import process), which created account/product/subscription records in the vendor.
+5. **Distribute**: Recurly's import triggered webhook events that were pushed into Kafka and consumed by multiple Chegg services — chief among them the Subscription service and the Compensation service, along with other downstream consumers.
 6. **Compensate**: A compensation microservice reconciled async state mismatches (e.g., cancellations during migration).
 
 ```mermaid
