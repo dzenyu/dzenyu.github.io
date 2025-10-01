@@ -169,7 +169,7 @@ Migration ETL jobs can overwhelm live databases. To avoid bottlenecks:
 
 This separation ensured regular users weren't impacted while migration jobs crunched millions of records.
 
-### Cohort-based rollout (not a big‑bang)
+### Cohort-based rollout (not a big-bang)
 
 The migration was intentionally staged rather than a single cutover. We began by migrating recurring subscriptions from small‑population countries to limit blast radius, then progressed to larger cohorts (for example, the US and other European countries). For each cohort we deliberately selected subscriptions that exercised different billing, payment, and lifecycle edge cases so our ingestion, webhook processing, and compensation logic were validated end‑to‑end. After each cohort we monitored ingestion metrics, webhook delivery, consumer processing, and reconciliation results — only advancing when both automated metrics and manual checks met our thresholds. This careful, incremental approach let us surface issues early and ensure student data was migrated correctly without impacting the broader user base.
 
