@@ -105,7 +105,7 @@ flowchart TD
     U["Users"] -- Start Checkout Flow --> O["<b>Optimizely</b><br><i>Is in<br>experiment?</i>"]
     O -- Legacy Cohort --> L["Legacy Checkout"]
     O -- Experiment Cohort --> R["Recurly Checkout"]
-    L --> E["Legacy REST API"]
+    L --> E["Legacy Checkout<br/>Flow"]
     R --> D["GraphQL Checkout<br>Mutation"]
 
     U@{ shape: start}
@@ -200,8 +200,8 @@ We ran the migration as an iterative, cohort-based program rather than a single 
 Despite careful planning, we hit several significant roadblocks that taught us valuable lessons:
 
 - **Data Inconsistencies**: Legacy data had accumulated years of edge cases — subscriptions with missing billing tokens, orphaned records, and inconsistent state transitions. What seemed like clean data in our POC revealed complexities at scale.
-- **Vendor API Limitations**: Recurly's bulk import had undocumented rate limits and timeout behaviors that only surfaced when processing millions of records. We had to implement exponential backoff and chunking strategies mid-migration.
-- **Braintree Tokens**: Though we migrated Braintree tokens, we could not fetch credit card details from the corresponding tokens until such time the tokens were actioned upon within Recurly. This forced us to build a fallback logic to retrieve card details from our legacy data store if billing information was sparse in Recurly.
+- **Vendor API Limitations**: Recurly's CSV import process internally called their own APIs at high volume, causing us to hit rate limits during large ingestion batches. This surfaced early in our migration testing. Recurly was responsive and proactively increased our rate limits before each major ingest without additional charges.
+- **Braintree Tokens**: Though we migrated Braintree tokens, we could not fetch credit card details from the corresponding tokens until the tokens were used within Recurly. This forced us to build a fallback logic to retrieve card details from our legacy data store if billing information was sparse in Recurly.
 - **Inconsistencies in vendor's test and production environments**: Vendor test environments often use mock data; some complex production cases only surfaced in live runs — always verify end‑to‑end.
 - **Webhook Delivery Delays**: During peak processing, Recurly's webhook delivery experienced delays of several minutes. Our compensation service had to handle out-of-order events and duplicate deliveries more gracefully than initially designed.
 - **Cross-System Dependencies**: Other Chegg services that depended on subscription data had assumptions about data freshness and consistency that broke during the async migration. We discovered these dependencies through production alerts, not testing.
