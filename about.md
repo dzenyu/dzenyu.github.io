@@ -25,7 +25,9 @@ When it’s time to recharge, I turn to music. My playlists are a mix of **Afrob
 - **Backend Development** → Java/Spring microservices with pragmatic DevOps on AWS  
 - **Event-Driven Design** → Kafka (streams, schema management, state stores)  
 - **API Design** → RESTful APIs and Federated GraphQL schemas
-- **Payments & Billing Systems** → integrate payment gateways and SaaS billing platforms (Braintree, Stripe, Recurly, BillDesk/UPI); design reliable subscription lifecycles, webhook ingestion, and reconciliation
+- **Payments & Billing Systems** → integrate payment gateways and SaaS billing platforms (Braintree, Stripe, Recurly, BillDesk/UPI)
+- **Subscription Lifecycle Design** → reliable subscription management and billing flows
+- **Webhook Ingestion & Reconciliation** → robust event handling and financial reconciliation
 - **System Hardening** → observability, reliability, and cost-aware scaling  
 - **Leadership & Mentorship** → growing high-performing engineering teams  
 
