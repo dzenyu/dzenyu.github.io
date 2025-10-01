@@ -25,6 +25,7 @@ When it’s time to recharge, I turn to music. My playlists are a mix of **Afrob
 - **Backend Development** → Java/Spring microservices with pragmatic DevOps on AWS  
 - **Event-Driven Design** → Kafka (streams, schema management, state stores)  
 - **API Design** → RESTful APIs and Federated GraphQL schemas
+- **Payments & Billing Systems** → integrate payment gateways and SaaS billing platforms (Braintree, Stripe, Recurly, BillDesk/UPI); design reliable subscription lifecycles, webhook ingestion, and reconciliation
 - **System Hardening** → observability, reliability, and cost-aware scaling  
 - **Leadership & Mentorship** → growing high-performing engineering teams  
 
@@ -40,6 +41,7 @@ When it’s time to recharge, I turn to music. My playlists are a mix of **Afrob
 - **Hybrid AWS Migrations** → Designed fault-tolerant services across on-prem and AWS (S3, EC2, DynamoDB, ElastiCache).  
 - **Payments & Subscriptions** → Integrated with Braintree, Stripe, Recurly, BillDesk (UPI), and in-app purchase workflows.  
 - **Batch & Data Pipelines** → Built resilient workflows with Spring Batch, AWS Batch, and AWS DMS.  
+- **Commerce Migrations** → led the migration of Chegg’s commerce stack to a SaaS billing vendor (Recurly); reduced ops overhead and improved reconciliation processes — see the [case study](/case-study/2025/03/01/Chegg-Commerce-SAAS-Vendor-Selection).
 
 ## ✍️ Speaking & Writing
 I share **practical insights** on architecture, Java/Spring practices, and platform engineering.  
