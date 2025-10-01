@@ -24,7 +24,7 @@ When it’s time to recharge, I turn to music. My playlists are a mix of **Afrob
 - **Architecture & Delivery** → data-intensive services (batch + streaming)  
 - **Backend Development** → Java/Spring microservices with pragmatic DevOps on AWS  
 - **Event-Driven Design** → Kafka (streams, schema management, state stores)  
-- **API Design** → RESTful APIs and Federated GraphQL schemas for large, distributed systems
+- **API Design** → RESTful APIs and Federated GraphQL schemas
 - **System Hardening** → observability, reliability, and cost-aware scaling  
 - **Leadership & Mentorship** → growing high-performing engineering teams  
 
