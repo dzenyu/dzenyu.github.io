@@ -78,6 +78,8 @@ Before we built new services, we:
 - Shared documentation internally to gather early feedback.
 - Designed database tables to hold migrated Recurly subscriptions alongside legacy data.
 
+We adopted a federated GraphQL design (Apollo Federation) to allow teams to own schemas and compose a unified API surface for frontend consumers.
+
 This deliberate, documentation-first approach helped us move faster later — teams were aligned before code was written.
 
 ### Target architecture
@@ -173,7 +175,25 @@ This separation ensured regular users weren't impacted while migration jobs crun
 
 ### Cohort-based rollout (not a big-bang)
 
-The migration was intentionally staged rather than a single cutover. We began by migrating recurring subscriptions from small-population countries to limit blast radius, then progressed to larger cohorts (for example, the US and other European countries). For each cohort we deliberately selected subscriptions that exercised different billing, payment, and lifecycle edge cases so our ingestion, webhook processing, and compensation logic were validated end-to-end. After each cohort we monitored ingestion metrics, webhook delivery, consumer processing, and reconciliation results — only advancing when both automated metrics and manual checks met our thresholds. This careful, incremental approach let us surface issues early and ensure student data was migrated correctly without impacting the broader user base.
+We ran the migration as an iterative, cohort-based program rather than a single cutover. The rollout followed a repeatable loop:
+
+- **Pick a cohort**
+  - Start with low-volume / low-risk segments (small countries, non-critical accounts)
+  - Purpose: validate ingestion, webhook delivery, consumer processing, and reconciliation
+- **Run the migration for the cohort**
+  - Publish CSVs → Recurly import → webhooks → Kafka consumers
+- **Monitor and validate**
+  - Acceptance criteria: ingestion success rate, webhook delivery latency, consumer error rate, reconciliation pass rate
+  - Perform manual spot checks for representative accounts and billing flows
+- **Decide**
+  - If metrics and checks pass → scale to the next cohort
+  - If failures appear → pause, compensate, fix, and re-run the cohort
+
+#### Key notes
+
+- We intentionally picked cohorts to exercise different edge cases (billing tokens, cancellations, cross-service dependencies).
+
+- This approach limited blast radius and let us iterate on chunking, backoff, and compensation strategies before moving to larger populations.
 
 ## Challenges We Encountered
 
@@ -191,7 +211,7 @@ The key insight: **plan for 3x more edge cases than your POC reveals**. Producti
 
 ## Leadership Lessons: Avoiding Burnout
 
-Technical success alone isn't enough. Large migrations can easily turn into multi-month slogs that drain morale. Here's what worked for us:
+Technical success alone is not enough. Large migrations can easily turn into multi-month slogs that drain morale. Here's what worked for us:
 
 - Cohort rollouts reduced stress by lowering blast radius.
 - Automation everywhere (batch jobs, CSV pipelines, compensation services) prevented long nights of manual fixes.
@@ -211,4 +231,31 @@ Looking back, here's our playbook for running large migrations without burning o
 Large-scale migrations will never be trivial. But with the right approach, they can be opportunities to build trust, strengthen culture, and modernize systems — all without burning out the people who make it possible.
 
 Done right, migrations don't just upgrade systems. They upgrade teams.
+
+## References
+
+Below are curated resources ordered roughly by importance to this migration story.
+
+- Primary vendor and migration docs
+  - Recurly documentation: [https://docs.recurly.com/](https://docs.recurly.com/)
+
+- Feature flagging / rollout tooling
+  - Optimizely (Web Experimentation): [https://docs.developers.optimizely.com/experimentation/guides](https://docs.developers.optimizely.com/experimentation/guides)
+  - Optimizely (Feature Experimentation / Feature Flags): [https://docs.developers.optimizely.com/feature-experimentation](https://docs.developers.optimizely.com/feature-experimentation)
+
+- GraphQL & federation
+  - Apollo Federation: [https://www.apollographql.com/federation/](https://www.apollographql.com/federation/)
+  - GraphQL: [https://graphql.org/](https://graphql.org/)
+
+- Migration infrastructure and batch processing
+  - AWS S3 (CSV storage): [https://aws.amazon.com/s3/](https://aws.amazon.com/s3/)
+  - AWS DMS (replication into migration tables): [https://aws.amazon.com/dms/](https://aws.amazon.com/dms/)
+  - AWS Batch (ETL jobs): [https://aws.amazon.com/batch/](https://aws.amazon.com/batch/)
+  - Spring Batch (job framework): [https://spring.io/projects/spring-batch](https://spring.io/projects/spring-batch)
+
+- Streaming and eventing
+  - Apache Kafka: [https://kafka.apache.org/](https://kafka.apache.org/)
+
+- Payments and tokenization
+  - Braintree (tokenization/payments): [https://developer.paypal.com/braintree/docs](https://developer.paypal.com/braintree/docs)
 
