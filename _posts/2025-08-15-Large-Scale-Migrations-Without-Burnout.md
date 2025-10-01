@@ -84,7 +84,9 @@ This deliberate, documentation-first approach helped us move faster later — te
 
 The diagram below shows our target state during the migration and still includes the **Legacy Subscription Services** because the cutover had not yet completed. After the migration finished, those legacy services were deprecated and removed.
 
-![Architecture Overview](/assets/images/chegg-recurly-migration-overview.png)
+![Chegg Recurly Migration Overview](/assets/images/chegg-recurly-migration-overview.png)
+
+Note: the diagram focuses on the subscription migration flow and omits other downstream consumers (Account Service, chargeback monitor, fraud pipelines, analytics, billing reconciliation, etc.) for brevity.
 
 ## Incremental Rollouts With Optimizely
 
