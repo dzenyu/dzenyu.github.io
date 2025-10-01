@@ -1,6 +1,7 @@
 ---
 title: "Leading Large-Scale Migrations: Lessons from Chegg's Move to Recurly"
 description: "Lessons and strategies from Chegg's migration to Recurly — balancing technical complexity with protecting team energy."
+excerpt: "How we moved Chegg's commerce to Recurly with a cohort rollout, CSV-driven migrations, and compensation services — without burning out the team."
 featured_image: /assets/images/chegg-commerce-migration-recurly.png
 categories: [architecture]
 tags:
@@ -17,6 +18,7 @@ tags:
   - subscriptions
   - spring-boot
 # featured: false
+mermaid: true
 class: wide
 exclude: true
 search: false
@@ -27,7 +29,20 @@ hidden: true
 
 When our team at Chegg decided to migrate our in-house commerce system to a SaaS vendor, Recurly, the stakes couldn't have been higher. Tens of millions of students depended on seamless billing and subscription access. A single mistake could have led to broken checkouts, canceled subscriptions, and lost trust.  
 
-![Architecture Overview](/assets/images/chegg-commerce-migration-recurly.png)
+**TL;DR**  
+- Start with a focused POC; design APIs and schemas first as alignment contracts.  
+- Roll out in cohorts with feature flags (Optimizely); use CSV-driven S3 imports into Recurly and webhook-driven distribution to Kafka.  
+- Automate reconciliation with compensation services to handle edge cases — protect both customers and engineering teams.  
+
+<picture>
+  <source type="image/webp" srcset="/assets/images/chegg-commerce-migration-recurly.webp 1x, /assets/images/chegg-commerce-migration-recurly@2x.webp 2x">
+  <img src="/assets/images/chegg-commerce-migration-recurly.png"
+       srcset="/assets/images/chegg-commerce-migration-recurly@2x.png 2x"
+       alt="Chegg → Recurly migration overview: local subscription copies, CSV ingestion, webhook distribution to Kafka, and compensation services"
+       loading="lazy"
+       decoding="async"
+       class="screenshot">
+</picture>
 
 But large-scale migrations don't have to be fire drills that burn out your engineering team. With careful planning, incremental rollout, and trust in both people and process, you can deliver a successful migration without sleepless nights.  
 
@@ -83,10 +98,22 @@ This meant the frontend never had to decide which backend to call. It also gave 
 **Figure 2: Incremental Rollout Strategy Using Optimizely Cohorts**  
 ```mermaid
 flowchart TD
-    A[Users] -->|Legacy Cohort| B[Legacy Checkout]
-    A -->|Experiment Cohort| C[Recurly Checkout]
-    B --> D[GraphQL Subscriptions API]
-    C --> D[GraphQL Subscriptions API]
+    U["Users"] -- Start Checkout Flow --> O["<b>Optimizely</b><br><i>Is in<br>experiment?</i>"]
+    O -- Legacy Cohort --> L["Legacy Checkout"]
+    O -- Experiment Cohort --> R["Recurly Checkout"]
+    L --> E["Legacy REST API"]
+    R --> D["GraphQL Checkout<br>Mutation"]
+
+    U@{ shape: start}
+    O@{ shape: diam}
+     O:::Rose
+     L:::Ash
+     R:::Sky
+     E:::Ash
+     D:::Sky
+    classDef Ash stroke-width:1px, stroke-dasharray:none, stroke:#999999, fill:#EEEEEE, color:#000000
+    classDef Sky stroke-width:1px, stroke-dasharray:none, stroke:#374D7C, fill:#E2EBFF, color:#374D7C
+    classDef Rose stroke-width:1px, stroke-dasharray:none, stroke:#FF5978, fill:#FFDFE5, color:#8E2236
 ```
 
 The incremental rollout was not just a technical choice — it was a leadership choice to protect both customers and engineers from high-stress cutovers.
@@ -152,8 +179,8 @@ Despite careful planning, we hit several significant roadblocks that taught us v
 
 - **Data Inconsistencies**: Legacy data had accumulated years of edge cases — subscriptions with missing billing tokens, orphaned records, and inconsistent state transitions. What seemed like clean data in our POC revealed complexities at scale.
 - **Vendor API Limitations**: Recurly's bulk import had undocumented rate limits and timeout behaviors that only surfaced when processing millions of records. We had to implement exponential backoff and chunking strategies mid-migration.
-- **Braintree Tokens**: Though we migrated Braintree tokens, we could not fetch credit card details from the corresponding tokens until such time the tokens were actioned upon within Recurly. This forced us to build a fallback logic to retrieve card details from our legacy data store if billing information was sparce in Recurly.
-- **Inconsistencies in vendor's test and production environments**: The vendor's test environment is usually driven  from mock data which works for most common use cases. Complex use cases would fail in production due to small nuances that were not evident in test environment. You live and learn - test but verify!  
+- **Braintree Tokens**: Though we migrated Braintree tokens, we could not fetch credit card details from the corresponding tokens until such time the tokens were actioned upon within Recurly. This forced us to build a fallback logic to retrieve card details from our legacy data store if billing information was sparse in Recurly.
+- **Inconsistencies in vendor's test and production environments**: Vendor test environments often use mock data; some complex production cases only surfaced in live runs — always verify end‑to‑end.
 - **Webhook Delivery Delays**: During peak processing, Recurly's webhook delivery experienced delays of several minutes. Our compensation service had to handle out-of-order events and duplicate deliveries more gracefully than initially designed.
 - **Cross-System Dependencies**: Other Chegg services that depended on subscription data had assumptions about data freshness and consistency that broke during the async migration. We discovered these dependencies through production alerts, not testing.
 - **Team Coordination**: With multiple teams working in parallel (frontend, backend, data, QA), staying synchronized became increasingly difficult. Feature branches diverged, integration environments fell out of sync, and communication overhead grew exponentially.
