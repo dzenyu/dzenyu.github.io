@@ -21,8 +21,6 @@ Led the evaluation to migrate Chegg's commerce infrastructure to a SaaS platform
 
 As a Staff Software Engineer at Chegg, I led the evaluation to migrate our existing commerce infrastructure to a SaaS platform. The organization had already chosen to “buy not build,” so our goal was to identify the most suitable vendor to meet current and future business needs. After a structured assessment—including capability mapping, total cost of ownership (TCO), Proof of Concept (POC) implementation, and risk analysis—Chegg selected **Recurly**. The deciding factors were Recurly’s native In‑App (iOS and Android) subscription support, strong subscription lifecycle tooling, and gateway flexibility that reduced lock‑in.
 
----
-
 ## Context and Objectives
 
 - Replace/augment in‑house commerce systems with a best‑of‑breed SaaS solution.
@@ -33,8 +31,6 @@ As a Staff Software Engineer at Chegg, I led the evaluation to migrate our exist
 - Avoid vendor lock‑in where practical (gateway choice, data export).
 
 We began by identifying and eliminating legacy/defunct features to scope the migration effectively. A preliminary cost‑benefit analysis narrowed candidates to **Stripe** and **Recurly**.
-
----
 
 ## Evaluation Criteria
 
@@ -66,8 +62,6 @@ Example weighting schema:
 | Onboarding/Implementation effort           | 0.05  |
 | TCO                                         | 0.05  |
 
----
-
 ## Stripe vs Recurly: Capability Overview
 
 | Feature                            | Stripe                                                                 | Recurly                                                                                          |
@@ -81,8 +75,6 @@ Example weighting schema:
 | Gateways                           | Stripe is its own processor/gateway                                    | Supports many gateways (reduces lock‑in)                                                          |
 | Ecosystem integrations             | Extensive marketplace                                                   | Solid set with major accounting/CRM; fewer total than Stripe                                      |
 | Rate limits & flexibility          | Good; may require plan-tier upgrades                                   | Demonstrated flexibility to raise limits without penalties (case-by-case)                         |
-
----
 
 ## Decision Matrix (Illustrative Scoring)
 
@@ -104,8 +96,6 @@ Weights applied to a 1–5 score (5 = best fit). Example results below reflect C
 
 Result: Recurly scored higher given Chegg’s emphasis on In‑App and subscription lifecycle needs.
 
----
-
 ## Proof of Concept (POC) Approach
 
 POC goals: validate fit for key business flows, identify integration friction, and estimate effort.
@@ -123,8 +113,6 @@ POC success criteria:
 - Dashboards provide sufficient operator controls and reporting.
 - Meets preliminary rate/throughput targets and error budgets.
 
----
-
 ## Risks and Mitigations
 
 | Risk                                 | Impact                         | Mitigation                                                                 |
@@ -135,8 +123,6 @@ POC success criteria:
 | Rate limits during peaks             | Throttling/Outages             | Pre‑agree limits, backoff, bulk APIs, and proactive capacity planning     |
 | Compliance changes (PSD2/SCA, taxes) | Checkout friction/Failures     | Keep vendor features enabled; A/B test strong auth paths                  |
 | Reporting gaps                       | Operator pain/Shadow systems   | Define must‑have reports; export to data warehouse for advanced analytics  |
-
----
 
 ## Migration Plan (High Level)
 
@@ -154,8 +140,6 @@ Key KPIs:
 - Refund/chargeback rates and response times
 - Time‑to‑launch for new packages/promos
 
----
-
 ## Why Recurly Was Selected
 
 - Native **In‑App** subscription handling, reducing the need to maintain an internal bridging service.  
@@ -169,16 +153,12 @@ For Chegg, **Recurly’s strengths in subscription flexibility, churn management
 
 This evaluation highlights the importance of **POC-driven vendor selection**, balancing cost, feature coverage, and long-term scalability.  
 
----
-
 ## Architecture Notes (At a Glance)
 
 - Client → Vendor Checkout → Payment Auth (SCA/3DS as required)  
 - Vendor Webhooks → Webhook Ingestion Service (verify signatures, idempotency, DLQ)  
 - In‑App purchase events → Vendor → Webhooks → Entitlement Service  
 - Data sync/export → Data Warehouse (reporting, forecasting, LTV, churn analysis)
-
----
 
 ## References
 
@@ -191,5 +171,3 @@ This evaluation highlights the importance of **POC-driven vendor selection**, ba
 - [Recurly: Stripe Alternative](https://recurly.com/demo/stripe-alternative/)
 - [Stripe Vs. Recurly: Which one Should You Choose?](https://baremetrics.com/blog/stripe-vs-recurly-which-one-should-you-choose)
 - [India Unified Payment Interface](https://en.wikipedia.org/wiki/Unified_Payments_Interface)
-
----
