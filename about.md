@@ -1,8 +1,10 @@
 ---
 title: "About"
 permalink: /about/
-mermaid: true
+mermaid: false
 description: "Principal Software Engineer specializing in Java, Spring, Kafka, AWS, and building resilient, high-throughput microservices."
+author_profile: true
+image: /assets/images/my-avatar.png
 class: wide
 ---
 
@@ -22,6 +24,7 @@ When it’s time to recharge, I turn to music. My playlists are a mix of **Afrob
 - **Architecture & Delivery** → data-intensive services (batch + streaming)  
 - **Backend Development** → Java/Spring microservices with pragmatic DevOps on AWS  
 - **Event-Driven Design** → Kafka (streams, schema management, state stores)  
+- **API Design** → RESTful APIs and Federated GraphQL schemas for large, distributed systems
 - **System Hardening** → observability, reliability, and cost-aware scaling  
 - **Leadership & Mentorship** → growing high-performing engineering teams  
 
@@ -63,8 +66,6 @@ Explore more:
 - **Pragmatic quality** → meaningful tests, guardrails over gatekeeping  
 - **Operational empathy** → logs/metrics/traces by default; SLOs guide design  
 - **Collaborative leadership** → unblock fast, mentor often, document always  
-
----
 
 ## 🤝 Mentorship
 I enjoy **coaching engineers** on system design, testing, and platform fundamentals.  
