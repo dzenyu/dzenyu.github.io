@@ -27,7 +27,7 @@ When it’s time to recharge, I turn to music. My playlists are a mix of **Afrob
 - **API Design** → RESTful APIs and Federated GraphQL schemas
 - **Payments & Billing Systems** → integrate payment gateways and SaaS billing platforms (Braintree, Stripe, Recurly, BillDesk/UPI)
 - **Subscription Lifecycle Design** → reliable subscription management and billing flows
-- **Webhook Ingestion & Reconciliation** → robust event handling and financial reconciliation
+- **Webhook Ingestion** → robust event handling and reconciliation
 - **System Hardening** → observability, reliability, and cost-aware scaling  
 - **Leadership & Mentorship** → growing high-performing engineering teams  
 
