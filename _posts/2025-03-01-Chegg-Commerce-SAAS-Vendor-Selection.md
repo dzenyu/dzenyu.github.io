@@ -171,3 +171,4 @@ This evaluation highlights the importance of **POC-driven vendor selection**, ba
 - [Recurly: Stripe Alternative](https://recurly.com/demo/stripe-alternative/)
 - [Stripe Vs. Recurly: Which one Should You Choose?](https://baremetrics.com/blog/stripe-vs-recurly-which-one-should-you-choose)
 - [India Unified Payment Interface](https://en.wikipedia.org/wiki/Unified_Payments_Interface)
+- Related: Migration story — [Large-Scale Migrations Without Burnout](/architecture/2025/08/15/Large-Scale-Migrations-Without-Burnout.html)

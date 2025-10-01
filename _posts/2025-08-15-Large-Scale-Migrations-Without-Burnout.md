@@ -238,6 +238,7 @@ Below are curated resources ordered roughly by importance to this migration stor
 
 - Primary vendor and migration docs
   - Recurly documentation: [https://docs.recurly.com/](https://docs.recurly.com/)
+  - Related: Chegg Commerce — SaaS Vendor Selection (Stripe vs Recurly): [/case-study/2025/03/01/Chegg-Commerce-SAAS-Vendor-Selection.html](/case-study/2025/03/01/Chegg-Commerce-SAAS-Vendor-Selection.html)
 
 - Feature flagging / rollout tooling
   - Optimizely (Web Experimentation): [https://docs.developers.optimizely.com/experimentation/guides](https://docs.developers.optimizely.com/experimentation/guides)
