@@ -195,4 +195,4 @@ This evaluation highlights the importance of **POC-driven vendor selection**, ba
 ### Business Context
 - [Subscription Business Model Fundamentals](https://en.wikipedia.org/wiki/Subscription_business_model)
 - [India Unified Payment Interface](https://en.wikipedia.org/wiki/Unified_Payments_Interface)
-
+- Related: Migration story — [Large-Scale Migrations Without Burnout](/architecture/2025/08/15/Large-Scale-Migrations-Without-Burnout.html)
