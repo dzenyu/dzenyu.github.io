@@ -96,6 +96,19 @@ Weights applied to a 1–5 score (5 = best fit). Example results below reflect C
 
 Result: Recurly scored higher given Chegg’s emphasis on In‑App and subscription lifecycle needs.
 
+### Scoring Notes
+
+Key scores explained:
+
+- **In-App Support**: Stripe scored 2 (requires custom bridging for iOS/Android subscription 
+  management); Recurly scored 5 (native in-app out-of-box integration).
+- **Gateway Flexibility**: Stripe scored 3 (locked to Stripe's own gateway); Recurly scored 5 
+  (supports Braintree, Adyen, Stripe Connect, and regional processors).
+- **TCO**: Recurly scored 3 vs Stripe's 4 due to higher per-transaction fees at our scale 
+  (notable monthly cost difference), offset by significant monthly savings in engineering maintenance.
+
+Scoring scale: 1 = Poor fit, 3 = Adequate, 5 = Excellent fit
+
 ## Proof of Concept (POC) Approach
 
 POC goals: validate fit for key business flows, identify integration friction, and estimate effort.
@@ -162,13 +175,24 @@ This evaluation highlights the importance of **POC-driven vendor selection**, ba
 
 ## References
 
-- [PCI DSS](https://www.pcisecuritystandards.org/)  
-- [Strong Customer Authentication (PSD2)](https://en.wikipedia.org/wiki/Strong_customer_authentication)  
-- [Stripe Documentation](https://stripe.com/docs)  
-- [Recurly Documentation](https://docs.recurly.com/)  
-- [Webhooks Best Practices](https://webhooks.guide/)  
-- [Subscription Business Model](https://en.wikipedia.org/wiki/Subscription_business_model)
-- [Recurly: Stripe Alternative](https://recurly.com/demo/stripe-alternative/)
-- [Stripe Vs. Recurly: Which one Should You Choose?](https://baremetrics.com/blog/stripe-vs-recurly-which-one-should-you-choose)
+### Decision-Influencing Resources
+- [Recurly In-App Purchase Overview](https://docs.recurly.com/docs/in-app-purchase-overview) - Key resource for evaluating iOS/Android support
+- [Stripe Billing vs Recurly Comparison](https://www.chargebee.com/blog/stripe-billing-vs-recurly/) - Third-party analysis
+- [SaaS Metrics That Matter](https://www.forentrepreneurs.com/saas-metrics-2/) - Framework for KPI selection
+
+### Technical Implementation Guides
+
+- [Webhooks Best Practices](https://webhooks.guide/) - Idempotency and retry patterns
+- [PCI DSS Compliance Guide](https://www.pcisecuritystandards.org/document_library)
+- [Strong Customer Authentication (PSD2)](https://stripe.com/docs/strong-customer-authentication)
+
+### Vendor Documentation
+- [Recurly API Documentation](https://developers.recurly.com/)
+- [Recurly Webhooks Reference](https://docs.recurly.com/docs/webhooks)
+- [Stripe Documentation](https://stripe.com/docs)
+- [Stripe vs Recurly Feature Comparison](https://recurly.com/demo/stripe-alternative/)
+
+### Business Context
+- [Subscription Business Model Fundamentals](https://en.wikipedia.org/wiki/Subscription_business_model)
 - [India Unified Payment Interface](https://en.wikipedia.org/wiki/Unified_Payments_Interface)
-- Related: Migration story — [Large-Scale Migrations Without Burnout](/architecture/2025/08/15/Large-Scale-Migrations-Without-Burnout.html)
+
