@@ -1,6 +1,6 @@
 ---
 title: "Chegg Commerce: SaaS Vendor Selection (Stripe vs Recurly)"
-date: 2025-03-01
+last_modified_at: 2025-09-20
 categories: [case-study]
 tags:
   - architecture
@@ -204,3 +204,4 @@ This evaluation highlights the importance of **POC-driven vendor selection**, ba
 ### Business Context
 - [Subscription Business Model Fundamentals](https://en.wikipedia.org/wiki/Subscription_business_model)
 - [India Unified Payment Interface](https://en.wikipedia.org/wiki/Unified_Payments_Interface)
+- Related: Migration story — [Chegg’s Recurly Migration: Cohorts, Contracts, and Compensation](/architecture/2025/08/15/chegg-recurly-migration-cohorts-compensation.html)
