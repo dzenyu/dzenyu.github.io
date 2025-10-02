@@ -160,6 +160,15 @@ Key KPIs:
 - **Payment gateway flexibility**, reducing lock‑in and enabling regional optimization.  
 - Demonstrated **rate‑limit flexibility** for peak events without punitive costs.
 
+> "In-App subscription support alone accounted for 20% of our decision weight. 
+> For companies with mobile-first offerings, underestimate this at your peril."
+>
+> "The decision matrix is not just a scoring exercise, it forces alignment on what 
+> actually matters to your business."
+>
+> "We chose Recurly not because it was 'better' than Stripe, but because it was 
+> better *for us*. Context matters more than features."
+
 ### Key Takeaway
 
 For Chegg, **Recurly’s strengths in subscription flexibility, churn management, and native In-App support outweighed Stripe’s broader ecosystem**.
