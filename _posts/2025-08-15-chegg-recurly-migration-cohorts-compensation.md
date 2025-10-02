@@ -2,6 +2,7 @@
 title: "Chegg's Recurly Migration: Cohorts, Contracts, and Compensation"
 description: "Lessons and strategies from Chegg's migration to Recurly — balancing technical complexity with protecting team energy."
 excerpt: "How we moved Chegg's commerce to Recurly with a cohort rollout, CSV-driven migrations, and compensation services — without burning out the team."
+last_modified_at: 2025-09-20
 featured_image: /assets/images/chegg-commerce-migration-recurly.png
 categories: [architecture]
 tags:

@@ -1,6 +1,6 @@
 ---
 title: "Chegg Commerce: SaaS Vendor Selection (Stripe vs Recurly)"
-date: 2025-03-01
+last_modified_at: 2025-09-20
 categories: [case-study]
 tags:
   - architecture
