@@ -203,18 +203,43 @@ We ran the migration as an iterative, cohort-based program rather than a single 
 
 Despite careful planning, we hit several significant roadblocks that taught us valuable lessons:
 
-- **Data Inconsistencies**: Legacy data had accumulated years of edge cases — subscriptions with missing billing tokens, orphaned records, and inconsistent state transitions. What seemed like clean data in our POC revealed complexities at scale.
+- **Data Inconsistencies**:
+  - Legacy data had accumulated years of edge cases — subscriptions with missing billing tokens, orphaned records, and inconsistent state transitions.
+  - What seemed like clean data in our POC revealed complexities at scale.
+  - These inconsistencies required additional validation and cleanup scripts before migration.
 - **Vendor API Limitations**:
   - Recurly's CSV import process internally called their own APIs at high volume.
   - This caused us to hit rate limits during large ingestion batches.
   - The issue surfaced early in our migration testing.
   - Recurly was responsive and proactively increased our rate limits before each major ingest without additional charges.
-- **Braintree Tokens**: Though we migrated Braintree tokens, we could not fetch credit card details from the corresponding tokens until the tokens were used within Recurly. This forced us to build a fallback logic to retrieve card details from our legacy data store if billing information was sparse in Recurly.
-- **Inconsistencies in vendor's test and production environments**: Vendor test environments often use mock data; some complex production cases only surfaced in live runs — always verify end-to-end.
-- **Webhook Delivery Delays**: During peak processing, Recurly's webhook delivery experienced delays of several minutes. Our compensation service had to handle out-of-order events and duplicate deliveries more gracefully than initially designed.
-- **Legacy Data Special Cases**: We encountered legacy data with special use cases that weren't covered by Recurly's documentation. These edge cases only surfaced during migration, not during our initial POC. For example, certain subscription modifications that were standard in our legacy system had no direct equivalent in Recurly's data model. This taught us to never blindly follow vendor documentation—test everything thoroughly against your actual production data patterns.
-- **Cross-System Dependencies**: Other Chegg services that depended on subscription data had assumptions about data freshness and consistency that broke during the async migration. We discovered these dependencies through production alerts, not testing.
-- **Team Coordination**: With multiple teams working in parallel (frontend, backend, data, QA), staying synchronized became increasingly difficult. Feature branches diverged, integration environments fell out of sync, and communication overhead grew exponentially.
+- **Braintree Tokens**:
+  - Though we migrated Braintree tokens, we could not fetch credit card details from the corresponding tokens until the tokens were used within Recurly.
+  - The issue affected our ability to display complete payment information to customers post-migration.
+  - We built fallback logic to retrieve card details from our legacy data store when billing information was sparse in Recurly.
+- **Inconsistencies in vendor's test and production environments**:
+  - Vendor test environments often use mock data with simplified behaviors.
+  - Some complex production cases only surfaced in live runs despite thorough testing.
+  - We learned to always verify end-to-end flows in controlled production environments before full rollout.
+- **Webhook Delivery Delays**:
+  - During peak processing, Recurly's webhook delivery experienced delays of several minutes.
+  - This created race conditions between different subscription-related events.
+  - Our compensation service had to be redesigned to handle out-of-order events and duplicate deliveries more gracefully.
+- **Legacy Data Special Cases**:
+  - We encountered legacy data with special use cases that weren't covered by Recurly's documentation.
+  - These edge cases only surfaced during migration, not during our initial POC.
+  - For example, certain subscription modifications that were standard in our legacy system had no direct equivalent in Recurly's data model.
+  - This taught us to never blindly follow vendor documentation—test everything thoroughly against your actual production data patterns.
+- **Cross-System Dependencies**:
+  - Other Chegg services depended on subscription data with assumptions about freshness and consistency.
+  - These assumptions broke during the async migration process.
+  - We discovered many of these dependencies through production alerts rather than testing.
+  - This led us to implement a more comprehensive service dependency mapping before future migrations.
+- **Team Coordination**:
+  - With multiple teams working in parallel (frontend, backend, data, QA), staying synchronized became increasingly difficult.
+  - Feature branches diverged and required complex merges.
+  - Integration environments fell out of sync with production configurations.
+  - Communication overhead grew exponentially as the migration progressed.
+  - We implemented daily stand-ups and a dedicated migration Slack channel to improve coordination.
 
 The key insight: **plan for 3x more edge cases than your POC reveals**. Production data and production scale always surprise you.
 
