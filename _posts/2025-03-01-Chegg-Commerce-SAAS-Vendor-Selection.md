@@ -105,7 +105,7 @@ Key scores explained:
 - **Gateway Flexibility**: Stripe scored 3 (locked to Stripe's own gateway); Recurly scored 5 
   (supports Braintree, Adyen, Stripe Connect, and regional processors).
 - **TCO**: Recurly scored 3 vs Stripe's 4 due to higher per-transaction fees at our scale 
-  (~$X/month difference), offset by $Y/month savings in engineering maintenance.
+  (notable monthly cost difference), offset by significant monthly savings in engineering maintenance.
 
 Scoring scale: 1 = Poor fit, 3 = Adequate, 5 = Excellent fit
 
