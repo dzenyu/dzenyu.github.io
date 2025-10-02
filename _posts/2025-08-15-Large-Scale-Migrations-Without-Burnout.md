@@ -1,5 +1,5 @@
 ---
-title: "Leading Large-Scale Migrations: Lessons from Chegg's Move to Recurly"
+title: "Chegg's Recurly Migration: Cohorts, Contracts, and Compensation"
 description: "Lessons and strategies from Chegg's migration to Recurly — balancing technical complexity with protecting team energy."
 excerpt: "How we moved Chegg's commerce to Recurly with a cohort rollout, CSV-driven migrations, and compensation services — without burning out the team."
 featured_image: /assets/images/chegg-commerce-migration-recurly.png
@@ -259,4 +259,3 @@ Below are curated resources ordered roughly by importance to this migration stor
 
 - Payments and tokenization
   - Braintree (tokenization/payments): [https://developer.paypal.com/braintree/docs](https://developer.paypal.com/braintree/docs)
-
