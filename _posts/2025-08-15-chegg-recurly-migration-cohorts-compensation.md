@@ -31,7 +31,8 @@ hidden: true
 When our team at Chegg decided to migrate our in-house commerce system to a SaaS vendor, Recurly, the stakes couldn't have been higher. Tens of millions of students depended on seamless billing and subscription access. A single mistake could have led to broken checkouts, canceled subscriptions, and lost trust.  
 
 **TL;DR**  
-- Start with a focused POC; design APIs and schemas first as alignment contracts.  
+
+- Start with a focused POC; design APIs and schemas first as alignment contracts.
 - Roll out in cohorts with feature flags (Optimizely); use CSV-driven S3 imports into Recurly and webhook-driven distribution to Kafka.  
 - Automate reconciliation with compensation services to handle edge cases — protect both customers and engineering teams.  
 
@@ -62,11 +63,12 @@ This forced alignment across stakeholders: some legacy features were no longer w
 
 Recurly was set to become our **source of truth** for billing, payments, and subscriptions. Initially, we considered building a proxy service to call Recurly directly for everything.  
 
-Recurly, however, recommended a different approach:  
+Recurly, however, recommended a different approach:
+
 - Store **local copies of subscription data** (since subscriptions drive checkout, renewals, and cancellations).  
 - Query Recurly directly for other data.  
 
-This tradeoff balanced performance, resilience, and simplicity. It also meant defining new **GraphQL schemas** to provide business-friendly APIs that abstracted away vendor-specific quirks. 
+This tradeoff balanced performance, resilience, and simplicity. It also meant defining new **GraphQL schemas** to provide business-friendly APIs that abstracted away vendor-specific quirks.
 
 By designing GraphQL schemas first, we gave frontend and business teams clear contracts. This became a critical leadership tool — APIs as alignment mechanisms.
 
@@ -101,6 +103,7 @@ We didn't flip the switch overnight. Using **Optimizely** (a feature flagging an
 This meant the frontend never had to decide which backend to call. It also gave us confidence: if something broke, only a small cohort was affected.
 
 **Figure 2: Incremental Rollout Strategy Using Optimizely Cohorts**  
+
 ```mermaid
 flowchart TD
     U["Users"] -- Start Checkout Flow --> O["<b>Optimizely</b><br><i>Is in<br>experiment?</i>"]
@@ -209,6 +212,7 @@ Despite careful planning, we hit several significant roadblocks that taught us v
 - **Braintree Tokens**: Though we migrated Braintree tokens, we could not fetch credit card details from the corresponding tokens until the tokens were used within Recurly. This forced us to build a fallback logic to retrieve card details from our legacy data store if billing information was sparse in Recurly.
 - **Inconsistencies in vendor's test and production environments**: Vendor test environments often use mock data; some complex production cases only surfaced in live runs — always verify end-to-end.
 - **Webhook Delivery Delays**: During peak processing, Recurly's webhook delivery experienced delays of several minutes. Our compensation service had to handle out-of-order events and duplicate deliveries more gracefully than initially designed.
+- **Legacy Data Special Cases**: We encountered legacy data with special use cases that weren't covered by Recurly's documentation. These edge cases only surfaced during migration, not during our initial POC. For example, certain subscription modifications that were standard in our legacy system had no direct equivalent in Recurly's data model. This taught us to never blindly follow vendor documentation—test everything thoroughly against your actual production data patterns.
 - **Cross-System Dependencies**: Other Chegg services that depended on subscription data had assumptions about data freshness and consistency that broke during the async migration. We discovered these dependencies through production alerts, not testing.
 - **Team Coordination**: With multiple teams working in parallel (frontend, backend, data, QA), staying synchronized became increasingly difficult. Feature branches diverged, integration environments fell out of sync, and communication overhead grew exponentially.
 
