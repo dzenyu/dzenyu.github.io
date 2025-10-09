@@ -184,8 +184,6 @@ This evaluation highlights the importance of **POC-driven vendor selection**, ba
 - In‑App purchase events → Vendor → Webhooks → Entitlement Service  
 - Data sync/export → Data Warehouse (reporting, forecasting, LTV, churn analysis)
 
-> **Coming soon:** Chegg's Recurly Migration — Cohorts, Contracts, and Compensation.
-
 ## References
 
 ### Decision-Influencing Resources
@@ -211,3 +209,4 @@ This evaluation highlights the importance of **POC-driven vendor selection**, ba
 
 - [Subscription Business Model Fundamentals](https://en.wikipedia.org/wiki/Subscription_business_model)
 - [India Unified Payment Interface](https://en.wikipedia.org/wiki/Unified_Payments_Interface)
+- Related: Migration story — [Chegg’s Recurly Migration: Cohorts, Contracts, and Compensation](/architecture/2025/08/15/chegg-recurly-migration-cohorts-compensation.html)
