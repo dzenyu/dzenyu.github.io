@@ -1,6 +1,6 @@
 ---
 title: "Chegg Commerce: SaaS Vendor Selection (Stripe vs Recurly)"
-last_modified_at: 2025-09-20
+last_modified_at: 2025-10-08
 categories: [case-study]
 tags:
   - architecture
@@ -183,8 +183,6 @@ This evaluation highlights the importance of **POC-driven vendor selection**, ba
 - Vendor Webhooks → Webhook Ingestion Service (verify signatures, idempotency, DLQ)  
 - In‑App purchase events → Vendor → Webhooks → Entitlement Service  
 - Data sync/export → Data Warehouse (reporting, forecasting, LTV, churn analysis)
-
-> **Coming soon:** Chegg's Recurly Migration — Cohorts, Contracts, and Compensation.
 
 ## References
 

@@ -1,0 +1,21 @@
+<svg width="600" height="180" xmlns="http://www.w3.org/2000/svg">
+  <!-- Banner -->
+  <rect x="0" y="0" width="600" height="48" fill="#3a4b8c"/>
+  <text x="300" y="32" font-size="24" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold" fill="#fff">
+    SaaS Commerce Vendor Selection
+  </text>
+  <!-- Stripe Logo Block -->
+  <rect x="70" y="72" width="120" height="60" rx="10" fill="#6772e5"/>
+  <text x="130" y="110" font-size="28" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold" fill="#fff">
+    Stripe
+  </text>
+  <!-- VS -->
+  <text x="300" y="110" font-size="28" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold" fill="#3a4b8c">
+    VS
+  </text>
+  <!-- Recurly Logo Block -->
+  <rect x="410" y="72" width="120" height="60" rx="10" fill="#2b45a2"/>
+  <text x="470" y="110" font-size="28" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold" fill="#fff">
+    Recurly
+  </text>
+</svg>
