@@ -1,6 +1,6 @@
 ---
 title: "Chegg Commerce: SaaS Vendor Selection (Stripe vs Recurly)"
-date: 2025-03-01
+last_modified_at: 2025-10-08
 categories: [case-study]
 tags:
   - architecture
@@ -121,6 +121,7 @@ POC goals: validate fit for key business flows, identify integration friction, a
 6. Backend impact: evaluate changes to fulfillment, entitlements, invoicing, CRM, and analytics.  
 
 POC success criteria:
+
 - End‑to‑end subscription lifecycle works (create, trial, renew, pause/cancel, refund).
 - Webhooks processed reliably with idempotency and replay handling.
 - Dashboards provide sufficient operator controls and reporting.
@@ -148,6 +149,7 @@ POC success criteria:
 7. Full cutover and decommission: switch traffic, stabilize, retire legacy components.
 
 Key KPIs:
+
 - Conversion rate, SCA success, auth/decline rates
 - Renewal success, dunning recovery, churn (voluntary/involuntary)
 - Refund/chargeback rates and response times
@@ -182,9 +184,12 @@ This evaluation highlights the importance of **POC-driven vendor selection**, ba
 - In‑App purchase events → Vendor → Webhooks → Entitlement Service  
 - Data sync/export → Data Warehouse (reporting, forecasting, LTV, churn analysis)
 
+> **Coming soon:** Chegg's Recurly Migration — Cohorts, Contracts, and Compensation.
+
 ## References
 
 ### Decision-Influencing Resources
+
 - [Recurly In-App Purchase Overview](https://docs.recurly.com/docs/in-app-purchase-overview) - Key resource for evaluating iOS/Android support
 - [Stripe Billing vs Recurly Comparison](https://www.chargebee.com/blog/stripe-billing-vs-recurly/) - Third-party analysis
 - [SaaS Metrics That Matter](https://www.forentrepreneurs.com/saas-metrics-2/) - Framework for KPI selection
@@ -196,11 +201,13 @@ This evaluation highlights the importance of **POC-driven vendor selection**, ba
 - [Strong Customer Authentication (PSD2)](https://stripe.com/docs/strong-customer-authentication)
 
 ### Vendor Documentation
+
 - [Recurly API Documentation](https://developers.recurly.com/)
 - [Recurly Webhooks Reference](https://docs.recurly.com/docs/webhooks)
 - [Stripe Documentation](https://stripe.com/docs)
 - [Stripe vs Recurly Feature Comparison](https://recurly.com/demo/stripe-alternative/)
 
 ### Business Context
+
 - [Subscription Business Model Fundamentals](https://en.wikipedia.org/wiki/Subscription_business_model)
 - [India Unified Payment Interface](https://en.wikipedia.org/wiki/Unified_Payments_Interface)
