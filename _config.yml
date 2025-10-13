@@ -48,7 +48,7 @@ search: true
 author:
   name   : "Dzenyu Mukangara"
   avatar : "/assets/images/my-avatar.png"
-  bio    : "Principal Software Engineer, Engineering Leadership, Micro Services, Cloud (AWS), Mentoring, AI"
+  bio    : "Principal Software Engineer, Engineering Leadership, Micro Services, Cloud (AWS), AI"
   location : "DFW, USA"
   links:
     - label: "GitHub"
