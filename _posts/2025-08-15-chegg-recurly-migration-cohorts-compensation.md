@@ -28,7 +28,7 @@ search: false
 hidden: true
 ---
 
-When our team at Chegg decided to migrate our in-house commerce system to a SaaS vendor, Recurly, the stakes couldn't have been higher. Tens of millions of students depended on seamless billing and subscription access. A single mistake could have led to broken checkouts, canceled subscriptions, and lost trust.  
+When our team at Chegg decided to migrate our in-house commerce system to a SaaS vendor, Recurly, the stakes could not have been higher. Tens of millions of students depended on seamless billing and subscription access. A single mistake could have led to broken checkouts, canceled subscriptions, and lost trust.  
 
 **TL;DR**  
 
@@ -55,7 +55,7 @@ This is the story of how we approached our migration to Recurly and the lessons 
 Every migration begins with uncertainty. Instead of jumping straight into code, we started with a **Proof of Concept (POC)** for both front-end and backend flows.  
 
 - We tested checkout, payments, product management, and subscription lifecycles (creation, renewals, cancellations) for both web and mobile.  
-- We documented where Recurly provided parity with Chegg and where it didn't.  
+- We documented where Recurly provided parity with Chegg and where it did not.  
 
 This forced alignment across stakeholders: some legacy features were no longer worth carrying forward, while others required vendor collaboration. The POC became our map for what to build, drop, or renegotiate.  
 
@@ -91,11 +91,11 @@ The diagram below shows our target state during the migration and still includes
 
 ![Chegg Recurly Migration Overview](/assets/images/chegg-recurly-migration-overview.png)
 
-Note: the diagram focuses on the subscription migration flow and omits other downstream consumers (Account Service, chargeback monitor, fraud pipelines, analytics, billing reconciliation, etc.) for brevity.
+**Note:** the diagram focuses on the subscription migration flow and omits other downstream consumers (Account Service, chargeback monitor, fraud pipelines, analytics, billing reconciliation, etc.) for brevity.
 
 ## Incremental Rollouts With Optimizely
 
-We didn't flip the switch overnight. Using **Optimizely** (a feature flagging and experimentation platform that allows controlled rollouts to specific user segments), we:
+We did not flip the switch overnight. Using **Optimizely** (a feature flagging and experimentation platform that allows controlled rollouts to specific user segments), we:
 
 - Directed new cohorts of users to the Recurly checkout flow.
 - Served subscription data for all users through the new GraphQL APIs.
