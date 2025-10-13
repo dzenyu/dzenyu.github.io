@@ -15,7 +15,7 @@ tags:
   - testing
   - transformation
   - validation
-featured_image: /assets/images/From-Perl-to-Spring-Batch-Featured.png
+featured_image: /assets/images/modernizing-metadata-ingestion-perl-to-spring-batch-featured.png
 excerpt: "A case study on migrating a critical 5,000-line Perl script to a modern, scalable Spring Batch application at TiVo, enabling global expansion and accelerating development."
 featured: true
 ---
@@ -38,7 +38,7 @@ Our ingestion pipeline’s backbone—a **5,000-line Perl monolith**—was:
 
 The Perl script wasn’t just technical debt—it was a barrier to innovation, agility, and market expansion.
 
-![TiVo Metadata Ingestion](/assets/images/From-Perl-to-Spring-Batch-Featured.png)
+![TiVo Metadata Ingestion](/assets/images/modernizing-metadata-ingestion-perl-to-spring-batch-featured.png)
 
 It was clear: if TiVo wanted to expand globally, we needed to replace the Perl monster with a system that was **flexible, testable, and scalable by design**.
 
