@@ -81,7 +81,5 @@ Check out my **certificate here**: [View Certificate](https://certificates.confl
 
 Learn more about the certification on **[Confluent’s official page](https://developer.confluent.io/certifications/data-streaming-engineer/)**.  
 
-![Confluent](https://www.confluent.io/certifications/badge-placeholder.png)
-
 ---
 
