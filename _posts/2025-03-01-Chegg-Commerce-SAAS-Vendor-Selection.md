@@ -1,6 +1,6 @@
 ---
 title: "Chegg Commerce: SaaS Vendor Selection (Stripe vs Recurly)"
-date: 2025-03-01
+last_modified_at: 2025-10-08
 categories: [case-study]
 tags:
   - architecture
@@ -97,6 +97,19 @@ Weights applied to a 1–5 score (5 = best fit). Example results below reflect C
 
 Result: Recurly scored higher given Chegg’s emphasis on In‑App and subscription lifecycle needs.
 
+### Scoring Notes
+
+Key scores explained:
+
+- **In-App Support**: Stripe scored 2 (requires custom bridging for iOS/Android subscription 
+  management); Recurly scored 5 (native in-app out-of-box integration).
+- **Gateway Flexibility**: Stripe scored 3 (locked to Stripe's own gateway); Recurly scored 5 
+  (supports Braintree, Adyen, Stripe Connect, and regional processors).
+- **TCO**: Recurly scored 3 vs Stripe's 4 due to higher per-transaction fees at our scale 
+  (notable monthly cost difference), offset by significant monthly savings in engineering maintenance.
+
+Scoring scale: 1 = Poor fit, 3 = Adequate, 5 = Excellent fit
+
 ## Proof of Concept (POC) Approach
 
 POC goals: validate fit for key business flows, identify integration friction, and estimate effort.
@@ -109,6 +122,7 @@ POC goals: validate fit for key business flows, identify integration friction, a
 6. Backend impact: evaluate changes to fulfillment, entitlements, invoicing, CRM, and analytics.  
 
 POC success criteria:
+
 - End‑to‑end subscription lifecycle works (create, trial, renew, pause/cancel, refund).
 - Webhooks processed reliably with idempotency and replay handling.
 - Dashboards provide sufficient operator controls and reporting.
@@ -136,6 +150,7 @@ POC success criteria:
 7. Full cutover and decommission: switch traffic, stabilize, retire legacy components.
 
 Key KPIs:
+
 - Conversion rate, SCA success, auth/decline rates
 - Renewal success, dunning recovery, churn (voluntary/involuntary)
 - Refund/chargeback rates and response times
@@ -147,6 +162,15 @@ Key KPIs:
 - Strong **subscription lifecycle** features (dunning, churn controls, complex pricing).  
 - **Payment gateway flexibility**, reducing lock‑in and enabling regional optimization.  
 - Demonstrated **rate‑limit flexibility** for peak events without punitive costs.
+
+> "In-App subscription support alone accounted for 20% of our decision weight. 
+> For companies with mobile-first offerings, underestimate this at your peril."
+>
+> "The decision matrix is not just a scoring exercise, it forces alignment on what 
+> actually matters to your business."
+>
+> "We chose Recurly not because it was 'better' than Stripe, but because it was 
+> better *for us*. Context matters more than features."
 
 ### Key Takeaway
 
@@ -161,14 +185,30 @@ This evaluation highlights the importance of **POC-driven vendor selection**, ba
 - In‑App purchase events → Vendor → Webhooks → Entitlement Service  
 - Data sync/export → Data Warehouse (reporting, forecasting, LTV, churn analysis)
 
+> **Coming soon:** Chegg's Recurly Migration — Cohorts, Contracts, and Compensation.
+
 ## References
 
-- [PCI DSS](https://www.pcisecuritystandards.org/)  
-- [Strong Customer Authentication (PSD2)](https://en.wikipedia.org/wiki/Strong_customer_authentication)  
-- [Stripe Documentation](https://stripe.com/docs)  
-- [Recurly Documentation](https://docs.recurly.com/)  
-- [Webhooks Best Practices](https://webhooks.guide/)  
-- [Subscription Business Model](https://en.wikipedia.org/wiki/Subscription_business_model)
-- [Recurly: Stripe Alternative](https://recurly.com/demo/stripe-alternative/)
-- [Stripe Vs. Recurly: Which one Should You Choose?](https://baremetrics.com/blog/stripe-vs-recurly-which-one-should-you-choose)
+### Decision-Influencing Resources
+
+- [Recurly In-App Purchase Overview](https://docs.recurly.com/docs/in-app-purchase-overview) - Key resource for evaluating iOS/Android support
+- [Stripe Billing vs Recurly Comparison](https://www.chargebee.com/blog/stripe-billing-vs-recurly/) - Third-party analysis
+- [SaaS Metrics That Matter](https://www.forentrepreneurs.com/saas-metrics-2/) - Framework for KPI selection
+
+### Technical Implementation Guides
+
+- [Webhooks Best Practices](https://webhooks.guide/) - Idempotency and retry patterns
+- [PCI DSS Compliance Guide](https://www.pcisecuritystandards.org/document_library)
+- [Strong Customer Authentication (PSD2)](https://stripe.com/docs/strong-customer-authentication)
+
+### Vendor Documentation
+
+- [Recurly API Documentation](https://developers.recurly.com/)
+- [Recurly Webhooks Reference](https://docs.recurly.com/docs/webhooks)
+- [Stripe Documentation](https://stripe.com/docs)
+- [Stripe vs Recurly Feature Comparison](https://recurly.com/demo/stripe-alternative/)
+
+### Business Context
+
+- [Subscription Business Model Fundamentals](https://en.wikipedia.org/wiki/Subscription_business_model)
 - [India Unified Payment Interface](https://en.wikipedia.org/wiki/Unified_Payments_Interface)
