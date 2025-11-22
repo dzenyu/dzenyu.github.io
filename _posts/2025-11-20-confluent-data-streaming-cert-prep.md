@@ -94,7 +94,7 @@ Scoring **100% on Kafka, Kafka Connect, and Kafka Streams**, I feel confident in
 
 Check out my **certificate here**: [View Certificate](https://certificates.confluent.io/de4d7019-fa70-47cc-bd67-5d2df9f8901a){:target="_blank" rel="noopener noreferrer"}
 
-Learn more about the certification on **[Confluent’s official page](https://developer.confluent.io/certifications/data-streaming-engineer/)**.  
+Learn more about the certification on **[Confluent’s official page](https://developer.confluent.io/certifications/data-streaming-engineer/){:target="_blank" rel="noopener noreferrer"}**.  
 
 
 ---
