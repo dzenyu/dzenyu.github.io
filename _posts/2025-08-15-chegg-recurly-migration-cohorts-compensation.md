@@ -234,12 +234,6 @@ Despite careful planning, we hit several significant roadblocks that taught us v
   - These assumptions broke during the async migration process.
   - We discovered many of these dependencies through production alerts rather than testing.
   - This led us to implement a more comprehensive service dependency mapping before future migrations.
-- **Team Coordination**:
-  - With multiple teams working in parallel (frontend, backend, data, QA), staying synchronized became increasingly difficult.
-  - Feature branches diverged and required complex merges.
-  - Integration environments fell out of sync with production configurations.
-  - Communication overhead grew exponentially as the migration progressed.
-  - We implemented daily stand-ups and a dedicated migration Slack channel to improve coordination.
 
 The key insight: **plan for 3x more edge cases than your POC reveals**. Production data and production scale always surprise you.
 
