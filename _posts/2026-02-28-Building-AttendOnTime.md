@@ -246,4 +246,4 @@ If you are a builder, I hope this encourages you to start.
 
 👉 [Try AttendOnTime](https://app.attendontime.com)
 
-I do not take this journey for granted. It is been a process of growth, discipline, and trusting the path as it unfolds.
+I do not take this journey for granted. It has been a process of growth, discipline, and trusting the path as it unfolds.
