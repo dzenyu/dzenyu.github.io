@@ -20,8 +20,9 @@ jobs:
             - name: Set up Ruby
               uses: ruby/setup-ruby@v1
               with:
-                  # Reads .ruby-version if present; otherwise falls back to bundler's
-                  # lockfile or the version specified here.
+                  # Explicitly pin Ruby because this repo has no .ruby-version
+                  # file and setup-ruby requires one source of version truth.
+                  ruby-version: "3.3"
                   bundler-cache: true # runs `bundle install` and caches gems
 
             - name: Build site
