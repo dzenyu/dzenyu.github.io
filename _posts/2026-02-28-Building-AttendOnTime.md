@@ -53,7 +53,7 @@ This was not just inefficient. It was a gap.
 
 ## The Moment It Started
 
-In October of 2025, I was on vacation in Ocho Rios, Jamaica.
+In October 2025, I was on vacation in Ocho Rios, Jamaica.
 
 What was supposed to be a one-week trip turned into two and a half weeks—we got stuck due to Hurricane Melissa.
 
