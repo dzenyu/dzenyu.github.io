@@ -1,0 +1,34 @@
+name: Build Jekyll (CI)
+
+# Run on every PR targeting any branch.
+# This is a build-only check — it does NOT deploy.
+# GitHub Pages uses its own separate deployment pipeline (configured in
+# repository Settings → Pages) and is not affected by this workflow.
+on:
+    pull_request:
+        branches:
+            - "**"
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Set up Ruby
+              uses: ruby/setup-ruby@v1
+              with:
+                  # Explicitly pin Ruby because this repo has no .ruby-version
+                  # file and setup-ruby requires one source of version truth.
+                  ruby-version: "3.3"
+                  bundler-cache: true # runs `bundle install` and caches gems
+
+            - name: Build site
+              # --safe mirrors the flag GitHub Pages uses in production.
+              # --future includes posts dated in the future (useful for draft posts).
+              # Output goes to _site/ — not published anywhere.
+              run: bundle exec jekyll build --safe --future
+              env:
+                  JEKYLL_ENV: production
