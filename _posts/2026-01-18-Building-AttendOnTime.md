@@ -3,7 +3,7 @@ title: "Building AttendOnTime: My Startup Journey from Check-in Chaos to Event P
 last_modified_at: 2026-05-03
 categories: [startup, AttendOnTime]
 tags: [indie-hacker, event-management, saas, microservices, kafka, spring-boot, founder-journey, build-in-public]
-featured: true
+featured: false
 mermaid: true
 ---
 
