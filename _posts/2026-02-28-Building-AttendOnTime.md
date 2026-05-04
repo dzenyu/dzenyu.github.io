@@ -3,13 +3,16 @@ title: "Building AttendOnTime: My Startup Journey from Check-in Chaos to Event P
 date: 2026-02-28
 last_modified_at: 2026-05-03
 categories: [startup]
-tags: [indie-hacker, event-management, saas, microservices, kafka, spring-boot]
+tags: [indie-hacker, event-management, saas, microservices, kafka, spring-boot, founder-journey, build-in-public]
 featured: false
 ---
 
-## Building AttendOnTime: From a Painful Check-in Process to a Platform
+## Building AttendOnTime: From Check-in Chaos to a Platform
 
-This started as a simple attempt to remove check-in chaos at live events and has grown into my first serious startup journey.
+I did not set out to build a startup.
+I was trying to fix a broken check-in process.
+
+What started as a small attempt to remove friction at live events has grown into my first serious journey as a builder.
 
 Sometimes the best ideas do not come from brainstorming.
 They come from watching someone struggle with a problem that should not exist.
@@ -36,9 +39,15 @@ The process looked something like this:
 
 It was tedious. Error-prone. Stressful—especially when guests are arriving quickly and expectations are high.
 
-And this was not a one-off situation. It kept happening.
+I remember watching guests arrive while names were being crossed off on printed sheets—people waiting, organizers flipping through pages trying to find the right name.
 
-At some point, it became clear: this is not just a workflow problem.
+That moment made something clear:
+
+This process does not scale under pressure.
+
+And it was not a one-off situation. It kept happening.
+
+At some point, it became obvious: this is not just a workflow issue.
 It is a product gap.
 
 ---
@@ -69,9 +78,7 @@ Initially, the goal was narrow:
 
 But as I went deeper, the scope naturally expanded.
 
-Because check-in is not the real problem.
-
-The real problem is fragmentation.
+Check-in is not the problem. Fragmentation is.
 
 * Tickets are sold in one place
 * Attendees are tracked in another
@@ -81,7 +88,8 @@ So AttendOnTime started evolving into something bigger:
 
 > A platform where event organizers can manage the entire lifecycle—from registration to check-in—in one place.
 
-I also made an early mistake: I started sketching a broad "event operations suite" before validating the most critical flow.
+I also made an early mistake: I started sketching a broad “event operations suite” before validating the most critical flow.
+
 That slowed me down.
 
 The reset was simple: focus first on the check-in path that breaks most often in real events, then expand only when that flow is reliable.
@@ -90,23 +98,23 @@ The reset was simple: focus first on the check-in path that breaks most often in
 
 ## Building Solo (and Building Right)
 
-I am building this alone.
+I am building this alone, alongside my full-time work as a backend engineer.
 
 That forces clarity.
 
 Every decision matters—especially around time, complexity, and scope.
 
-From a technical perspective, I chose to build this as a microservices platform with a strong focus on scalability, real-time communication, and clean service boundaries.
+From a technical perspective, I chose to build this as a microservices platform with a bias toward long-term scalability and real-time coordination.
 
 The stack reflects that direction:
 
-- **Spring Boot** — the backbone for building reliable, production-grade services  
-- **Kafka** — enabling an event-driven architecture that keeps services loosely coupled and responsive  
-- **PostgreSQL** — the primary data store, chosen for consistency and reliability  
-- **Valkey (Redis-compatible)** — powering caching and real-time capabilities like WebSocket-driven updates  
-- **GraphQL** — providing a flexible and efficient API layer for the frontend  
-- **AWS** — handling infrastructure, scaling, and operational concerns  
-- **Amazon SES** — supporting transactional email delivery for critical user interactions  
+* **Spring Boot** — the backbone for building reliable, production-grade services
+* **Kafka** — enabling an event-driven architecture that keeps services loosely coupled and responsive
+* **PostgreSQL** — the primary data store, chosen for consistency and reliability
+* **Valkey (Redis-compatible)** — powering caching and real-time capabilities like WebSocket-driven updates
+* **GraphQL** — providing a flexible and efficient API layer for the frontend
+* **AWS** — handling infrastructure, scaling, and operational concerns
+* **Amazon SES** — supporting transactional email delivery for critical user interactions
 
 Was this the fastest way to build an MVP? Probably not.
 
@@ -133,7 +141,7 @@ It came from observing a real, repeated pain point.
 
 ### 2. Scope Expands Quickly
 
-What starts as a “simple tool” can evolve into a platform faster than expected.
+What starts as a simple tool can evolve into a platform faster than expected.
 Being intentional about boundaries is critical.
 
 ### 3. Solo Building Requires Discipline
@@ -149,7 +157,6 @@ You have to do all of that yourself.
 ### 4. Over-Engineering Is a Real Risk
 
 It is tempting to build for scale from day one.
-But not every problem needs a distributed system—at least not immediately.
 
 If I optimized only for speed, I could have shipped a narrower monolith sooner.
 If I optimized only for architecture, I could spend months building abstractions no organizer asked for.
@@ -173,24 +180,26 @@ Organizers can securely sign in, create organizations, and manage events within 
 
 ### Attendee Experience
 
-For attendees, events can be exposed publicly when needed—making it easy to share a clean, accessible event page without requiring manual coordination.
+Events can be exposed publicly when needed, allowing organizers to share a clean and accessible event page without manual coordination.
+
+### Communication & Notifications
+
+Communication is treated as a core part of the platform. Organizers can send targeted updates to attendees based on their status—whether they have RSVP’d, checked in, or not yet arrived.
+
+These updates are delivered through:
+
+* Real-time in-app notifications powered by WebSocket connections
+* Email notifications for confirmations and important updates
 
 ### Payments and Ticket Ownership
 
-Communication is a first-class concern. Organizers can send targeted updates to attendees based on their status—whether they have RSVP’d, checked in, or not yet arrived. These updates are delivered both in-app and through external channels, enabling real-time coordination during live events.
+On the commerce side, the platform integrates with Stripe to support paid events. Organizers can generate payment links, associate purchases with attendees, and automatically process payments through webhooks.
 
-On the commerce side, the platform integrates with Stripe to support paid events. Organizers can generate payment links, associate purchases with attendees, and automatically process payments through webhooks. From there, the system begins to handle ticket ownership workflows, including sharing access with others and handling refund scenarios when needed.
-
-### Platform Capabilities in Production
-
-Under the hood, notifications are delivered through multiple channels:
-
-* Real-time in-app updates powered by WebSocket connections
-* Email delivery for critical actions and confirmations
+From there, the system begins to handle ticket ownership workflows, including sharing access with others and handling refund scenarios when needed.
 
 ### In Progress
 
-Support for SMS is currently in progress.
+Support for SMS notifications is currently in progress.
 
 ---
 
@@ -222,4 +231,4 @@ If you are a builder, I hope this encourages you to start—especially when the 
 
 If you are an organizer and this sounds useful, you can follow updates and request access through the [AttendOnTime landing page](https://attendontime.com).
 
-This is just the beginning.
+This is just the beginning—and I am committed to seeing where this goes.
