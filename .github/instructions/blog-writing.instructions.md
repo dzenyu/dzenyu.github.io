@@ -22,7 +22,7 @@ Never use the following (or equivalent forms):
 | `wasn't` | `was not` |
 | `I'd` | `I would` |
 | `I'm` | `I am` |
-| `Here's` | `Here is` / rewrite |
+| `Here's` | `Here is` |
 | `there's` | `there is` |
 | `it's` | `it is` |
 | `can't` | `cannot` |

@@ -33,11 +33,11 @@ Simple request. Painful execution.
 
 The workflow looked like this:
 
-* Receive a PDF with a list of attendees
+* Receive a PDF file with a list of attendees
 * Convert it manually into Excel or Google Sheets
 * Clean the data
 * Print multiple copies
-* Check people in using paper lists
+* Check-in people to an event using paper lists
 
 It worked—but barely.
 
