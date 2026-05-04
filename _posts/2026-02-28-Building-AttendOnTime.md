@@ -1,11 +1,13 @@
 ---
 title: "Building AttendOnTime: My Startup Journey from Check-in Chaos to Event Platform"
-date: 2026-02-28
 last_modified_at: 2026-05-03
-categories: [startup]
+categories: [startup, AttendOnTime]
 tags: [indie-hacker, event-management, saas, microservices, kafka, spring-boot, founder-journey, build-in-public]
-featured: false
+featured: true
+mermaid: true
 ---
+
+From check-in chaos to a real-time event and attendee management, seamless registration, and effortless check-in platform - AttendOnTime.
 
 ## Building AttendOnTime: From Check-in Chaos to a Platform
 
@@ -147,8 +149,8 @@ Speed vs architecture is not a one-time decision—it is continuous.
 
 The platform is live:
 
-- 🌐 [Visit the landing page](https://attendontime.com)
-- 👉 [Try AttendOnTime](https://app.attendontime.com)
+- 🌐 [Visit the landing page](https://attendontime.com){:target="_blank" rel="noopener noreferrer"}
+- 👉 [Try AttendOnTime](https://app.attendontime.com){:target="_blank" rel="noopener noreferrer"}
 
 Today, AttendOnTime supports real-world event operations end to end.
 
