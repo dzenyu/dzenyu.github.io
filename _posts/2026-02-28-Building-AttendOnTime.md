@@ -110,11 +110,13 @@ The stack reflects that direction:
 
 * **Spring Boot** — the backbone for building reliable, production-grade services
 * **Kafka** — enabling an event-driven architecture that keeps services loosely coupled and responsive
+* **gRPC** — handling all direct synchronous communication between internal services, where a typed contract and low-latency round-trips matter more than an event stream
 * **PostgreSQL** — the primary data store, chosen for consistency and reliability
 * **Valkey (Redis-compatible)** — powering caching and real-time capabilities like WebSocket-driven updates
 * **GraphQL** — providing a flexible and efficient API layer for the frontend
 * **AWS** — handling infrastructure, scaling, and operational concerns
 * **Amazon SES** — supporting transactional email delivery for critical user interactions
+* **MaxMind GeoLite2** — powering location-aware features including geo-fenced self check-in and regional context for organizers and attendees, without depending on a paid geolocation API
 
 Was this the fastest way to build an MVP? Probably not.
 
@@ -178,9 +180,17 @@ Today, AttendOnTime supports a practical foundation for real-world event operati
 
 Organizers can securely sign in, create organizations, and manage events within those organizations. From there, they can invite and manage team members, with the system keeping everyone informed through automated notifications as organizations and events evolve.
 
-### Attendee Experience
+### Event Management
 
-Events can be exposed publicly when needed, allowing organizers to share a clean and accessible event page without manual coordination.
+Events in AttendOnTime are not a single format — organizers choose between in-person events with a physical address, fully online events with a meeting URL (Zoom, Google Meet, Teams, and similar), or hybrid events that support both simultaneously. The platform handles each type without forcing organizers to adapt their workflow.
+
+Event visibility is equally flexible. Public events get a shareable landing page that anyone can discover and use to register themselves — no invitation needed. Private events are invite-only: only attendees explicitly invited by the host or organizers can access the event page, keeping the guest list fully in the organizer's control. For private ticketed events, purchasing a ticket doubles as registration — the attendee is automatically added to the event the moment payment clears, removing a manual step that is easy to forget in the rush before an event.
+
+Subscription tiers control how many events an org can run per month, and that limit is enforced automatically at creation time. No manual gates, no support tickets — organizers see immediately whether they have capacity, and the restriction disappears the moment they upgrade.
+
+Each event is fully configurable: organizers can upload a banner image, apply custom colors, set notification preferences, and attach custom promotional URLs for social sharing — all from a single setup flow.
+
+Where this becomes genuinely useful for execution teams is **Event Tasks**. Hosts and managers can create tasks for any org member assigned to the event, attach reminders, and track status through to completion. A task like "Light candles 30 minutes before doors open" goes to the people responsible, carries a reminder, and surfaces a clear blocked or in-progress state if something goes wrong. Tasks are grouped into roles — Security, Event Helpers, Setup Crew — and org members can send messages directly to a role group to broadcast changes without hunting down individuals. It is a lightweight internal coordination layer that sits exactly where the chaos usually lives: the final hours before an event starts.
 
 ### Communication & Notifications
 
@@ -190,6 +200,18 @@ These updates are delivered through:
 
 * Real-time in-app notifications powered by WebSocket connections
 * Email notifications for confirmations and important updates
+
+### Attendee Check-in
+
+Check-in is where the platform earns its name—and it is the area where the most operational chaos gets eliminated.
+
+Attendees can check themselves in when organizers enable self check-in for an event. For events with a physical venue, that flow is geo-fenced: the platform validates that the attendee is within the permitted proximity before allowing access, removing the possibility of remote or premature check-ins. On ticketed events, the check-in process includes live ticket validation—ensuring that only legitimate ticket holders gain entry, whether checking in themselves or being checked in by a team member.
+
+Org members can also check in attendees directly, which is the default flow for events that require more control at the door. As attendees move through, the check-in dashboard updates in real time for every team member viewing it—no manual refreshes, no stale counts. When one org member checks someone in, every other member's view reflects that instantly via WebSocket, making it possible to run multiple entry points without coordination overhead.
+
+Once an attendee is checked in, they receive an automatic email confirmation—a small but meaningful signal that the platform is watching the details so organizers do not have to.
+
+Real-time attendee statistics are available throughout the event, giving organizers a live pulse on arrivals, outstanding RSVPs, and check-in rate at a glance.
 
 ### Payments and Ticket Ownership
 
