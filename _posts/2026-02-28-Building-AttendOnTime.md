@@ -147,7 +147,7 @@ Speed vs architecture is not a one-time decision—it is continuous.
 
 The platform is live:
 
-- 🌐 [Visit the landing page](https://attendontime.com) 
+- 🌐 [Visit the landing page](https://attendontime.com)
 - 👉 [Try AttendOnTime](https://app.attendontime.com)
 
 Today, AttendOnTime supports real-world event operations end to end.
