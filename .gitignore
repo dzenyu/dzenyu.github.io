@@ -8,7 +8,8 @@ _site/
 # Ruby/Bundler
 .bundle/
 vendor/bundle/
-Gemfile.lock
+# Gemfile.lock is intentionally committed: this is a site, not a gem, and CI
+# must resolve the same gem versions we build with locally.
 
 # Node (if you add any tooling)
 node_modules/
