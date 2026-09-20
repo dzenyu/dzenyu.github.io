@@ -6,6 +6,17 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
+    # CLAUDE.md requires Conventional Commits for every commit message and
+    # PR title, Dependabot's included. "include: scope" appends the (deps)
+    # / (deps-dev) scope, so runtime and tooling bumps read apart at a
+    # glance: "chore(deps): bump astro from 7.3.3 to 7.4.0".
+    commit-message:
+      prefix: "chore"
+      prefix-development: "chore"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "npm"
     groups:
       # Minor and patch bumps are low-risk, so fold them into one PR
       # instead of one per package. Major releases are left out of the
@@ -21,6 +32,14 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    # These bumps only ever touch workflow files, so they are "ci" rather
+    # than "chore".
+    commit-message:
+      prefix: "ci"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "github_actions"
     groups:
       actions-minor-and-patch:
         applies-to: version-updates
