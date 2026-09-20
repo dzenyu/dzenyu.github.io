@@ -9,7 +9,7 @@ const posts = sortByDateDesc(await getCollection("blog"));
 
 <BaseLayout title="Blog" description="All posts, newest first.">
   <h1>Blog</h1>
-  <ul class="post-list">
+  <ul class="post-grid">
     {posts.map((post) => <PostListItem post={post} />)}
   </ul>
 </BaseLayout>

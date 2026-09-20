@@ -10,14 +10,16 @@ const categories = [...allTopLevelCategories(posts).entries()].sort((a, b) =>
 ---
 
 <BaseLayout title="Categories" description="Browse all posts by top-level category.">
-  <h1>Categories</h1>
-  <ul class="category-list">
-    {categories.map(([category, count]) => (
-      <li>
-        <a href={`/categories/${slugifyKey(category)}/`}>
-          {category} <span class="count">({count})</span>
-        </a>
-      </li>
-    ))}
-  </ul>
+  <div class="prose">
+    <h1>Categories</h1>
+    <ul class="category-list">
+      {categories.map(([category, count]) => (
+        <li>
+          <a href={`/categories/${slugifyKey(category)}/`}>
+            {category} <span class="count">({count})</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
 </BaseLayout>

@@ -31,7 +31,7 @@ const { label, posts } = Astro.props;
 
 <BaseLayout title={`Tag: ${label}`} description={`Posts tagged “${label}”.`}>
   <h1>Tag: {label}</h1>
-  <ul class="post-list">
+  <ul class="post-grid">
     {posts.map((post) => <PostListItem post={post} />)}
   </ul>
   <p><a href="/tags/">&larr; All tags</a></p>

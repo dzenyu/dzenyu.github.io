@@ -31,7 +31,7 @@ const { label, posts } = Astro.props;
 
 <BaseLayout title={`Category: ${label}`} description={`Posts in the “${label}” category.`}>
   <h1>Category: {label}</h1>
-  <ul class="post-list">
+  <ul class="post-grid">
     {posts.map((post) => <PostListItem post={post} />)}
   </ul>
   <p><a href="/categories/">&larr; All categories</a></p>
