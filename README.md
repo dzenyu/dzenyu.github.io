@@ -1,28 +1,39 @@
 # code.dzenyu.com
 
-Personal site and blog built with Jekyll using the [Minimal Mistakes theme](https://mmistakes.github.io/minimal-mistakes/.
+Personal site and blog built with [Astro](https://astro.build).
 
 ## Local Development
 
-1. Install Ruby and Bundler.
-2. Install dependencies:
+1. Install dependencies:
    ```bash
-   bundle install
+   npm install
    ```
-3. Serve locally:
+2. Serve locally:
    ```bash
-   bundle exec jekyll serve
+   npm run dev
    ```
-4. Open http://127.0.0.1:4000
+3. Open http://localhost:4321
+
+## Build
+
+```bash
+npm run build
+```
+
+Runs `astro build` and then indexes the output with [Pagefind](https://pagefind.app) for
+static search. The production site is deployed from `dist/` via GitHub Actions
+(`.github/workflows/deploy.yml`) to GitHub Pages.
 
 ## Structure
 
-- `_posts/` — blog posts
-- `_data/navigation.yml` — site navigation
-- `about.md`, `blog.md`, `tags.md`, `categories.md`, `search.md`, `404.md` — pages
-- `assets/images/avatar.jpg` — author avatar
+- `src/content/blog/` — blog posts (MDX)
+- `src/content.config.ts` — blog collection schema
+- `src/pages/[...slug].astro` — post routing (`/<categories>/<yyyy>/<mm>/<dd>/<slug>/`)
+- `src/data/legacy-redirects.ts` — redirect stubs for the old Jekyll post URLs
+- `src/pages/` — site pages (home, blog, about, tags, categories, search, 404)
+- `src/components/`, `src/layouts/` — shared UI
+- `public/assets/` — images, favicons, and `CNAME`
 
 ## References
 
-- [Minimal Mistakes theme](https://mmistakes.github.io/minimal-mistakes/)
-- Customizing Minimal Mistakes by [Renato Golia](https://renatogolia.com/2020/10/22/creating-this-blog-theme/)
+- [Astro documentation](https://docs.astro.build)
