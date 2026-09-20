@@ -40,9 +40,14 @@ jobs:
 
       - name: Upload Pages artifact
         if: github.event_name == 'push'
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: dist
+          # v4 stopped bundling dotfiles by default. Without this, dist/.nojekyll
+          # is silently dropped from the artifact. The deploy job never runs on a
+          # pull request, so nothing here would catch that before it reached the
+          # live site.
+          include-hidden-files: true
 
   deploy:
     if: github.event_name == 'push'
