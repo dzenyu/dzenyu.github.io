@@ -1,6 +1,7 @@
 ---
 title: "Modernizing Metadata Ingestion: Perl to Spring Batch"
-last_modified_at: 2025-09-10
+description: "How a 5,000-line Perl monolith at TiVo became a testable, provider-agnostic Spring Batch pipeline — and what the shadow-mode cutover taught us."
+last_modified_at: 2026-09-19
 categories: case-study
 tags:
   - architecture
@@ -18,33 +19,30 @@ tags:
 featured_image: /assets/images/modernizing-metadata-ingestion-perl-to-spring-batch-featured.png
 excerpt: "A case study on migrating a critical 5,000-line Perl script to a modern, scalable Spring Batch application at TiVo, enabling global expansion and accelerating development."
 featured: true
+mermaid: true
 ---
 
-Imagine a global entertainment company’s metadata pipeline held together by a **5,000-line Perl script**. It was so complex, undocumented, and fragile that every new market or provider felt like defusing a bomb. **Back in 2010–2012, at TiVo, this was our reality.** As the engineer responsible for modernizing this critical system, I saw first-hand how technical debt can throttle business growth and innovation.
+At TiVo in 2010–2012, our metadata ingestion pipeline was a single Perl script: 5,000 lines, no tests, no documentation. A small team maintained it while it processed roughly **3 million records per day** across about a dozen metadata providers. The daily ingest run took the better part of **4 hours** and had to be scheduled in the early morning—any failure meant bad data for millions of users with no safe way to re-run during the day. When the business prioritized expansion into European and Latin American markets, the script could not accommodate new providers without weeks of risky retrofitting. The decision was made to replace it — not in one drop, but component by component behind a parallel shadow run.
 
-Metadata ingestion powers everything from accurate TV and movie listings to personalized recommendations for millions of TiVo users. But as our ambitions grew—to onboard new features and expand into European and Latin American markets—the legacy Perl script became our biggest bottleneck. It was time for a change.
+This post is for **engineers and engineering managers** working on legacy modernization. Engineers will find the architecture and migration patterns directly applicable. Managers will find the decision framework and business case useful for building alignment.
 
-> **Note:** The challenges and solutions described here reflect TiVo’s metadata ingestion pipeline from over a decade ago. The current architecture has evolved significantly since then.
+> **Note:** The challenges and solutions described here reflect TiVo's metadata ingestion pipeline from over a decade ago. The current architecture has evolved significantly since then.
+
+---
+
+## TL;DR
+
+- A 5,000-line Perl monolith was replaced with a Spring Batch pipeline in under 3 months, cutting the daily ingest run from roughly **4 hours to under an hour**.
+- The strategy pattern eliminated monolithic if-else logic, enabling new provider onboarding in **days instead of weeks**.
+- A parallel shadow-mode run built confidence before cutover and surfaced **dozens of long-standing production bugs**.
+
+---
 
 ## The Problem: A Metadata Pipeline on the Brink
 
-Our ingestion pipeline’s backbone—a **5,000-line Perl monolith**—was:
-
-- **Impossible to maintain:** With tangled, undocumented `if-else` logic, even minor changes risked breaking production.
-- **Opaque and error-prone:** Issues only surfaced after customers complained, with no proactive error detection.
-- **Slow to iterate:** Testing updates meant running the entire stack on a single VM, burning hours and sapping morale.
-- **Scalability roadblocks:** In-memory processing limited us to vertical scaling—no way to handle growing data volumes efficiently.
-- **Blocked business growth:** Expanding into Europe and Latin America meant retrofitting for new metadata providers, a process so labor-intensive it jeopardized TiVo’s global ambitions.
-
-The Perl script wasn’t just technical debt—it was a barrier to innovation, agility, and market expansion.
+Beneath TiVo's celebrated user experience sat a technical relic: a single Perl script transforming raw provider feeds into the listings, search, and recommendations the platform ran on. It wasn't just legacy code—it was a daily source of anxiety for engineers and the business alike.
 
 ![TiVo Metadata Ingestion](/assets/images/modernizing-metadata-ingestion-perl-to-spring-batch-featured.png)
-
-It was clear: if TiVo wanted to expand globally, we needed to replace the Perl monster with a system that was **flexible, testable, and scalable by design**.
-
-## The Metadata Monster in the Room: Our 5K-Line Perl Script
-
-Beneath TiVo’s celebrated user experience lurked a daunting technical relic: a single Perl script, sprawling over 5,000 lines, responsible for transforming raw metadata into the lifeblood of our entertainment platform. It wasn’t just legacy code—it was a daily source of anxiety for both engineers and the business.
 
 ### Why was this script so infamous?
 
@@ -58,15 +56,29 @@ Beneath TiVo’s celebrated user experience lurked a daunting technical relic: a
 
 When Gracenote (our US metadata provider) silently altered their genre codes, our pipeline processed their files without complaint, but downstream recommendations became garbled. It took weeks of detective work to uncover the root cause, fix the script, and restore data quality. Meanwhile, expansion plans suffered.
 
-The Perl script did not only slow us down; it was a ticking time bomb threatening reliability and innovation. We needed to break out of this pattern-replacing fragility with flexibility, and opacity with clarity.
+The Perl script did not only slow us down; it was a ticking time bomb threatening reliability and innovation. If TiVo wanted to expand globally, we needed a system that was **flexible, testable, and scalable by design**.
 
-## Advocating for Change: A Leap Towards Modernity
+## Decision: Why Spring Batch
 
-I saw an opportunity for a fundamental shift. I advocated for a complete overhaul, proposing a move to a Java-based application, specifically leveraging the **Spring Boot** framework with **Spring Batch**. My proposal was not just about rewriting code; it was about introducing robust engineering practices, testability, and a flexible architecture.
+**Options evaluated:**
+
+| Option                  | Description                                                                                 | Why Rejected / Selected                                                                         |
+| ----------------------- | ------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| Rewrite Perl with tests | Add test coverage to the existing script                                                    | Perl tooling is limited; the monolithic in-memory architecture would remain; harder to hire for |
+| Pure Spring (no Batch)  | Java application without a batch framework                                                  | No built-in job management, restartability, or chunk processing                                 |
+| **Spring Batch**        | Java batch framework with transaction management, restartability, and step-based processing | **Selected** — provides the right abstractions for high-volume, multi-step ingest pipelines     |
+
+Spring Batch was not free: it cost us a framework learning curve, a more verbose language, and real infrastructure we had not needed before. We went in with those costs priced in — [what they actually amounted to](#what-we-lost-the-tradeoffs) is covered at the end of this post.
+
+**Long-term implication:** Accepting those upfront costs gave the team a framework that could scale horizontally, be tested in isolation, and onboard new providers by composing existing classes rather than editing a shared monolith.
 
 _Figure: The new ingestion pipeline—modular, provider-agnostic, and scalable._
 
 ```mermaid
+---
+config:
+look: neo
+---
 flowchart TD
     A["Metadata Provider(s)"] --> B["ProgramImporter"]
     B --> C["ProgramTransformer(s)"]
@@ -86,12 +98,12 @@ flowchart TD
     style F3 fill:#B2DFDB
 ```
 
-The goal was clear:
+The goals were:
 
-* **Introduce Unit and End-To-End Testing:** Ensure code reliability and prevent regressions.  
-* **Enhance Maintainability:** Break down complexity into manageable, understandable components.  
-* **Be Agile:** Rapidly onboard new metadata providers and adapt to changes.  
-* **Enable Horizontal Scaling:** Move beyond the limitations of single-instance, in-memory processing.
+1. **Introduce unit and end-to-end testing** to prevent regressions and surface bugs before production.
+2. **Break down complexity** into modular, independently testable components.
+3. **Enable rapid provider onboarding** without modifying the core pipeline.
+4. **Enable horizontal scaling** beyond the limitations of single-instance, in-memory processing.
 
 Building on this foundation, we implemented a strategy-based pipeline.
 
@@ -101,10 +113,14 @@ Our solution leveraged the power of **Spring Batch** to create a highly configur
 
 _Figure: The strategy pattern enables pluggable, provider-specific transformations via modular ProgramTransformer classes._
 ```mermaid
+---
+config:
+look: neo
+---
 classDiagram
     class ProgramTransformer {
         +supports(metadataContext): boolean
-        +transform(source, metadataContext): TiVoProgram
+        +transform(source, metadataContext, target): TiVoProgram
     }
 
     class USMovieGenreTransformStrategy
@@ -127,7 +143,7 @@ classDiagram
 
 ### Strategy Interface
 
-We introduced a **strategy interface** that transformed metadata provider inputs into TiVo’s canonical format:
+We introduced a **strategy interface** that transformed metadata provider inputs into TiVo's canonical format:
 
 ```java
 interface ProgramTransformer<T extends SourceProgram> {
@@ -140,20 +156,22 @@ interface ProgramTransformer<T extends SourceProgram> {
     boolean supports(MetadataContext metadataContext);
 
     /**
-     * Transforms the given source into a canonical {@link TiVoProgram} format.
+     * Applies this strategy's slice of the transformation on top of the canonical
+     * program produced by earlier strategies in the chain.
      *
      * @param source Instance of the source metadata to be transformed
-     * @param metadataContext Contextual information about the metadata provider 
+     * @param metadataContext Contextual information about the metadata provider
+     * @param target The canonical program accumulated so far, or {@code null} for the first strategy in the chain
      * @return A canonical representation of the source metadata
      */
-    TiVoProgram transform(T source, MetadataContext metadataContext);
+    TiVoProgram transform(T source, MetadataContext metadataContext, TiVoProgram target);
 }
 ```
 
-Here’s how it worked:
+Here's how it worked:
 
 - `SourceProgram` represents the common denominator for program metadata, whether a TV show or a movie.
-- Each implementation of `ProgramTransformer` handled provider-specific transformations, mapping raw metadata into TiVo’s `TiVoProgram` model.
+- Each implementation of `ProgramTransformer` handled provider-specific transformations, mapping raw metadata into TiVo's `TiVoProgram` model.
 - Example strategies included:
   - `USMovieGenreTransformStrategy` - transforms US movie genre details.
   - `USTvShowTransformStrategy` - transforms US TV show genre details.
@@ -161,9 +179,7 @@ Here’s how it worked:
   - `OnoTVGenreTransformStrategy` (for a Spanish metadata provider called Ono)
   - Many more others. Too many to mention here.
 
-The strategy pattern was also used to **validate** and **transform** metadata.
-
-Instead of maintaining one massive script that tried to cover every case, we now had **modular, testable classes**. Each new provider could be onboarded by plugging in an existing transformer or writing a new one—without disturbing the rest of the pipeline.
+The strategy pattern was also used to **validate** metadata, not just transform it.
 
 ### Strategy Chains
 
@@ -172,30 +188,31 @@ Once we had the `ProgramTransformer` interface, assembling provider-specific pip
 A `ProgramImporter` class was introduced to encapsulate the logic of importing metadata from a specific metadata provider:
 
 ```java
-class abstract ProgramImporter<SourceProgram> {
-    private final List<ProgramTransformer<? extends SourceProgram>> transformers;
+abstract class ProgramImporter<T extends SourceProgram> {
+    private final List<ProgramTransformer<T>> transformers;
     ...
 
     /**
      * Determines whether this importer supports the given source.
-     * 
+     *
      * @param metadataContext Contextual information about the metadata provider
-     * @return {@code true} if this importer supports the given source  
+     * @return {@code true} if this importer supports the given source
      */
     public abstract boolean supports(MetadataContext metadataContext);
 
     /**
-     * Transforms the given source into a canonical {@link TiVoProgram} format.
-     * 
+     * Runs the configured chain of transformers, each one enriching the canonical
+     * program produced by the previous.
+     *
      * @param source Instance of the source metadata to be transformed
-     * @param metadataContext Contextual information about the metadata provider 
+     * @param metadataContext Contextual information about the metadata provider
      * @return A canonical representation of the source metadata
      */
-    public TiVoProgram transform(SourceProgram source, MetadataContext metadataContext) {
+    public TiVoProgram transform(T source, MetadataContext metadataContext) {
         TiVoProgram program = null;
-        for (ProgramTransformer<? extends SourceProgram> transformer : transformers) {
+        for (ProgramTransformer<T> transformer : transformers) {
             if (transformer.supports(metadataContext)) {
-                program = transformer.transform(source, metadataContext);
+                program = transformer.transform(source, metadataContext, program);
             }
         }
         return program;
@@ -208,22 +225,26 @@ Each `ProgramImporter` instance was configured with a list of `ProgramTransforme
 **Example ONO metadata provider configuration:**
 
 ```java
-@Prototype // The transformer will be dynamically instantiated by Spring only when importing metadata from ONO metadata provider.
-public OnoProgramImporter extends ProgramImporter<OnoProgram> {
-    ... // register the transformer here specific to this metadata provider.
+@Component
+@Scope("prototype") // A fresh importer is instantiated per ONO ingest run, so per-run state never leaks between providers.
+public class OnoProgramImporter extends ProgramImporter<OnoProgram> {
+    ... // register the transformers specific to this metadata provider.
 }
 ```
 
 **Example US metadata provider configuration:**
 
 ```java
-@Prototype // The transformer will be dynamically instantiated by Spring only when importing metadata from US metadata provider. 
-public USProgramImporter extends ProgramImporter<USProgram> {
-    ... // register the transformer here specific to this metadata provider.
-} 
+@Component
+@Scope("prototype") // Same lifecycle for the US provider.
+public class USProgramImporter extends ProgramImporter<USProgram> {
+    ... // register the transformers specific to this metadata provider.
+}
 ```
 
-Here’s a simplified example of how we configured this in Spring Batch:
+Here's a simplified example of how we configured this in Spring Batch:
+
+> **Note on the code samples:** These snippets use current Spring Batch APIs and Spring Boot terminology for readability. The 2010–2012 implementation used the equivalents of the day — XML-driven job configuration on a plain Spring application, since Spring Boot did not exist until 2014. The structure and the strategy decomposition are what carried over.
 
 ```java
 @Configuration
@@ -242,18 +263,19 @@ public class MetadataIngestionJobConfig {
                               PlatformTransactionManager transactionManager,
                               ItemReader<SourceProgram> reader,
                               ItemWriter<TiVoProgram> writer,
-                              List<ProgramTransformer<? extends SourceProgram>> transformers) {
+                              List<ProgramImporter<? extends SourceProgram>> importers) {
         return new StepBuilder("transformStep", jobRepository)
                 .<SourceProgram, TiVoProgram>chunk(100, transactionManager)
                 .reader(reader)
                 .processor(source -> {
-                    // Apply matching transformer based on source type/provider
-                    for (ProgramTransformer transformer : transformers) {
-                        if (transformer.supports(source)) {
-                            return transformer.transform(source, MetadataConfigs.defaultConfig());
+                    MetadataContext context = MetadataContexts.forSource(source);
+                    // Dispatch to the importer registered for this provider; it runs its own transformer chain.
+                    for (ProgramImporter importer : importers) {
+                        if (importer.supports(context)) {
+                            return importer.transform(source, context);
                         }
                     }
-                    throw new IllegalArgumentException("No transformer found for " + source);
+                    throw new IllegalArgumentException("No importer found for " + source);
                 })
                 .writer(writer)
                 .build();
@@ -262,6 +284,10 @@ public class MetadataIngestionJobConfig {
 ```
 
 ```mermaid
+---
+config:
+look: neo
+---
 flowchart TD
  subgraph Providers["Providers"]
         A1["US Metadata Provider"]
@@ -299,21 +325,21 @@ flowchart TD
 
 ### 🔑Key points
 
-- Each `ProgramTransformer` could implement a simple `supports(SourceProgram source)` method to indicate if it applies.
-- The **Spring Batch** processor looped through available strategies and delegated to the right one.
-- Adding a new provider was as simple as writing a new `ProgramTransformer` and wiring it into the Spring context.
+- Each `ProgramTransformer` implements `supports(MetadataContext)` to declare whether it applies to the provider being ingested.
+- The **Spring Batch** processor selected the `ProgramImporter` registered for the provider, which in turn ran its own chain of transformers.
+- Adding a new provider was as simple as writing the transformers it needed and wiring them into a `ProgramImporter` in the Spring context.
+- Because each branch of the old script became its own class, provider logic could finally be unit tested in isolation — no pipeline run required.
 
-Instead of one giant script trying to handle every scenario, we now had:
-
-1. **Modular Strategies:** Each `if-else` block from the Perl script was refactored into a focused, testable Java class implementing our strategy interface.  
-2. **Configurable Chains:** For each new metadata provider, we simply configured a specific sequence of these strategies. This allowed us to onboard new metadata providers by either plugging in existing strategies or building custom strategies tailored to their unique requirements.  
-3. **Spring Batch Power:** Spring Batch provided the robust framework for managing batch jobs, including transaction management, restartability, and comprehensive logging.  
-4. **Database-Backed Storage:** By utilizing MySQL as our persistence layer, we moved away from in-memory limitations, enabling data to be stored, queried, and manipulated more effectively. This also allowed us to generate CSV outputs from the database.
+One change had nothing to do with the strategy pattern but mattered just as much: **MySQL replaced in-memory processing** as the persistence layer. Intermediate state could now be stored, queried, and corrected between steps, and the CSV outputs were generated from the database rather than held in a single process's heap. That is what made horizontal scaling possible at all.
 
 ## Deployment Strategy: Parallel Run and Shadow Mode
 
 _Figure: Parallel deployment strategy—Perl and Spring Boot outputs are compared in real time to validate correctness before cutover._
 ```mermaid
+---
+config:
+look: neo
+---
 sequenceDiagram
     participant PerlScript as Perl Script
     participant SpringApp as Spring Boot App
@@ -322,9 +348,15 @@ sequenceDiagram
     PerlScript->>PerlScript: Parse input file, produce CSV output
     PerlScript->>SpringApp: Trigger Spring Boot app with same input
     SpringApp->>SpringApp: Parse input file, produce CSV output
-    SpringApp->>Engineer: Compare outputs (diff)
-    Engineer->>Engineer: Analyze discrepancies, validate outputs
-    Engineer->>SpringApp: Approve cutover after confidence built
+    alt Output Match
+        SpringApp->>Engineer: Success—outputs identical
+    else Output Mismatch
+        SpringApp->>Engineer: Alert—investigate discrepancy
+        Engineer->>Engineer: Fix Spring Boot or Perl logic
+    end
+    Engineer->>Engineer: Build confidence over 30+ days
+    Engineer->>SpringApp: Execute cutover: terminate Perl
+    SpringApp->>SpringApp: Resume as primary system
 ```
 
 Migrating such a critical system required a careful, low-risk deployment strategy. We chose a **parallel run** approach with a **shadow mode**:
@@ -335,31 +367,71 @@ Migrating such a critical system required a careful, low-risk deployment strateg
 4. **Validation & Refinement:**  
    - For critical discrepancies, we either fixed the Spring Boot application to correctly replicate the desired logic or, if the Perl script's behavior was a non-critical business-specific quirk, we explicitly disabled that particular diff in our comparison logic.  
    - In some cases, the diffs exposed actual bugs in the Perl script, which we then fixed in both systems.  
-5. **Confidence Building:** We ran this parallel "shadow mode" for over a month. This period allowed us to build significant confidence in the new system's accuracy and stability under real-world production load.  
-6. **Cutover:** Once we were fully confident, we gracefully shut down the Perl script, making the Spring Boot application the primary and sole metadata ingestion engine.
+5. **Confidence Building:** We ran this parallel shadow mode for over 30 days. This period allowed us to build significant confidence in the new system's accuracy and stability under real-world production load.  
+6. **Rollback Plan:** Throughout shadow mode, and for a defined window after cutover, any unexplained degradation (data loss, parsing failures, missed records) could be answered by re-promoting the Perl script to primary and demoting the new application back to shadow mode. Rollback stayed a one-command operation, not a re-deployment.  
+7. **Observability:** Every comparison run generated logs and metrics: match rate, diffs by provider, latency of Spring Boot versus Perl. These dashboards were displayed on team monitors, ensuring visibility and quick detection of anomalies.  
+8. **Cutover and decommission:** We then promoted the new application to primary and stopped the Perl script's scheduled runs. It stayed deployed but idle for another month; only after that quiet period did we decommission it for good.
 
 ## The Impact: Uncovering Bugs, Accelerating Growth, and Unlocking Scalability
 
 The migration delivered far more than just a modernization—it transformed how we worked:
 
+- **Faster daily ingest:** The run that had occupied roughly four hours of the early-morning window finished in under an hour, which meant a failed run could be investigated and re-run the same day instead of corrupting a full day of listings.
 - **Uncovered hidden bugs:** Unit testing each strategy surfaced long-standing issues in the Perl script. Dozens of defects, some lurking in production for years were finally fixed.
-- **Accelerated onboarding:** What once took weeks of retrofitting could now be done in days by composing new strategy chains. This directly fueled TiVo’s expansion into multiple European markets.
-- **Boosted developer confidence:** With modular, testable components, engineers could extend the pipeline without fear of regressions.
-- **Scalable by design:** Horizontal scaling through Spring Boot and MySQL lets us ingest growing data volumes simply by adding more instances.
-- **Faster iteration cycles:** Automated testing and database-backed validation replaced slow, manual verification, cutting release cycles dramatically.
+- **Accelerated onboarding:** What once took weeks of retrofitting could now be done in days by composing new strategy chains. This directly fueled TiVo's expansion into multiple European markets.
+- **Faster iteration cycles:** Automated tests replaced the full-pipeline VM run that every change used to require, so engineers could extend the pipeline without fear of regressions and ship on a far shorter cycle.
+- **Scalable by design:** Growing data volumes could be absorbed by adding instances rather than by buying a bigger server.
 
 This was not just a rewrite of a script, it was the removal of a **global bottleneck**. By replacing fragility with flexibility, we turned ingestion into an enabler of growth rather than a blocker.
 
-## Lessons Learned: Making Legacy Modernization Work
+## Playbook: Legacy Modernization Best Practices
 
-- **Parallel runs build trust:** Comparing outputs in real time gave us confidence before making the switch.
-- **Tie tech upgrades to business goals:** Leadership championed the project when they saw direct links to growth.
-- **Invest in testing up front:** Early unit and integration tests surfaced bugs that had been hidden for years.
-- **Monitor relentlessly:** Metrics and dashboards kept us proactive, not reactive, after launch.
-- **Celebrate quick wins:** Each bug fixed and provider onboarded was a chance to build momentum.
+1. **Build confidence before commitment.** Run the old and new systems side by side on real production traffic, not synthetic fixtures, and diff the outputs. Give it weeks rather than days — a short parallel run only proves the common path works.
 
-**Bottom line:** Modernization is not just a technical upgrade, it is a business strategy. With the right approach, even the most intimidating legacy systems can become engines of agility and growth.
+2. **Tie every technical change to business outcomes.** Leadership championed the project when they saw the direct connection to market expansion timelines. "Faster ingest" is abstract; "enables European market entry in Q2" is concrete. Frame modernization as unlocking growth, not fixing old code.
 
-> Thanks to the engineering leadership and the team at TiVo, we were able to complete this project in less than 3 months.
+3. **Invest in testability from day one.** Tests written alongside the new system prevent regressions during the migration; tests written after launch only document what already shipped. The upfront cost buys back weeks of reactive debugging.
 
-Have you modernized a legacy pipeline or have questions about Spring Batch migration? Share your story in the comments.
+4. **Design for reversibility.** Keep the old system deployed and runnable for a defined window after cutover, not just until it. If the new system fails, flip back instantly. Irreversible cutovers breed risk and conservative decision-making.
+
+5. **Measure the old system before you replace it.** Baseline the ingest time, error rates, and latency you are starting from. Without them you cannot prove the migration worked, and you cannot tell a regression from normal variance.
+
+6. **Celebrate incremental wins publicly.** Each bug fixed, each provider onboarded, each feature unblocked was a checkpoint to acknowledge. Momentum is contagious; it compounds team motivation and executive support.
+
+7. **Use standard frameworks, not custom architectures.** Spring Batch is widely understood; new engineers onboard faster. Avoid inventing novel abstractions; leverage proven tools that the ecosystem knows how to operate.
+
+## What We Lost: The Tradeoffs
+
+Modernization is not a pure win. We paid real costs:
+
+- **Developer ramp-up time:** Java and Spring Batch have steeper learning curves than Perl. New team members needed 2–3 weeks to become productive, versus days for Perl.
+- **Operational complexity:** The Perl script ran standalone on a VM. Spring Boot required application servers, MySQL databases, load balancers, and deployment automation. Operational burden increased significantly.
+- **Code verbosity:** A transformation a Perl one-liner could express became a class with explicit types, a constructor, and a test. More code means more surface area for bugs, longer code reviews, and higher maintenance.
+- **Infrastructure cost:** Horizontal scaling meant more servers, more databases, more monitoring. Infrastructure spend rose materially in the first year post-launch, and had to be budgeted for rather than absorbed.
+
+These tradeoffs were worth it—the gains outweighed the costs by orders of magnitude. But they were real, and they had to be planned for and resourced.
+
+## Anti-Patterns: What Not to Do
+
+- **Cut over everything at once.** Replacing the script wholesale did not mean shipping it wholesale. We moved incrementally—first validators, then transformers, then the orchestration layer—with each slice validated in shadow mode before the next. Big-bang cutovers exceed risk budgets.
+- **Assume the old system is wrong.** The Perl script had business logic embedded in it for years. Some "bugs" the diffs surfaced were intentional workarounds for downstream quirks. Every discrepancy needs a verdict from someone who knows the domain, not an automatic fix.
+- **Treat the diff report as a chore.** Ours only worked because someone triaged it every morning. An unread comparison dashboard is worse than none — it looks like coverage while providing none.
+
+## References
+
+**Vendor documentation:**
+- [Spring Batch Reference Guide](https://docs.spring.io/spring-batch/reference/)
+- [Spring Boot Documentation](https://docs.spring.io/spring-boot/docs/)
+- [MySQL Documentation](https://dev.mysql.com/doc/)
+
+**Architecture patterns:**
+- Strategy Pattern: Gang of Four, *Design Patterns: Elements of Reusable Object-Oriented Software*
+- Shadow Deployment / Dark Launching: [Martin Fowler, *Dark Launching*](https://martinfowler.com/bliki/DarkLaunching.html) (reference pattern, not exact implementation)
+
+**Batch processing:**
+- Martin Kleppmann, *Designing Data-Intensive Applications*, chapter 10, "Batch Processing"
+- Martin Fowler, *Patterns of Enterprise Application Architecture* (the Data Mapper and Repository patterns behind the canonical model)
+
+---
+
+Have you modernized a legacy pipeline or deployed using shadow mode? Share your story—what went well, and what surprised you?
