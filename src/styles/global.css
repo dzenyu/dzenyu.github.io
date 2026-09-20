@@ -547,6 +547,17 @@ hr {
   --pagefind-ui-font: var(--font-body);
 }
 
+.search-dev-note {
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-elevated);
+  border-radius: var(--radius-sm);
+  padding: 1rem 1.25rem;
+  color: var(--color-text-muted);
+}
+.search-dev-note code {
+  font-size: 0.9em;
+}
+
 .comments-section {
   margin-top: 3.5rem;
   padding-top: 2rem;

@@ -5,16 +5,28 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 <BaseLayout title="Search" description="Search the site.">
   <div class="prose">
     <h1>Search</h1>
-    <div id="search"></div>
+    {import.meta.env.DEV ? (
+      <p class="search-dev-note">
+        Search runs against the production search index, which <code>astro dev</code>
+        doesn't generate. Run <code>npm run build</code> then <code>npm run preview</code>
+        to try it locally.
+      </p>
+    ) : (
+      <div id="search"></div>
+    )}
   </div>
 
-  <link href="/pagefind/pagefind-ui.css" rel="stylesheet" />
-  <script is:inline src="/pagefind/pagefind-ui.js"></script>
-  <script is:inline>
-    window.addEventListener("DOMContentLoaded", () => {
-      if (window.PagefindUI) {
-        new window.PagefindUI({ element: "#search", showSubResults: true });
-      }
-    });
-  </script>
+  {!import.meta.env.DEV && (
+    <>
+      <link href="/pagefind/pagefind-ui.css" rel="stylesheet" />
+      <script is:inline src="/pagefind/pagefind-ui.js"></script>
+      <script is:inline>
+        window.addEventListener("DOMContentLoaded", () => {
+          if (window.PagefindUI) {
+            new window.PagefindUI({ element: "#search", showSubResults: true });
+          }
+        });
+      </script>
+    </>
+  )}
 </BaseLayout>
