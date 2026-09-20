@@ -1,6 +1,6 @@
 ---
-description: "Use when writing, reviewing, editing, or improving blog posts in _posts/. Covers voice, structure, decision-making, diagrams, tradeoffs, and high-impact technical/product blog practices."
-applyTo: "_posts/**/*.md"
+description: "Use when writing, reviewing, editing, or improving blog posts in src/content/blog/. Covers voice, structure, decision-making, diagrams, tradeoffs, and high-impact technical/product blog practices."
+applyTo: "src/content/blog/**/*.mdx"
 ---
 
 # Blog Writing Rules

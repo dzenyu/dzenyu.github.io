@@ -1,0 +1,35 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import PostListItem from "../components/PostListItem.astro";
+import { sortByDateDesc } from "../utils/taxonomy";
+
+const posts = sortByDateDesc(await getCollection("blog")).slice(0, 8);
+---
+
+<BaseLayout>
+  <section class="hero">
+    <img class="hero-avatar" src="/assets/images/avatar.jpg" alt="Dzenyu Mukangara" />
+    <div class="hero-copy">
+      <h1>Hi, I'm Dzenyu.</h1>
+      <p>
+        I'm a Principal Software Engineer who thrives on turning complex requirements into
+        simple, resilient, and maintainable systems. Here I share architecture insights,
+        coding practices, and engineering leadership lessons from building resilient,
+        high-throughput microservices.
+      </p>
+      <div class="hero-cta">
+        <a class="button primary" href="/blog/">Read the blog</a>
+        <a class="button" href="/about/">About me</a>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-heading">
+    <h2>Recent posts</h2>
+    <a class="see-all" href="/blog/">Browse all &rarr;</a>
+  </div>
+  <ul class="post-grid">
+    {posts.map((post) => <PostListItem post={post} />)}
+  </ul>
+</BaseLayout>

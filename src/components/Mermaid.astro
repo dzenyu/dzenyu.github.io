@@ -1,0 +1,39 @@
+---
+// Lazily renders any ```mermaid fenced code block on the page.
+// MDX/rehype emits mermaid code fences as <pre><code class="language-mermaid">.
+// We only load the (fairly large) mermaid runtime on pages that actually
+// contain one, keeping the site zero-JS-by-default everywhere else.
+---
+
+<script>
+  // Astro's Shiki-highlighted markdown renders fenced ```mermaid blocks as
+  // <pre data-language="mermaid"><code>...syntax-highlighted spans...</code></pre>
+  // rather than a plain `code.language-mermaid` element, so we match on the
+  // <pre>'s data-language attribute and read the plain-text diagram source
+  // back out of it (textContent survives the syntax-highlighting spans).
+  const blocks = document.querySelectorAll('pre[data-language="mermaid"]');
+  if (blocks.length > 0) {
+    import("mermaid").then(({ default: mermaid }) => {
+      const isDark = () => {
+        const attr = document.documentElement.getAttribute("data-theme");
+        if (attr) return attr === "dark";
+        return window.matchMedia("(prefers-color-scheme: dark)").matches;
+      };
+
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: isDark() ? "dark" : "default",
+      });
+
+      blocks.forEach((pre) => {
+        const graphDefinition = pre.textContent ?? "";
+        const container = document.createElement("div");
+        container.className = "mermaid";
+        container.textContent = graphDefinition;
+        pre.replaceWith(container);
+      });
+
+      mermaid.run({ querySelector: ".mermaid" });
+    });
+  }
+</script>

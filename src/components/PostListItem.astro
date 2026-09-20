@@ -1,0 +1,49 @@
+---
+import type { CollectionEntry } from "astro:content";
+import { postUrl } from "../utils/postUrl";
+
+interface Props {
+  post: CollectionEntry<"blog">;
+}
+
+const { post } = Astro.props;
+const { title, date, description, excerpt, tags, featured_image, image_fit } = post.data;
+const summary = description ?? excerpt;
+const formattedDate = date.toLocaleDateString("en-US", {
+  year: "numeric",
+  month: "short",
+  day: "numeric",
+  timeZone: "UTC",
+});
+const initials = title
+  .split(/\s+/)
+  .filter(Boolean)
+  .slice(0, 2)
+  .map((w) => w[0])
+  .join("")
+  .toUpperCase();
+---
+
+<li class="post-card">
+  <a class="post-card-media-link" href={postUrl(post)} tabindex="-1" aria-hidden="true">
+    {featured_image ? (
+      <div class={`post-card-media${image_fit === "contain" ? " contain" : ""}`}>
+        <img src={featured_image} alt="" loading="lazy" />
+      </div>
+    ) : (
+      <div class="post-card-media placeholder">{initials}</div>
+    )}
+  </a>
+  <div class="post-card-body">
+    <p class="post-card-meta">
+      <time datetime={date.toISOString()}>{formattedDate}</time>
+    </p>
+    <h3><a href={postUrl(post)}>{title}</a></h3>
+    {summary && <p class="excerpt">{summary}</p>}
+    {tags && tags.length > 0 && (
+      <p class="tags">
+        {tags.slice(0, 4).map((t) => <span>#{t}</span>)}
+      </p>
+    )}
+  </div>
+</li>

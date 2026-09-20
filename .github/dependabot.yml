@@ -1,0 +1,29 @@
+version: 2
+updates:
+  # npm dependencies (Astro, integrations, Pagefind, etc.)
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    groups:
+      # Minor and patch bumps are low-risk, so fold them into one PR
+      # instead of one per package. Major releases are left out of the
+      # group, so each one still gets its own PR for review.
+      npm-minor-and-patch:
+        applies-to: version-updates
+        update-types:
+          - "minor"
+          - "patch"
+
+  # GitHub Actions used by the deploy workflow
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      actions-minor-and-patch:
+        applies-to: version-updates
+        update-types:
+          - "minor"
+          - "patch"

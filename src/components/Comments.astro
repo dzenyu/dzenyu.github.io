@@ -1,0 +1,30 @@
+---
+import { DISQUS_SHORTNAME } from "../consts";
+
+const pageUrl = Astro.url.href;
+const pageIdentifier = Astro.url.pathname;
+---
+
+<section class="comments-section">
+  <div id="disqus_thread"></div>
+  <script
+    is:inline
+    define:vars={{ pageUrl, pageIdentifier, shortname: DISQUS_SHORTNAME }}
+  >
+    var disqus_config = function () {
+      this.page.url = pageUrl;
+      this.page.identifier = pageIdentifier;
+    };
+    (function () {
+      var d = document,
+        s = d.createElement("script");
+      s.src = "https://" + shortname + ".disqus.com/embed.js";
+      s.setAttribute("data-timestamp", String(+new Date()));
+      (d.head || d.body).appendChild(s);
+    })();
+  </script>
+  <noscript>
+    Please enable JavaScript to view the
+    <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+  </noscript>
+</section>
