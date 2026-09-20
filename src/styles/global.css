@@ -524,6 +524,70 @@ hr {
   padding: 0.15em 0.6em;
 }
 
+/* ---------------------------------------------------------------------
+   Projects page
+------------------------------------------------------------------------ */
+.page-intro {
+  color: var(--color-text-muted);
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  max-width: 62ch;
+  margin: -0.5em 0 2.5rem;
+}
+.project-grid {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+}
+.project-card {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-bg-elevated);
+  padding: 1.5rem 1.5rem 1.75rem;
+}
+.project-card h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1.3rem;
+}
+.project-card .description {
+  color: var(--color-text-muted);
+  font-family: var(--font-body);
+  line-height: 1.55;
+  margin: 0 0 1rem;
+}
+.project-card .stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0 0 1rem;
+}
+.project-card .stack span {
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  padding: 0.15em 0.6em;
+}
+.project-card .role {
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-accent-strong);
+  margin: 0 0 1.1rem;
+}
+.project-links {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
 .site-footer {
   border-top: 1px solid var(--color-border);
   color: var(--color-text-muted);
