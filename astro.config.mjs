@@ -53,6 +53,14 @@ function legacyRedirectsIntegration() {
 export default defineConfig({
   site: "https://code.dzenyu.com",
   integrations: [mdx(), sitemap(), legacyRedirectsIntegration()],
+  vite: {
+    server: {
+      // Allow reaching the dev server over the LAN by mDNS hostname
+      // (e.g. http://dzenyu-macpro.local:4321) -- Vite otherwise rejects
+      // any Host header that is not localhost.
+      allowedHosts: [".local"],
+    },
+  },
   redirects: {
     "/posts": "/blog/",
   },
