@@ -62,6 +62,7 @@ export default defineConfig({
     },
   },
   redirects: {
-    "/posts": "/blog/",
+    "/posts": "/articles/",
+    "/blog": "/articles/",
   },
 });

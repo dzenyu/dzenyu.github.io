@@ -18,7 +18,7 @@ export const SUPPORT_LINKS = [{ label: "☕ Support my writing", url: "https://b
 
 export const NAV_LINKS = [
   { label: "Home", url: "/" },
-  { label: "Articles", url: "/blog/" },
+  { label: "Articles", url: "/articles/" },
   { label: "Tags", url: "/tags/" },
   { label: "About", url: "/about/" },
   { label: "Search", url: "/search/" },

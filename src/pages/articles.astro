@@ -7,8 +7,8 @@ import { sortByDateDesc } from "../utils/taxonomy";
 const posts = sortByDateDesc(await getCollection("blog"));
 ---
 
-<BaseLayout title="Blog" description="All posts, newest first.">
-  <h1>Blog</h1>
+<BaseLayout title="Articles" description="All posts, newest first.">
+  <h1>Articles</h1>
   <ul class="post-grid">
     {posts.map((post) => <PostListItem post={post} />)}
   </ul>
