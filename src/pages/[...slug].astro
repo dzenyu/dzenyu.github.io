@@ -42,7 +42,7 @@ const hasMermaid = post.body?.includes("```mermaid") ?? false;
         <>
           {" · "}
           {tags.map((t) => (
-            <a class="tag" href={`/tags/${slugifyKey(t)}/`}>#{t}</a>
+            <a class="tag" href={`/tags/${slugifyKey(t)}/`}>{t}</a>
           ))}
         </>
       )}
