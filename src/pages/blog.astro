@@ -1,0 +1,15 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import PostListItem from "../components/PostListItem.astro";
+import { sortByDateDesc } from "../utils/taxonomy";
+
+const posts = sortByDateDesc(await getCollection("blog"));
+---
+
+<BaseLayout title="Blog" description="All posts, newest first.">
+  <h1>Blog</h1>
+  <ul class="post-list">
+    {posts.map((post) => <PostListItem post={post} />)}
+  </ul>
+</BaseLayout>

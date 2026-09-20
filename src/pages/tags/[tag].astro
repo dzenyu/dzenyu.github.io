@@ -1,0 +1,38 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import PostListItem from "../../components/PostListItem.astro";
+import { sortByDateDesc, slugifyKey } from "../../utils/taxonomy";
+
+export async function getStaticPaths() {
+  const posts = await getCollection("blog");
+  const byTagSlug = new Map<string, { label: string; posts: typeof posts }>();
+
+  for (const post of posts) {
+    for (const tag of post.data.tags ?? []) {
+      const key = slugifyKey(tag);
+      const existing = byTagSlug.get(key);
+      if (existing) {
+        existing.posts.push(post);
+      } else {
+        byTagSlug.set(key, { label: tag, posts: [post] });
+      }
+    }
+  }
+
+  return [...byTagSlug.entries()].map(([tag, { label, posts: tagPosts }]) => ({
+    params: { tag },
+    props: { label, posts: sortByDateDesc(tagPosts) },
+  }));
+}
+
+const { label, posts } = Astro.props;
+---
+
+<BaseLayout title={`Tag: ${label}`} description={`Posts tagged “${label}”.`}>
+  <h1>Tag: {label}</h1>
+  <ul class="post-list">
+    {posts.map((post) => <PostListItem post={post} />)}
+  </ul>
+  <p><a href="/tags/">&larr; All tags</a></p>
+</BaseLayout>
