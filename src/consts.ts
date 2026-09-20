@@ -3,8 +3,8 @@ export const SITE_DESCRIPTION =
   "I share architecture insights, coding practices, and engineering leadership lessons";
 export const SITE_URL = "https://code.dzenyu.com";
 export const SITE_AUTHOR = "Dzenyu Mukangara";
-export const GITHUB_REPO = "dzenyu/dzenyu.github.io";
 export const GA_TRACKING_ID = "G-QNVTKW04G1";
+export const DISQUS_SHORTNAME = "dzenyu";
 
 export const SOCIAL_LINKS = [
   { label: "GitHub", url: "https://github.com/dzenyu" },
