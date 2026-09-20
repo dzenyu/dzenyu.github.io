@@ -11,12 +11,14 @@ export const SOCIAL_LINKS = [
   { label: "LinkedIn", url: "https://linkedin.com/in/smukangara" },
   { label: "X", url: "https://x.com/dzenyu" },
   { label: "Bluesky", url: "https://bsky.app/profile/dzenyum.bsky.social" },
-  { label: "Buy Me a Coffee", url: "https://buymeacoffee.com/dzenyu" },
+  { label: "RSS", url: "/rss.xml" },
 ];
+
+export const SUPPORT_LINKS = [{ label: "☕ Support my writing", url: "https://buymeacoffee.com/dzenyu" }];
 
 export const NAV_LINKS = [
   { label: "Home", url: "/" },
-  { label: "Blog", url: "/blog/" },
+  { label: "Articles", url: "/articles/" },
   { label: "Tags", url: "/tags/" },
   { label: "About", url: "/about/" },
   { label: "Search", url: "/search/" },

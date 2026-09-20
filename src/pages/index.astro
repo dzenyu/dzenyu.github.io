@@ -4,32 +4,57 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import PostListItem from "../components/PostListItem.astro";
 import { sortByDateDesc } from "../utils/taxonomy";
 
-const posts = sortByDateDesc(await getCollection("blog")).slice(0, 8);
+const allPosts = sortByDateDesc(await getCollection("blog"));
+const featuredPost = allPosts.find((post) => post.data.featured);
+const recentPosts = allPosts.filter((post) => post.id !== featuredPost?.id).slice(0, 8);
+
+const TOPICS = [
+  "Architecture",
+  "Distributed Systems",
+  "Cloud & AWS",
+  "Kafka & Streaming",
+  "GraphQL",
+  "Engineering Leadership",
+];
 ---
 
 <BaseLayout>
   <section class="hero">
     <img class="hero-avatar" src="/assets/images/avatar.jpg" alt="Dzenyu Mukangara" />
     <div class="hero-copy">
-      <h1>Hi, I'm Dzenyu.</h1>
+      <h1>I design and build resilient distributed systems.</h1>
       <p>
-        I'm a Principal Software Engineer who thrives on turning complex requirements into
-        simple, resilient, and maintainable systems. Here I share architecture insights,
+        I'm Dzenyu, a Principal Software Engineer who thrives on turning complex requirements
+        into simple, resilient, and maintainable systems. Here I share architecture insights,
         coding practices, and engineering leadership lessons from building resilient,
         high-throughput microservices.
       </p>
       <div class="hero-cta">
-        <a class="button primary" href="/blog/">Read the blog</a>
+        <a class="button primary" href="/articles/">Read Articles</a>
         <a class="button" href="/about/">About me</a>
       </div>
+      <ul class="topic-list" aria-label="What I write about">
+        {TOPICS.map((topic) => <li>{topic}</li>)}
+      </ul>
     </div>
   </section>
 
+  {featuredPost && (
+    <>
+      <div class="section-heading">
+        <h2>Featured</h2>
+      </div>
+      <ul class="post-grid featured-grid">
+        <PostListItem post={featuredPost} />
+      </ul>
+    </>
+  )}
+
   <div class="section-heading">
     <h2>Recent posts</h2>
-    <a class="see-all" href="/blog/">Browse all &rarr;</a>
+    <a class="see-all" href="/articles/">Browse all &rarr;</a>
   </div>
   <ul class="post-grid">
-    {posts.map((post) => <PostListItem post={post} />)}
+    {recentPosts.map((post) => <PostListItem post={post} />)}
   </ul>
 </BaseLayout>
