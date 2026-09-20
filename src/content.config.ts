@@ -18,6 +18,12 @@ const blog = defineCollection({
     excerpt: z.string().optional(),
     featured: z.boolean().optional().default(false),
     featured_image: z.string().optional(),
+    /**
+     * How the card thumbnail should fit `featured_image`. Defaults to
+     * "cover" (crop to fill, right for banner-style photos/diagrams); use
+     * "contain" for logos/badges that would otherwise get cropped.
+     */
+    image_fit: z.enum(["cover", "contain"]).optional().default("cover"),
     last_modified_at: z.coerce.date().optional(),
   }),
 });

@@ -7,7 +7,8 @@ interface Props {
 }
 
 const { post } = Astro.props;
-const { title, date, description, excerpt, categories, tags, featured_image } = post.data;
+const { title, date, description, excerpt, categories, tags, featured_image, image_fit } =
+  post.data;
 const summary = description ?? excerpt;
 const formattedDate = date.toLocaleDateString("en-US", {
   year: "numeric",
@@ -27,7 +28,7 @@ const initials = title
 <li class="post-card">
   <a class="post-card-media-link" href={postUrl(post)} tabindex="-1" aria-hidden="true">
     {featured_image ? (
-      <div class="post-card-media">
+      <div class={`post-card-media${image_fit === "contain" ? " contain" : ""}`}>
         <img src={featured_image} alt="" loading="lazy" />
       </div>
     ) : (

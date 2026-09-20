@@ -402,6 +402,10 @@ hr {
   object-fit: cover;
   display: block;
 }
+.post-card-media.contain img {
+  object-fit: contain;
+  padding: 1.5rem;
+}
 .post-card-media.placeholder {
   display: flex;
   align-items: center;
