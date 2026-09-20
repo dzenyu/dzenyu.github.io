@@ -1,25 +1,27 @@
 ---
 title: "Modernizing Metadata Ingestion: Perl to Spring Batch"
-description: "How a 5,000-line Perl monolith at TiVo became a testable, provider-agnostic Spring Batch pipeline — and what the shadow-mode cutover taught us."
-last_modified_at: 2026-09-19
-categories: case-study
+date: 2025-08-10
+slug: "modernizing-metadata-ingestion-perl-to-spring-batch"
+categories:
+  - "case-study"
 tags:
-  - architecture
-  - ingestion
-  - metadata
-  - migration
-  - modernization
-  - perl
-  - script
-  - spring-boot
-  - spring-batch
-  - testing
-  - transformation
-  - validation
-featured_image: /assets/images/modernizing-metadata-ingestion-perl-to-spring-batch-featured.png
+  - "architecture"
+  - "ingestion"
+  - "metadata"
+  - "migration"
+  - "modernization"
+  - "perl"
+  - "script"
+  - "spring-boot"
+  - "spring-batch"
+  - "testing"
+  - "transformation"
+  - "validation"
+description: "How a 5,000-line Perl monolith at TiVo became a testable, provider-agnostic Spring Batch pipeline — and what the shadow-mode cutover taught us."
 excerpt: "A case study on migrating a critical 5,000-line Perl script to a modern, scalable Spring Batch application at TiVo, enabling global expansion and accelerating development."
+featured_image: "/assets/images/modernizing-metadata-ingestion-perl-to-spring-batch-featured.png"
 featured: true
-mermaid: true
+last_modified_at: 2026-09-19
 ---
 
 At TiVo in 2010–2012, our metadata ingestion pipeline was a single Perl script: 5,000 lines, no tests, no documentation. A small team maintained it while it processed roughly **3 million records per day** across about a dozen metadata providers. The daily ingest run took the better part of **4 hours** and had to be scheduled in the early morning—any failure meant bad data for millions of users with no safe way to re-run during the day. When the business prioritized expansion into European and Latin American markets, the script could not accommodate new providers without weeks of risky retrofitting. The decision was made to replace it — not in one drop, but component by component behind a parallel shadow run.
@@ -63,7 +65,7 @@ The Perl script did not only slow us down; it was a ticking time bomb threatenin
 **Options evaluated:**
 
 | Option                  | Description                                                                                 | Why Rejected / Selected                                                                         |
-| ----------------------- | ------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| ----------------------- | ------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
 | Rewrite Perl with tests | Add test coverage to the existing script                                                    | Perl tooling is limited; the monolithic in-memory architecture would remain; harder to hire for |
 | Pure Spring (no Batch)  | Java application without a batch framework                                                  | No built-in job management, restartability, or chunk processing                                 |
 | **Spring Batch**        | Java batch framework with transaction management, restartability, and step-based processing | **Selected** — provides the right abstractions for high-volume, multi-step ingest pipelines     |

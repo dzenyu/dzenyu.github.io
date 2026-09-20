@@ -73,4 +73,10 @@ export const legacyRedirects: LegacyRedirect[] = [
     oldPath: "/startup/attendontime/2026/01/18/Building-AttendOnTime.html",
     newPath: "/startup/attendontime/2026/01/18/building-attendontime/",
   },
+  {
+    oldPath:
+      "/case-study/2025/08/10/modernizing-metadata-ingestion-perl-to-spring-batch.html",
+    newPath:
+      "/case-study/2025/08/10/modernizing-metadata-ingestion-perl-to-spring-batch/",
+  },
 ];
