@@ -1,0 +1,15 @@
+---
+import { SOCIAL_LINKS, SITE_AUTHOR } from "../consts";
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="wrap">
+    <p>&copy; {year} {SITE_AUTHOR}</p>
+    <nav aria-label="Social">
+      {SOCIAL_LINKS.map((link) => (
+        <a href={link.url} target="_blank" rel="noopener noreferrer">{link.label}</a>
+      ))}
+    </nav>
+  </div>
+</footer>

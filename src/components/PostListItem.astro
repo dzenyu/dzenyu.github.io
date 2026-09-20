@@ -1,0 +1,26 @@
+---
+import type { CollectionEntry } from "astro:content";
+import { postUrl } from "../utils/postUrl";
+
+interface Props {
+  post: CollectionEntry<"blog">;
+}
+
+const { post } = Astro.props;
+const { title, date, description, excerpt, categories } = post.data;
+const summary = description ?? excerpt;
+const formattedDate = date.toLocaleDateString("en-US", {
+  year: "numeric",
+  month: "short",
+  day: "numeric",
+  timeZone: "UTC",
+});
+---
+
+<li>
+  <time datetime={date.toISOString()}>{formattedDate}</time>
+  {" · "}
+  {categories.map((c) => <span class="category">{c}</span>)}
+  <h3><a href={postUrl(post)}>{title}</a></h3>
+  {summary && <p class="excerpt">{summary}</p>}
+</li>
