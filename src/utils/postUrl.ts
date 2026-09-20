@@ -17,19 +17,17 @@ function pad(n: number): string {
 }
 
 /**
- * Canonical URL for a post: /<categories.../<yyyy>/<mm>/<dd>/<slug>/
- * Categories are lowercased and joined as nested path segments, in the
- * order given in frontmatter. Date components come from the frontmatter
- * `date` field (UTC), not the source filename.
+ * Canonical URL for a post: /<yyyy>/<mm>/<dd>/<slug>/
+ * Date components come from the frontmatter `date` field (UTC), not the
+ * source filename.
  */
 export function postUrl(post: CollectionEntry<"blog">): string {
-  const { categories, date, title, slug: explicitSlug } = post.data;
-  const categoryPath = categories.map((c) => c.toLowerCase()).join("/");
+  const { date, title, slug: explicitSlug } = post.data;
   const year = date.getUTCFullYear();
   const month = pad(date.getUTCMonth() + 1);
   const day = pad(date.getUTCDate());
   const slug = explicitSlug ?? slugify(title);
-  return `/${categoryPath}/${year}/${month}/${day}/${slug}/`;
+  return `/${year}/${month}/${day}/${slug}/`;
 }
 
 /** Same as postUrl but without leading/trailing slashes, for getStaticPaths params. */

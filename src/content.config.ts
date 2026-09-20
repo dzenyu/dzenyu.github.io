@@ -12,7 +12,6 @@ const blog = defineCollection({
      * site's slugs exactly. Falls back to a slugified title when absent.
      */
     slug: z.string().optional(),
-    categories: z.array(z.string()),
     tags: z.array(z.string()).optional().default([]),
     description: z.string().optional(),
     excerpt: z.string().optional(),

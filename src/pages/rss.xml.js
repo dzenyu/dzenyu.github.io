@@ -16,7 +16,7 @@ export async function GET(context) {
         pubDate: post.data.date,
         description: post.data.description ?? post.data.excerpt,
         link: postUrl(post),
-        categories: [...post.data.categories, ...(post.data.tags ?? [])],
+        categories: post.data.tags ?? [],
       })),
   });
 }

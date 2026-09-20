@@ -7,8 +7,7 @@ interface Props {
 }
 
 const { post } = Astro.props;
-const { title, date, description, excerpt, categories, tags, featured_image, image_fit } =
-  post.data;
+const { title, date, description, excerpt, tags, featured_image, image_fit } = post.data;
 const summary = description ?? excerpt;
 const formattedDate = date.toLocaleDateString("en-US", {
   year: "numeric",
@@ -38,7 +37,6 @@ const initials = title
   <div class="post-card-body">
     <p class="post-card-meta">
       <time datetime={date.toISOString()}>{formattedDate}</time>
-      {categories.map((c) => <span class="category">{c}</span>)}
     </p>
     <h3><a href={postUrl(post)}>{title}</a></h3>
     {summary && <p class="excerpt">{summary}</p>}

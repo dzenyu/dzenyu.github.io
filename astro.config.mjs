@@ -20,7 +20,13 @@ function legacyRedirectsIntegration() {
         const outDir = new URL(dir).pathname;
         for (const { oldPath, newPath } of legacyRedirects) {
           const relative = oldPath.replace(/^\//, "");
-          const filePath = path.join(outDir, relative);
+          // A path ending in "/" is a directory-style URL (e.g. one of our
+          // own earlier canonical URLs before a routing change); serve it
+          // as index.html inside that directory. A path ending in a file
+          // extension (e.g. legacy Jekyll's ".html" URLs) is written as-is.
+          const filePath = relative.endsWith("/")
+            ? path.join(outDir, relative, "index.html")
+            : path.join(outDir, relative);
           fs.mkdirSync(path.dirname(filePath), { recursive: true });
           const html = `<!doctype html>
 <html lang="en">
