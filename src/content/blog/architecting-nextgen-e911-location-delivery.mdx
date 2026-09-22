@@ -56,8 +56,6 @@ The consolidation removed a coordination cost that had been slowing both teams d
 
 ## The Architectural Core: Separating Writes from Reads
 
-![Provisioned 911 location data flowing through the platform to the PSAP](/assets/images/architecting-nextgen-e911-location-delivery-featured.png)
-
 In emergency response, a spike in write-heavy location provisioning must never degrade read performance during an active 911 lookup. The two workloads have fundamentally different requirements: provisioning needs strict transactional consistency and auditability, and lookup needs to be fast and available under load. These requirements do not coexist well on shared infrastructure, so the platform separates them.
 
 Redis is the serving boundary between the two paths below: the provisioning path updates the database, CDC propagates those changes into Redis, and the location service reads from Redis.
@@ -88,7 +86,7 @@ flowchart TD
 
 - The actor initiating provisioning (a device or tower data source) calls the provisioning service, which validates and persists the data to the relational database, the durable, transactional source of truth.
 - CDC (Debezium) pulls changes from the database, and Redis DI (Redis Data Integrator) pushes the resulting data into the Redis serving model, keeping the write path free of any direct write to Redis.
-- An audit replication system closes the loop in the other direction: it fetches the audit data that the location service publishes into Redis and writes those audit records back to the database, so audit history is durable in the same database used for provisioning data.
+- An audit replication system fetches the audit data the location service publishes into Redis and writes it back to the database, so audit history is durable in the same database used for provisioning data.
 - The audit log table is a one-way sink, not a source for CDC. Audit records that land in the database through this loop are never pulled back out by CDC and never reach Redis; only the provisioning table feeds the serving cache. The dashed line in the diagram marks that boundary explicitly, since it is the one place in the architecture where "written to the database" does not imply "eventually in Redis."
 
 ### Location delivery (read path)
@@ -152,7 +150,7 @@ flowchart TD
 
 **Options considered:** remain on Debezium, adopt RDI, or build a custom log-tailing service.
 
-**Tradeoffs:** Debezium is mature and well understood but carries connector and downstream-consumer overhead. RDI allows changes to be mapped directly into Redis data structures, potentially reducing intermediate processing compared with the current pipeline, but that improvement still needs to be demonstrated under representative production workloads, and RDI is newer in our environment and less proven at our scale. A custom log-tailing service would offer the most control but the highest engineering and operational cost to build and maintain.
+**Tradeoffs:** the table above covers the mechanism difference; the open question is risk. RDI's potential latency improvement still needs to be demonstrated under representative production workloads, and it is newer in our environment and less proven at our scale than Debezium. A custom log-tailing service was ruled out early: it would offer the most control but the highest engineering and operational cost to build and maintain.
 
 **Decision:** evaluate and migrate toward RDI, with Debezium remaining in production until that evaluation is complete.
 
@@ -179,7 +177,7 @@ flowchart TD
     R -.-> MD["Batch metadata tables<br/>progress, throughput, errors"]
 ```
 
-The tool processes legacy records in transaction-bounded chunks of 1,000, balancing database I/O throughput against memory footprint and transaction size. A record that fails validation is routed to a dead-letter table for human review instead of halting the entire run, and batch metadata tables expose step-level progress, throughput, and error metrics in real time.
+The tool processes legacy records in transaction-bounded chunks of 1,000. A record that fails validation is routed to a dead-letter table for human review instead of halting the entire run, and batch metadata tables expose step-level progress, throughput, and error metrics in real time.
 
 This tool has been validated through repeated dry runs. The production migration itself has not started.
 
