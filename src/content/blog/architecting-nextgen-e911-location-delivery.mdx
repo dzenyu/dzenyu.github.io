@@ -11,15 +11,17 @@ tags:
   - "redis"
   - "spring-batch"
   - "leadership"
-description: "A read/write path separation between provisioning and real-time location delivery lets an NG911 platform serve emergency caller locations in under 100ms — and the validation strategy behind a multi-million-record migration that has not yet run in production."
-excerpt: "Notes on an NG911 platform initiative: separating the write path from the read path with CDC instead of application-level dual writes, and designing a migration that proves itself through independent reconciliation rather than a completion percentage."
+description: "A read/write path separation between provisioning and real-time location delivery lets an NG911 platform serve emergency caller locations in under 100ms—and the migration strategy for seeding legacy location data into a PIDF-LO serving model."
+excerpt: "Notes on an NG911 platform initiative: separating the write path from the real-time location-delivery path with CDC, while designing a one-time migration that proves migrated data is correct from source through the serving layer."
 featured_image: "/assets/images/architecting-nextgen-e911-location-delivery-featured.png"
 featured: false
 ---
 
-Emergency location delivery has an unusual architectural constraint: the workload that writes location data is not the workload that serves it. Provisioning is transactional, validation-heavy, and bursty. Location delivery must stay predictable and low-latency the moment an emergency lookup arrives. Putting both workloads behind the same database creates a coupling that is difficult to reason about under load, and a write-heavy provisioning spike can degrade the read path exactly when it cannot afford to.
+Emergency location delivery has an unusual architectural constraint: the workload that writes location data is not the workload that serves it. Provisioning is transactional, validation-heavy, and bursty. Location delivery must stay predictable and low-latency when an emergency lookup arrives.
 
-This post is written for **engineers and engineering managers** building latency-sensitive, regulated systems. As part of an NG911 (Next-Generation 911) platform initiative at a major telecommunications provider, I took technical ownership across the provisioning and location-delivery paths and helped shape an architecture that separates them using log-based change data capture (CDC), while still meeting NENA i3 (HELD, PIDF-LO) and FCC compliance requirements.
+Putting both workloads behind the same database creates coupling that is difficult to reason about under load. A write-heavy provisioning spike can degrade the read path exactly when it cannot afford to.
+
+This post is written for **engineers and engineering managers** building latency-sensitive, regulated systems. As part of an NG911 (Next-Generation 911) platform initiative at a major telecommunications provider, I took technical ownership across the provisioning and location-delivery paths and helped shape an architecture that separates them using change data capture (CDC), while supporting NENA i3 (HELD, PIDF-LO) and applicable regulatory requirements.
 
 > **Note:** This post describes the architecture and engineering practices behind an NG911 platform initiative, generalized and with the employer and internal program name anonymized. The legacy data migration discussed below is in preparation. It has not yet run in production.
 
@@ -27,9 +29,9 @@ This post is written for **engineers and engineering managers** building latency
 
 ## TL;DR
 
-- Provisioning (writes) and location delivery (reads) are separated into independent paths, synchronized through change data capture (CDC) instead of application-level dual writes.
-- Performance testing has demonstrated p95 lookup latency under 100 ms at the location service's own boundary.
-- A Spring Batch migration tool for millions of legacy location records has been built and validated through dry runs; the production migration itself has not started, and the validation strategy behind it matters more than the batch job.
+- Provisioning and location delivery are separated into independent write and read paths: the RDBMS stays the durable system of record, CDC propagates PIDF-LO data into Redis, and lookups hit p95 latency under 100 ms at the Location Service boundary.
+- Audit is decoupled from the location-delivery request too — the Location Service publishes to a Redis List, and a separate Audit Replication System persists those records back to the RDBMS asynchronously.
+- A Spring Batch tool performs a one-time seed of millions of legacy location records into the PIDF-LO model, validated record by record with a `skipLimit` safety gate and a migration error table for offline investigation; it never writes to Redis directly.
 
 ---
 
@@ -37,61 +39,51 @@ This post is written for **engineers and engineering managers** building latency
 
 | Aspect | Detail |
 |---|---|
-| Compliance requirements | NENA i3 (HELD, PIDF-LO), FCC mandates |
-| Read path latency target | p95 under 100 ms, measured at the location service boundary |
+| Compliance requirements | NENA i3 (HELD, PIDF-LO) and applicable regulatory requirements |
+| Read path latency target | p95 under 100 ms, measured at the Location Service boundary |
 | Migration scope | Millions of legacy location records, not yet migrated |
-| Team | A small cross-functional engineering and QA group spanning both the provisioning and location-delivery paths |
+| Migration purpose | One-time seeding of legacy location data into the PIDF-LO RDBMS model |
+| Migration batch size | Configurable; 5,000 records used as the example configuration here |
+| Serving model | PIDF-LO location data replicated from the RDBMS into Redis |
+| Audit model | Location Service → Redis List → Audit Replication System → RDBMS |
 
 ---
 
 ## Consolidating Ownership Across the Write and Read Paths
 
-I joined the initiative as a technical leader focused on the location-delivery read path: the APIs that serve downstream VoIP routing networks during an active emergency call. A sibling team owned the provisioning write path, the system that validates and persists device and tower location data.
+I joined the initiative as a technical leader focused on the location-delivery read path: the APIs that serve downstream VoIP routing networks during an active emergency call. A sibling team owned the provisioning write path, the system that validates and persists location data.
 
-A few months in, leadership asked me to take broader technical ownership across both the provisioning and location-delivery paths, given upcoming FCC compliance deadlines and the need for one coherent architectural roadmap. I now direct a small cross-functional engineering and QA team spanning both paths.
+A few months in, leadership asked me to take broader technical ownership across both the provisioning and location-delivery paths, given upcoming compliance deadlines and the need for one coherent architectural roadmap. I now direct a small cross-functional engineering and QA team spanning both paths.
 
-The consolidation removed a coordination cost that had been slowing both teams down. With one team owning both sides of the boundary, we could align API contracts, unify testing governance, and commit to a single architectural direction instead of negotiating one across a team boundary. The delivery timeline moved forward as a result, rather than stalling during the transition.
+The consolidation removed a coordination cost that had been slowing both teams down. With one team owning both sides of the boundary, we could align API contracts, unify testing governance, and commit to a single architectural direction instead of negotiating one across a team boundary.
 
 ---
 
 ## The Architectural Core: Separating Writes from Reads
 
-![Provisioned 911 location data flowing through the platform to the PSAP](/assets/images/architecting-nextgen-e911-location-delivery-featured.png)
+In emergency response, a spike in write-heavy location provisioning must not degrade read performance during an active 911 lookup.
 
-In emergency response, a spike in write-heavy location provisioning must never degrade read performance during an active 911 lookup. The two workloads have fundamentally different requirements: provisioning needs strict transactional consistency and auditability, and lookup needs to be fast and available under load. These requirements do not coexist well on shared infrastructure, so the platform separates them.
+The two workloads have fundamentally different requirements:
 
-Redis is the serving boundary between the two paths below: the provisioning path updates the database, CDC propagates those changes into Redis, and the location service reads from Redis.
+- **Provisioning** needs transactional consistency, validation, and durable persistence.
+- **Location delivery** needs predictable, low-latency reads.
+- **Audit replication** needs a durable path for recording what the Location Service served without making the real-time request dependent on a database write.
 
-**Thesis:** the transactional system owns persistence and consistency, the location service owns low-latency serving, and CDC connects the two without introducing application-level dual writes. A separate audit-replication loop feeds Redis-side audit data back into the database, so the compliance record of what was served is durable even though the read path itself never writes to the database directly.
+The platform therefore separates the write and read paths while maintaining a clear ownership boundary:
 
-### Provisioning (write path)
+- The **Provisioning Service owns the RDBMS write path**.
+- The **Location Service owns the Redis serving path**.
+- **CDC** connects the RDBMS to Redis for location-data replication.
+- The **Audit Replication System** moves audit records from the Redis List back into the RDBMS.
 
-```mermaid
----
-config:
-  look: neo
----
-flowchart TD
-    PA["Actor<br/>provisions location data"] -- provisions location data --> PS["Provisioning Service"]
-    PS -- persists data to --> DB[("DB<br/>location data")]
-    DB -- pulled by --> CDC["CDC / Debezium"]
-    CDC -- hands off to --> RDI["Redis DI"]
-    RDI -- pushes data to --> REDIS[("Redis")]
-    ARS["Audit Replication<br/>System"] -- fetches audit data<br/>published by location service --> REDIS
-    ARS -- publishes audit records to --> AUDITDB[("DB<br/>audit log")]
-    AUDITDB -. not pulled by CDC<br/>not replicated to Redis .-x REDIS
+The same Redis instance supports two distinct logical data flows:
 
-    classDef noflow stroke:#c0392b,color:#c0392b,stroke-dasharray:4 3;
-    class AUDITDB noflow;
-    linkStyle 7 stroke:#c0392b,stroke-width:2px,stroke-dasharray:4 3;
-```
+1. **Redis key/value data** contains replicated PIDF-LO location data used by the Location Service.
+2. **A Redis List** contains audit records published by the Location Service and consumed by the Audit Replication System.
 
-- The actor initiating provisioning (a device or tower data source) calls the provisioning service, which validates and persists the data to the relational database, the durable, transactional source of truth.
-- CDC (Debezium) pulls changes from the database, and Redis DI (Redis Data Integrator) pushes the resulting data into the Redis serving model, keeping the write path free of any direct write to Redis.
-- An audit replication system closes the loop in the other direction: it fetches the audit data that the location service publishes into Redis and writes those audit records back to the database, so audit history is durable in the same database used for provisioning data.
-- The audit log table is a one-way sink, not a source for CDC. Audit records that land in the database through this loop are never pulled back out by CDC and never reach Redis; only the provisioning table feeds the serving cache. The dashed line in the diagram marks that boundary explicitly, since it is the one place in the architecture where "written to the database" does not imply "eventually in Redis."
+These are different uses of the same Redis infrastructure; they should not be interpreted as the same data structure or processing path.
 
-### Location delivery (read path)
+### Unified architecture
 
 ```mermaid
 ---
@@ -99,16 +91,250 @@ config:
   look: neo
 ---
 flowchart TD
-    PSAP["Actor: PSAP<br/>receives distress call"] -- fetches location data --> LS["Location Service"]
-    LS -- fetches data --> REDIS[("Redis")]
-    LS -- publishes audit data --> REDIS
+
+    subgraph P["Provisioning — Write Path"]
+        U["User<br/>provisions location data"]
+        PS["Provisioning Service"]
+        DB[("RDBMS<br/>location data")]
+
+        U -- "provisions location data" --> PS
+        PS -- "persists location data" --> DB
+    end
+
+    subgraph L["Location Delivery — Read Path"]
+        PSAP["PSAP<br/>receives distress call"]
+        LS["Location Service"]
+        REDIS[("Redis<br/>PIDF-LO key/value data<br/>+ audit Redis List")]
+
+        PSAP -- "fetches location data" --> LS
+        LS -- "fetches PIDF-LO data" --> REDIS
+        LS -- "publishes audit data" --> REDIS
+    end
+
+    DB -- "pulled by" --> CDC["CDC"]
+    CDC -- "hands off to" --> REDIS
+
+    ARS["Audit Replication System"]
+    REDIS -- "dequeues audit data" --> ARS
+    ARS -- "persists audit data" --> DB
 ```
 
-- High-throughput, low-latency REST APIs consumed by VoIP service teams during active 911 routing. The initiating actor here is the PSAP (Public Safety Answering Point), fetching location data from the location service upon receiving a call from a distressed caller.
-- The location service fetches data exclusively from Redis, never from the database directly, and publishes audit data back into Redis for the audit-replication loop to pick up.
-- Performance testing has shown p95 latency under 100 ms, measured at the location service's own boundary: the time the service takes to answer a PSAP lookup, not the end-to-end latency of a 911 call.
+The important architectural boundary is that the RDBMS and Redis are not application-level dual-write targets.
 
-### Decision: synchronizing the two paths
+The Provisioning Service writes location data only to the RDBMS. CDC observes those database changes and propagates the resulting PIDF-LO data into Redis.
+
+The Location Service reads location data from Redis. It does not query the RDBMS as part of the normal location-delivery path.
+
+For audit, the Location Service publishes an audit record to the Redis List. The Audit Replication System dequeues those records and persists them to the RDBMS. This gives the platform durable audit history without adding an RDBMS write to the critical location-delivery request.
+
+---
+
+## Provisioning: The Write Path
+
+The provisioning path is responsible for validating and durably persisting location data.
+
+```text
+User
+  │
+  │ provisions location data
+  ▼
+Provisioning Service
+  │
+  │ persists location data
+  ▼
+RDBMS
+```
+
+The RDBMS is the durable source of truth for provisioned location data.
+
+Once location data is persisted, the application does not perform a second write to Redis. Instead, the database change becomes the input to the CDC path:
+
+```text
+RDBMS
+  │
+  │ CDC
+  ▼
+Redis
+```
+
+This keeps the application write path simple and avoids making a successful provisioning request dependent on two independent persistence operations.
+
+---
+
+## Location Delivery: The Read Path
+
+The location-delivery path is optimized for predictable, low-latency reads. The initiating actor is the PSAP (Public Safety Answering Point), which fetches location data from the Location Service upon receiving a call from a distressed caller.
+
+```text
+PSAP
+  │
+  │ fetches location data
+  ▼
+Location Service
+  │
+  │ fetches PIDF-LO data
+  ▼
+Redis
+```
+
+The Location Service reads the PIDF-LO representation from Redis rather than querying the RDBMS.
+
+In parallel with serving the location response, the Location Service publishes an audit record to the Redis List:
+
+```text
+Location Service
+       │
+       │ publishes audit data
+       ▼
+  Redis List
+```
+
+The audit publication is intentionally separate from the location lookup itself. The Location Service does not synchronously persist the audit record to the RDBMS during the emergency lookup.
+
+---
+
+## Audit Replication: Returning Durability to the RDBMS
+
+Audit records have a different lifecycle from location data.
+
+The Location Service publishes audit records to a Redis List. The Audit Replication System continuously dequeues those records and persists them to the RDBMS:
+
+```text
+Redis List
+    │
+    │ dequeues audit data
+    ▼
+Audit Replication System
+    │
+    │ persists audit data
+    ▼
+RDBMS
+```
+
+The RDBMS therefore remains the durable destination for audit history, while Redis provides the decoupling needed to keep the location-delivery request path independent of database write latency.
+
+This is also why the distinction between Redis's two logical uses matters:
+
+| Redis data | Producer | Consumer | Purpose |
+|---|---|---|---|
+| PIDF-LO key/value data | CDC | Location Service | Low-latency location lookup |
+| Redis List | Location Service | Audit Replication System | Asynchronous audit persistence |
+
+Both use the same Redis instance, but they represent different flows with different producers, consumers, and operational concerns.
+
+---
+
+## Preparing to Migrate Legacy Location Data
+
+The steady-state architecture solves synchronization for newly provisioned data. A separate problem remains: millions of existing legacy location records need to be converted into the new PIDF-LO representation and seeded into the RDBMS.
+
+The migration is a **one-time seeding tool**.
+
+Its responsibility is deliberately narrow:
+
+```text
+Legacy location data
+        │
+        ▼
+Transform + validate
+        │
+        ▼
+PIDF-LO records in RDBMS
+        │
+        ▼
+Existing CDC path
+        │
+        ▼
+Redis
+```
+
+The migration does **not** contain a separate Redis-writing mechanism.
+
+Once a successfully migrated PIDF-LO record is persisted to the RDBMS, it enters the same downstream replication path used by normally provisioned data.
+
+That gives the platform one synchronization mechanism rather than creating separate rules for migrated and newly provisioned records.
+
+---
+
+## Migration Processing and Validation
+
+The migration is implemented as a standalone Java command-line utility using Spring Batch.
+
+Validation occurs at the **individual record level**.
+
+For each legacy record, the migration:
+
+1. Reads the source record.
+2. Transforms it into the target PIDF-LO representation.
+3. Applies the required validation rules.
+4. Routes successful records into the current persistence batch.
+5. Routes failed records into the migration error table.
+
+The successful-record batch size is configurable. The migration was tested at batch sizes above 15,000 records; **5,000 records is used as the representative configuration in this article** because it provides a practical balance between database throughput, transaction size, and operational control.
+
+### Successful records
+
+Successful records are accumulated into the configured batch and persisted to the PIDF-LO RDBMS table.
+
+```text
+Record 1 ──┐
+Record 2 ──┤
+Record 3 ──┤
+    ...    ├──> 5,000-record batch ──> RDBMS
+Record N ──┘
+```
+
+The batch size is an implementation and operational tuning parameter, not an architectural requirement.
+
+### Failed records
+
+A record that fails validation is not silently discarded and does not disappear into a generic job error log.
+
+The complete source record and the validation errors encountered for that record are persisted to a dedicated **migration error table**.
+
+The purpose is to provide enough context for a team member to investigate the failure offline without reconstructing the migration environment.
+
+Investigation context can include:
+
+- the original source record;
+- all validation errors encountered;
+- source line number;
+- source filename;
+- migration timestamp;
+- migration run identifier;
+- host machine;
+- user who ran the migration; and
+- other execution metadata required for traceability.
+
+The migration error table is therefore an operational investigation record, not merely a failure counter.
+
+---
+
+## `skipLimit` as a Migration Safety Gate
+
+Individual validation failures do not necessarily mean that the entire source dataset is unsafe to migrate.
+
+A small number of malformed or non-conforming records can be isolated, persisted to the migration error table, and reviewed independently while processing continues.
+
+The migration therefore uses Spring Batch's `skipLimit` as an explicit **safety gate**.
+
+The configured limit represents the maximum number of validation failures that can be tolerated during a migration run.
+
+The behavior is:
+
+- **Below the skip limit:** validation failures are captured in the migration error table and processing continues.
+- **At the skip limit:** the migration stops gracefully.
+- **After the migration stops:** the team reviews the input data and migration behavior before deciding whether processing should continue.
+
+The purpose is not merely to prevent a batch job from failing. It is to prevent a potentially systemic problem in the source data or transformation rules from producing a large population of questionable target records.
+
+The `skipLimit` therefore becomes a **migration gate** between normal record-level exceptions and a condition that requires human review.
+
+---
+
+## Migration Flow
+
+The one-time migration can be summarized as follows:
 
 ```mermaid
 ---
@@ -116,122 +342,232 @@ config:
   look: neo
 ---
 flowchart TD
-    A["Application dual-write<br/>DB + Redis"] --> A2["Partial failure /<br/>inconsistency"]
-    B["Read-through fallback<br/>Redis, DB on miss"] --> B2["Database contention<br/>under load"]
-    C["Log-based CDC<br/>DB to CDC to Redis"] --> C2["Independent read/write<br/>workloads"]
+    L["Legacy location records"]
+    R["Read source record"]
+    P["Transform + validate"]
 
-    classDef reject stroke:#c0392b,color:#c0392b,stroke-dasharray:4 3;
-    classDef accept stroke:#2e7d32,color:#2e7d32,stroke-width:2px;
-    class A2,B2 reject;
-    class C2 accept;
+    S["Successful records"]
+    B["Configured persistence batch<br/>5,000 records"]
+    DB[("RDBMS<br/>PIDF-LO location data")]
+
+    F["Validation failure"]
+    E["Migration Error Table<br/>complete source record<br/>+ validation errors<br/>+ execution context"]
+
+    G{"skipLimit<br/>reached?"}
+    STOP["Stop migration<br/>team review required"]
+
+    L --> R
+    R --> P
+
+    P --> S
+    S --> B
+    B --> DB
+
+    P --> F
+    F --> E
+    F --> G
+    G -- "No" --> R
+    G -- "Yes" --> STOP
 ```
 
-**Options considered:**
+The diagram intentionally stops the migration flow at the RDBMS.
 
-1. Synchronous dual writes from the application layer to both the database and Redis on every provisioning request.
-2. Synchronous read-through, where the location service reads from Redis and falls back to the database on a cache miss.
-3. Asynchronous change data capture, reading mutations directly off the database's redo logs and propagating them to Redis out of band.
+The downstream path is the existing platform architecture:
 
-**Tradeoffs:**
-
-- Dual writes introduce a partial-failure mode: the database write can succeed while the cache write fails, or the reverse, leaving the two systems inconsistent with no single source of truth for which one is correct. It also adds a network hop, and its latency, to every provisioning request.
-- Read-through with a database fallback keeps a single write path, but a cache miss during a provisioning spike pushes read traffic onto the same database that is absorbing the write spike, which is unacceptable during an active emergency-call surge.
-- Asynchronous CDC decouples the two paths entirely and removes the dual-write failure mode, but it introduces replication lag as a new failure mode that has to be monitored explicitly.
-
-**Decision:** asynchronous CDC, reading mutations from the database redo logs.
-
-**Implication:** replication lag becomes a first-class metric with its own monitoring and alerting. It also means the validation strategy for any bulk operation against the database, including the migration described below, has to explicitly verify that changes have propagated to Redis, not only that they landed in the database.
-
-### Change data capture: Debezium today, RDI under evaluation
-
-| Aspect | Before: Debezium (current production) | After: Redis Data Integrator, RDI (in evaluation) |
-|---|---|---|
-| Change capture mechanism | Log-based connector translating database changes into events consumed by a downstream sync process | Log-level mapping directly from relational tables to Redis data structures |
-| Intermediate hops | Connector plus a downstream consumer/transform step | Fewer intermediate hops between the redo log and Redis |
-| Sync latency | Current production baseline | Expected improvement; not yet finalized |
-
-**Options considered:** remain on Debezium, adopt RDI, or build a custom log-tailing service.
-
-**Tradeoffs:** Debezium is mature and well understood but carries connector and downstream-consumer overhead. RDI allows changes to be mapped directly into Redis data structures, potentially reducing intermediate processing compared with the current pipeline, but that improvement still needs to be demonstrated under representative production workloads, and RDI is newer in our environment and less proven at our scale. A custom log-tailing service would offer the most control but the highest engineering and operational cost to build and maintain.
-
-**Decision:** evaluate and migrate toward RDI, with Debezium remaining in production until that evaluation is complete.
-
-**Implication:** RDI's replication semantics must be validated against Debezium's before full cutover. This is a direct instance of the same principle behind the migration's replication-validation layer, described next: verifying that a change downstream matches what was written upstream, not just that it arrived.
-
----
-
-## Preparing to Migrate Millions of Legacy Records
-
-The architecture above solves synchronization for new data. Millions of legacy location records still sit in the old schema and need to move into the new one, without corrupting data or degrading the service that depends on it.
-
-Running ad hoc update scripts against a production database subject to strict compliance requirements was never an option. Instead, I designed a standalone Java command-line migration utility built on Spring Batch:
-
-```mermaid
----
-config:
-  look: neo
----
-flowchart TD
-    L["Legacy records"] --> R["Chunked reader<br/>1,000 records per commit"]
-    R --> P["Processor<br/>transform + validate"]
-    P --> W["Writer<br/>new schema"]
-    P -- fails validation --> DL["Dead-letter table<br/>human review"]
-    R -.-> MD["Batch metadata tables<br/>progress, throughput, errors"]
+```text
+RDBMS → CDC → Redis
 ```
 
-The tool processes legacy records in transaction-bounded chunks of 1,000, balancing database I/O throughput against memory footprint and transaction size. A record that fails validation is routed to a dead-letter table for human review instead of halting the entire run, and batch metadata tables expose step-level progress, throughput, and error metrics in real time.
+This is important because the migration should not become a special-purpose integration mechanism.
 
-This tool has been validated through repeated dry runs. The production migration itself has not started.
+---
 
-### What dry runs have surfaced
+## What Dry Runs Have Surfaced
 
-Dry runs exposed a class of errors that row-count reconciliation alone could never detect. No production incident exists to report here, because the migration has not touched production; what dry runs did expose is worth documenting anyway. The migration logic assumed a one-to-one mapping between a legacy field and a field in the new schema, and that assumption did not hold for every table. Some legacy fields required a business rule to disambiguate correctly against the new schema. Record counts matched in every one of those cases; the values did not. That gap is exactly why the validation strategy below does not stop at counting rows.
+Dry runs exposed a class of errors that record-count reconciliation alone could never detect. No production incident exists to report here, because the migration has not touched production; what dry runs did expose is worth documenting anyway.
 
-### Why the validation strategy matters more than the batch job
+The transform-and-validate logic assumed a one-to-one mapping between a legacy field and a field in the PIDF-LO representation, and that assumption did not hold for every source table. Some legacy fields required a business rule to disambiguate correctly against the new schema. Record counts matched in every one of those cases; the field values did not.
 
-A batch job reaching 100% completion demonstrates almost nothing on its own. Moving rows is easy. Proving that the right rows moved, in the right shape, and that systems downstream of the migration behave correctly afterward, is hard. The validation plan has five layers:
+That gap is exactly why validation happens at the record level rather than stopping at a population count, and why the migration error table captures the full source record and validation errors rather than a bare failure tally.
 
-| # | Validation layer | What it catches |
-|---|---|---|
-| 1 | Source/destination record-count reconciliation | Missing or duplicated rows between source and destination |
-| 2 | Field-level validation | Silent transformation bugs where a value changes incorrectly in type or content |
-| 3 | Business-rule validation | Domain constraints the compliance schema requires, which a raw diff would not catch |
-| 4 | Replication validation | Confirms migrated records propagate through CDC into Redis and that the Redis representation matches the expected location data |
-| 5 | Post-migration sampling | Targeted review of a representative sample, catching systematic errors the automated layers miss |
+---
 
-Replication validation is the layer most worth calling out. It validates the entire downstream path, not the database migration in isolation. A record can migrate perfectly into the new schema and still be wrong if it does not show up correctly in the cache the location service actually reads from.
+## Validating the Migration Beyond Job Completion
 
-**A successful migration is not demonstrated by a job reaching 100% completion. It is demonstrated by independent reconciliation of the resulting data and downstream behavior.**
+A migration job reaching 100% completion demonstrates that the processing pipeline completed. It does not demonstrate that the resulting location data is correct or that downstream systems contain the expected representation.
+
+The validation strategy therefore has two distinct phases.
+
+### During migration
+
+#### 1. Record-level transformation and validation
+
+Every source record is transformed into the target PIDF-LO representation and validated before it is considered successful.
+
+#### 2. Migration error capture
+
+Failed records are written to the migration error table with the source record, validation errors, and execution context needed for offline investigation.
+
+#### 3. `skipLimit` safety gate
+
+The configured `skipLimit` prevents the migration from continuing when validation failures reach a level that suggests the input data or transformation rules require team review.
+
+#### 4. Controlled batch persistence
+
+Successful records are accumulated into configurable persistence batches. The representative configuration described here is 5,000 records per batch.
+
+### Migration verification
+
+After and alongside the migration, independent verification validates the resulting system state.
+
+#### 5. Source/destination reconciliation
+
+The migrated population is reconciled against the source to identify missing or unexpected records.
+
+#### 6. Field-level validation
+
+Target PIDF-LO values are compared with the expected transformed representation to identify silent transformation errors.
+
+#### 7. Business-rule validation
+
+Domain-specific rules are validated independently of simple field comparison.
+
+#### 8. Downstream replication validation
+
+The migration verifies that successfully persisted PIDF-LO records propagate through the existing CDC path into Redis and that the resulting Redis representation contains the expected location data.
+
+#### 9. Post-migration sampling
+
+A targeted sample provides an additional independent check for systematic issues that automated validation may not detect.
+
+A record can be correctly transformed and persisted to the RDBMS while still failing to appear correctly in Redis. Conversely, record counts can match while individual field values are wrong.
+
+A successful migration therefore means more than completing the batch job.
+
+It means demonstrating that the intended data was:
+
+**transformed correctly → persisted correctly → replicated correctly → available in the serving representation**
+
+---
+
+## What the Migration Is—and Is Not
+
+It is useful to be explicit about the boundary.
+
+### The migration is
+
+- a one-time data-seeding tool;
+- a legacy-to-PIDF-LO transformation process;
+- a record-level validation process;
+- a controlled batch persistence process;
+- an operationally traceable process through the migration error table;
+- protected by a configurable `skipLimit` safety gate.
+
+### The migration is not
+
+- a permanent synchronization service;
+- a second Redis population mechanism;
+- an application-level database/cache dual writer;
+- a replacement for CDC;
+- a reason to create a special downstream serving path.
+
+That separation keeps the migration aligned with the steady-state architecture rather than introducing a parallel architecture that would eventually need to be maintained.
 
 ---
 
 ## Production and Operations
 
-- **Deployment strategy.** The migration will run batch by batch rather than as a single cutover. Each batch runs through all five validation layers before the next batch starts, and the run can pause between batches if validation surfaces a problem.
-- **Rollback approach.** The migration is designed to be forward-safe rather than dependent on a database-wide rollback. It is additive: it writes into the new schema without deleting legacy data, and legacy data remains authoritative until validation establishes that the corresponding new records and downstream Redis state are correct. Any record that fails validation sits in the dead-letter table for review rather than silently succeeding or blocking the rest of the run.
-- **Observability.** Spring Batch's metadata tables expose step-level progress, throughput, and error metrics in real time. CDC replication lag is monitored as its own metric, per the synchronization decision above.
-- **Cost.** Running a full duplicate serving layer, the Redis tier plus the CDC pipeline alongside the relational database, is a real infrastructure cost, not just an engineering one. It is the direct tradeoff for keeping the read path isolated from provisioning load.
+### Deployment strategy
+
+The migration will run as a controlled batch process rather than as a single database-wide cutover.
+
+The configurable batch size allows the team to tune throughput while keeping persistence transactions operationally manageable. The 5,000-record configuration used in this article is representative rather than mandatory.
+
+Record-level failures do not automatically invalidate the entire input population. They are persisted with complete investigation context. However, reaching the configured `skipLimit` stops the migration and turns the run into a review point.
+
+### Rollback approach
+
+The migration is designed to be forward-safe rather than dependent on a database-wide rollback.
+
+It seeds the new PIDF-LO model without requiring the legacy source data to be deleted as part of the migration. This preserves the ability to reconcile source and target data and investigate discrepancies.
+
+The migration error table also provides a durable record of records that could not be safely transformed or validated.
+
+### Observability
+
+Operational visibility needs to cover both the migration and the downstream architecture.
+
+For the migration:
+
+- records processed;
+- records successfully transformed;
+- records rejected;
+- migration-error records;
+- current batch;
+- batch throughput;
+- current run identifier;
+- `skipLimit` consumption.
+
+For the serving architecture:
+
+- CDC replication lag;
+- Redis availability;
+- Location Service latency;
+- Location Service error rates;
+- audit queue/list depth;
+- audit replication throughput and failures.
+
+A completed migration with a healthy-looking job metric is not enough if downstream replication is stalled.
 
 ---
 
 ## Anti-Patterns
 
-- Do not run ad hoc or manual update scripts directly against a production database subject to strict compliance requirements.
-- Do not treat batch-job completion as proof of a correct migration. Completion is necessary but not sufficient.
-- Do not perform application-level dual writes to keep a cache synchronized with a system of record. It introduces a partial-failure mode that log-based CDC avoids entirely.
-- Do not stop validation at record counts. Counts can match while individual records are wrong, and only field-level, business-rule, and replication validation will catch that.
+### Ad hoc production update scripts
+
+Do not run manual transformation scripts directly against production data when the migration requires traceability, repeatability, validation, and controlled failure handling.
+
+### Treating completion as correctness
+
+A migration reaching 100% completion demonstrates that the job finished. It does not demonstrate that the data is correct.
+
+### Application-level dual writes
+
+Do not make the Provisioning Service responsible for independently writing location data to both the RDBMS and Redis.
+
+That creates a partial-failure mode and couples the transactional write path to the serving layer.
+
+### Using the database as a read-path fallback
+
+Do not make the Location Service routinely fall back to the RDBMS on Redis misses if the goal is to isolate location delivery from provisioning load.
+
+### Counting rows without validating values
+
+Record counts can match while values are incorrect. Field-level, business-rule, and downstream replication validation are necessary.
+
+### Treating migration as a second synchronization system
+
+The migration should seed the RDBMS and stop there. Once data is persisted, the existing CDC mechanism should handle replication into Redis.
 
 ---
 
 ## Key Takeaways
 
-1. **Separate the write and read paths when their consistency and latency requirements conflict.** Provisioning needs strict transactional consistency; location delivery needs to stay fast under load. Sharing infrastructure between the two means one workload's spike degrades the other's guarantees.
+1. **Separate the write and read paths when their consistency and latency requirements conflict.** Provisioning needs transactional consistency and durable persistence; location delivery needs predictable, low-latency reads.
 
-2. **Prefer log-based CDC over application-level dual writes when synchronizing a system of record with a serving cache.** Dual writes create a partial-failure mode with no single source of truth for which write actually landed. CDC removes that failure mode by making the database the only write path and propagating changes out of band.
+2. **Keep the RDBMS as the durable source of truth and use CDC to populate the serving model.** The Provisioning Service writes location data to the RDBMS; it does not perform an application-level dual write to Redis.
 
-3. **Build the migration's validation strategy before the migration itself.** Completion percentage is not correctness. Independent reconciliation across record-count, field-level, business-rule, and downstream-replication layers is what actually proves the data can be trusted.
+3. **Use one Redis infrastructure boundary for different logical workloads when their responsibilities are clear.** PIDF-LO location data is stored in Redis key/value data for serving, while audit records are published to a Redis List for asynchronous persistence.
 
-4. **Consolidate ownership when a team boundary becomes a coordination cost.** Aligning API contracts and testing governance under one accountable owner removed the negotiation overhead between two teams and moved the delivery timeline forward instead of stalling it.
+4. **Treat migration as a one-time seed, not a second synchronization architecture.** Legacy records are transformed and validated into the PIDF-LO RDBMS model, after which the normal RDBMS → CDC → Redis path takes over.
+
+5. **Validate individual records and preserve the evidence needed to investigate failures.** A migration error table containing the complete source record, validation errors, and execution context turns failed records into actionable investigation cases.
+
+6. **Use `skipLimit` as a migration safety gate.** A limited number of bad records can be isolated; reaching the configured threshold is a signal that the input or transformation process requires team review.
+
+7. **Prove the migration beyond job completion.** Source reconciliation, field-level validation, business-rule validation, downstream replication validation, and targeted sampling provide evidence that the data is correct from source through serving.
+
+8. **Make replication lag a first-class operational concern.** CDC decouples the write and read paths, but that decoupling introduces asynchronous propagation and therefore a measurable consistency window.
 
 ---
 
