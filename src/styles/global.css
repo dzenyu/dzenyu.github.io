@@ -282,6 +282,19 @@ hr {
   box-shadow: var(--shadow);
 }
 
+.about-intro {
+  display: flex;
+  align-items: center;
+  gap: 1.75rem;
+  max-width: var(--measure);
+  margin: 0 auto 2.5rem;
+}
+.about-intro-copy h1 {
+  margin-bottom: 0.5rem;
+}
+.about-intro-copy p {
+  margin: 0;
+}
 .about-avatar {
   width: 112px;
   height: 112px;
@@ -289,7 +302,14 @@ hr {
   object-fit: cover;
   border: 1px solid var(--color-border);
   box-shadow: var(--shadow);
-  margin-bottom: 1.25rem;
+  flex-shrink: 0;
+}
+@media (max-width: 560px) {
+  .about-intro {
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+  }
 }
 .hero-copy h1 {
   font-size: 2.1rem;
@@ -591,6 +611,136 @@ hr {
   display: flex;
   gap: 0.6rem;
   flex-wrap: wrap;
+}
+
+/* ---------------------------------------------------------------------
+   Consulting page
+------------------------------------------------------------------------ */
+.consulting-prose {
+  margin-top: 2rem;
+}
+.consulting-section {
+  max-width: 92ch;
+  margin: 3.5rem 0;
+}
+.consulting-section > h2 {
+  margin-top: 0;
+}
+.help-grid {
+  list-style: none;
+  padding: 0;
+  margin: 1.5rem 0 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.25rem;
+}
+.help-grid h3 {
+  margin: 0 0 0.4rem;
+  font-size: 1.05rem;
+}
+.help-grid p {
+  color: var(--color-text-muted);
+  font-family: var(--font-body);
+  line-height: 1.55;
+  margin: 0;
+}
+.how-it-works {
+  list-style: none;
+  counter-reset: step;
+  padding: 0;
+  margin: 1.5rem 0 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1.5rem;
+}
+.how-it-works li {
+  counter-increment: step;
+  position: relative;
+  padding-left: 2.75rem;
+}
+.how-it-works li::before {
+  content: counter(step);
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-accent-strong);
+  color: var(--color-accent-strong);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+.how-it-works h3 {
+  margin: 0 0 0.4rem;
+  font-size: 1.05rem;
+}
+.how-it-works p {
+  color: var(--color-text-muted);
+  font-family: var(--font-body);
+  line-height: 1.55;
+  margin: 0;
+}
+.service-grid {
+  list-style: none;
+  padding: 0;
+  margin: 1.5rem 0 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+.service-card {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-bg-elevated);
+  padding: 1.75rem 1.75rem 2rem;
+}
+.service-card.featured {
+  border-color: var(--color-accent-strong);
+  box-shadow: var(--shadow);
+}
+.service-card h3 {
+  margin: 0 0 0.3rem;
+  font-size: 1.3rem;
+}
+.service-card .price {
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-accent-strong);
+  margin: 0 0 1rem;
+}
+.service-card .description {
+  color: var(--color-text-muted);
+  font-family: var(--font-body);
+  line-height: 1.55;
+  margin: 0 0 1rem;
+}
+.service-card .best-for {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.5rem;
+  font-size: 0.88rem;
+  color: var(--color-text-muted);
+}
+.service-card .best-for li {
+  padding: 0.15em 0;
+}
+.service-card .best-for li::before {
+  content: "\2192";
+  margin-right: 0.5em;
+  color: var(--color-accent-strong);
+}
+.service-card .button {
+  margin-top: auto;
+  align-self: flex-start;
 }
 
 .site-footer {

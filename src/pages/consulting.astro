@@ -1,0 +1,206 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+interface Service {
+  name: string;
+  price: string;
+  summary: string;
+  bestFor: string[];
+  cta: string;
+  featured?: boolean;
+}
+
+const services: Service[] = [
+  {
+    name: "Architecture Consultation",
+    price: "$250 · 90 minutes",
+    summary:
+      "A focused working session on a specific technical problem — bring a diagram, a design decision, or a performance issue and leave with concrete next steps.",
+    bestFor: [
+      "Architecture decisions",
+      "System design questions",
+      "Technology choices",
+      "Scaling concerns",
+    ],
+    cta: "Book a Consultation",
+    featured: true,
+  },
+  {
+    name: "Architecture Review",
+    price: "$750 · Fixed scope",
+    summary:
+      "A structured assessment of an existing or proposed system with practical recommendations, key risks, tradeoffs, and a prioritized implementation roadmap.",
+    bestFor: [
+      "Architecture assessment",
+      "Risk & tradeoff analysis",
+      "Prioritized implementation roadmap",
+    ],
+    cta: "Request a Review",
+  },
+  {
+    name: "Fractional Engineering & Technical Leadership",
+    price: "$125 / hr",
+    summary:
+      "Hands-on senior backend engineering and technical leadership for teams that need added capacity without a full-time hire.",
+    bestFor: [
+      "Backend & architecture implementation",
+      "Kafka / event-driven systems",
+      "Migrations & code review",
+    ],
+    cta: "Discuss an Engagement",
+  },
+];
+
+const CONTACT_EMAIL = "consulting@attendontime.com";
+---
+
+<BaseLayout
+  title="Consulting"
+  description="Practical backend architecture, cloud engineering, and technical leadership for startups and growing engineering teams."
+>
+  <div class="prose consulting-prose">
+    <h1>Backend &amp; Cloud Architecture Consulting</h1>
+    <p class="page-intro">
+      Practical architecture, backend engineering, and technical leadership for
+      startups and growing engineering teams.
+    </p>
+    <p>
+      I help engineering teams solve difficult backend and architecture problems
+      &mdash; from system design and modernization to performance, reliability, and
+      production troubleshooting.
+    </p>
+    <p class="hero-cta">
+      <a class="button primary" href="#contact">Book an Architecture Consultation</a>
+      <a class="button" href="#selected-work">View Selected Work</a>
+    </p>
+  </div>
+
+  <section class="consulting-section">
+    <h2>What I help with</h2>
+    <ul class="help-grid">
+      <li>
+        <h3>Architecture &amp; System Design</h3>
+        <p>Service boundaries, event-driven and CQRS designs, distributed systems, modernization, and technical roadmap.</p>
+      </li>
+      <li>
+        <h3>Backend Engineering</h3>
+        <p>Java &amp; Spring Boot, REST/GraphQL APIs, Kafka, PostgreSQL, Redis, performance, and production troubleshooting.</p>
+      </li>
+      <li>
+        <h3>Cloud &amp; Platform</h3>
+        <p>AWS architecture, ECS/Kubernetes, asynchronous messaging, cost optimization, and production readiness.</p>
+      </li>
+      <li>
+        <h3>Data &amp; Migration</h3>
+        <p>Database migrations, CDC and replication, Spring Batch pipelines, data validation, and migration risk assessment.</p>
+      </li>
+      <li>
+        <h3>Performance &amp; Reliability</h3>
+        <p>Bottleneck analysis, latency reduction, resilience, observability, production troubleshooting, and reliability improvements.</p>
+      </li>
+    </ul>
+  </section>
+
+  <section id="services" class="consulting-section">
+    <h2>Services</h2>
+    <p class="page-intro">Focused engagements that can start small and expand as needed.</p>
+    <ul class="service-grid">
+      {services.map((service) => (
+        <li class:list={["service-card", { featured: service.featured }]}>
+          <h3>{service.name}</h3>
+          <p class="price">{service.price}</p>
+          <p class="description">{service.summary}</p>
+          <ul class="best-for">
+            {service.bestFor.map((item) => <li>{item}</li>)}
+          </ul>
+          <a class:list={["button", { primary: service.featured }]} href={`mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(service.name)}`}>
+            {service.cta}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <section class="consulting-section">
+    <h2>How it works</h2>
+    <ol class="how-it-works">
+      <li>
+        <h3>Start with the problem</h3>
+        <p>Bring the architecture diagram, code, performance problem, migration plan, or technical decision you are wrestling with.</p>
+      </li>
+      <li>
+        <h3>Work through the architecture</h3>
+        <p>We will examine constraints, alternatives, tradeoffs, risks, and implementation considerations.</p>
+      </li>
+      <li>
+        <h3>Leave with a plan</h3>
+        <p>The goal is a concrete set of decisions and next steps &mdash; not another meeting that ends with "let us circle back."</p>
+      </li>
+    </ol>
+  </section>
+
+  <section id="selected-work" class="consulting-section">
+    <h2>Selected Work</h2>
+    <p class="page-intro">Consulting work grounded in building and operating real production systems.</p>
+    <ul class="project-grid">
+      <li class="project-card">
+        <h2>Architecting Next-Generation E911</h2>
+        <p class="description">
+          Separating real-time location delivery from provisioning using a CQRS-style
+          architecture, change data capture, Redis, and a controlled migration strategy.
+        </p>
+        <div class="project-links">
+          <a class="button" href="/2026/09/20/architecting-nextgen-e911-location-delivery/">Read the case study &rarr;</a>
+        </div>
+      </li>
+      <li class="project-card">
+        <h2>AttendOnTime</h2>
+        <p class="description">
+          Event registration, ticketing, and real-time check-in platform built on Spring Boot
+          microservices, GraphQL Federation, Kafka, PostgreSQL, and AWS.
+        </p>
+        <div class="project-links">
+          <a class="button" href="/projects/">Explore Projects &rarr;</a>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+  <div class="prose consulting-prose">
+    <h2>Why work with me?</h2>
+    <p>
+      I approach problems from a system architecture perspective while staying close
+      enough to the implementation to understand what will actually work in production. My experience
+      spans distributed systems, event-driven architectures, cloud infrastructure,
+      data migrations, and production operations &mdash; and I favor the simplest
+      approach that satisfies the system's actual requirements over complexity for
+      its own sake.
+    </p>
+
+    <h2>Who I work with</h2>
+    <ul>
+      <li>Startup founders who need a senior technical sounding board</li>
+      <li>Engineering teams facing difficult architecture decisions</li>
+      <li>Growing companies preparing their backend for scale</li>
+      <li>Teams modernizing legacy systems or planning major data migrations</li>
+      <li>Companies needing temporary senior technical leadership</li>
+    </ul>
+    <p>You do not need a large project to get started &mdash; a single difficult architecture decision is enough.</p>
+
+    <h2 id="contact">Have a backend or architecture problem?</h2>
+    <p>Let us spend 90 minutes turning it into a concrete technical plan.</p>
+    <p>
+      <a class="button primary" href={`mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent("Architecture Consultation")}`}>
+        Book an Architecture Consultation
+      </a>
+    </p>
+    <p>
+      Or email <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a> with a brief
+      description of the problem you are trying to solve.
+    </p>
+    <p>
+      <strong>Location:</strong> DFW / Remote &mdash; I work primarily with startups
+      and engineering teams in the United States.
+    </p>
+  </div>
+</BaseLayout>
