@@ -282,6 +282,19 @@ hr {
   box-shadow: var(--shadow);
 }
 
+.about-intro {
+  display: flex;
+  align-items: center;
+  gap: 1.75rem;
+  max-width: var(--measure);
+  margin: 0 auto 2.5rem;
+}
+.about-intro-copy h1 {
+  margin-bottom: 0.5rem;
+}
+.about-intro-copy p {
+  margin: 0;
+}
 .about-avatar {
   width: 112px;
   height: 112px;
@@ -289,7 +302,14 @@ hr {
   object-fit: cover;
   border: 1px solid var(--color-border);
   box-shadow: var(--shadow);
-  margin-bottom: 1.25rem;
+  flex-shrink: 0;
+}
+@media (max-width: 560px) {
+  .about-intro {
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+  }
 }
 .hero-copy h1 {
   font-size: 2.1rem;
