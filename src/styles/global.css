@@ -644,6 +644,48 @@ hr {
   line-height: 1.55;
   margin: 0;
 }
+.how-it-works {
+  list-style: none;
+  counter-reset: step;
+  padding: 0;
+  margin: 1.5rem 0 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1.5rem;
+}
+.how-it-works li {
+  counter-increment: step;
+  position: relative;
+  padding-left: 2.75rem;
+}
+.how-it-works li::before {
+  content: counter(step);
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-accent-strong);
+  color: var(--color-accent-strong);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+.how-it-works h3 {
+  margin: 0 0 0.4rem;
+  font-size: 1.05rem;
+}
+.how-it-works p {
+  color: var(--color-text-muted);
+  font-family: var(--font-body);
+  line-height: 1.55;
+  margin: 0;
+}
 .service-grid {
   list-style: none;
   padding: 0;

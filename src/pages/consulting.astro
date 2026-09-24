@@ -29,19 +29,19 @@ const services: Service[] = [
     name: "Architecture Review",
     price: "$750 · Fixed scope",
     summary:
-      "A structured review of an existing or proposed system, covering architecture, APIs, data flow, messaging, and operational concerns.",
+      "A structured assessment of an existing or proposed system with practical recommendations, key risks, tradeoffs, and a prioritized implementation roadmap.",
     bestFor: [
       "Architecture assessment",
-      "Key risks & tradeoffs",
-      "Prioritized roadmap",
+      "Risk & tradeoff analysis",
+      "Prioritized implementation roadmap",
     ],
     cta: "Request a Review",
   },
   {
-    name: "Fractional Backend Engineering",
+    name: "Fractional Engineering & Technical Leadership",
     price: "$125 / hr",
     summary:
-      "Hands-on senior engineering and technical leadership for teams that need added capacity without a full-time hire.",
+      "Hands-on senior backend engineering and technical leadership for teams that need added capacity without a full-time hire.",
     bestFor: [
       "Backend & architecture implementation",
       "Kafka / event-driven systems",
@@ -70,7 +70,7 @@ const CONTACT_EMAIL = "consulting@dzenyu.com";
       production troubleshooting.
     </p>
     <p class="hero-cta">
-      <a class="button primary" href="#services">Book an Architecture Consultation</a>
+      <a class="button primary" href="#contact">Book an Architecture Consultation</a>
       <a class="button" href="#selected-work">View Selected Work</a>
     </p>
   </div>
@@ -93,6 +93,10 @@ const CONTACT_EMAIL = "consulting@dzenyu.com";
       <li>
         <h3>Data &amp; Migration</h3>
         <p>Database migrations, CDC and replication, Spring Batch pipelines, data validation, and migration risk assessment.</p>
+      </li>
+      <li>
+        <h3>Performance &amp; Reliability</h3>
+        <p>Bottleneck analysis, latency reduction, resilience, observability, production troubleshooting, and reliability improvements.</p>
       </li>
     </ul>
   </section>
@@ -117,6 +121,24 @@ const CONTACT_EMAIL = "consulting@dzenyu.com";
     </ul>
   </section>
 
+  <section class="consulting-section">
+    <h2>How it works</h2>
+    <ol class="how-it-works">
+      <li>
+        <h3>Start with the problem</h3>
+        <p>Bring the architecture diagram, code, performance problem, migration plan, or technical decision you are wrestling with.</p>
+      </li>
+      <li>
+        <h3>Work through the architecture</h3>
+        <p>We will examine constraints, alternatives, tradeoffs, risks, and implementation considerations.</p>
+      </li>
+      <li>
+        <h3>Leave with a plan</h3>
+        <p>The goal is a concrete set of decisions and next steps &mdash; not another meeting that ends with "let us circle back."</p>
+      </li>
+    </ol>
+  </section>
+
   <section id="selected-work" class="consulting-section">
     <h2>Selected Work</h2>
     <p class="page-intro">Consulting work grounded in building and operating real production systems.</p>
@@ -125,7 +147,7 @@ const CONTACT_EMAIL = "consulting@dzenyu.com";
         <h2>Architecting Next-Generation E911</h2>
         <p class="description">
           Separating real-time location delivery from provisioning using a CQRS-style
-          architecture, change data capture, Redis, and a controlled data migration strategy.
+          architecture, change data capture, Redis, and a controlled migration strategy.
         </p>
         <div class="project-links">
           <a class="button" href="/2026/09/20/architecting-nextgen-e911-location-delivery/">Read the case study &rarr;</a>
@@ -148,7 +170,7 @@ const CONTACT_EMAIL = "consulting@dzenyu.com";
     <h2>Why work with me?</h2>
     <p>
       I approach problems from a system architecture perspective while staying close
-      enough to the implementation to know what will actually work. My experience
+      enough to the implementation to understand what will actually work in production. My experience
       spans distributed systems, event-driven architectures, cloud infrastructure,
       data migrations, and production operations &mdash; and I favor the simplest
       approach that satisfies the system's actual requirements over complexity for
@@ -161,13 +183,20 @@ const CONTACT_EMAIL = "consulting@dzenyu.com";
       <li>Engineering teams facing difficult architecture decisions</li>
       <li>Growing companies preparing their backend for scale</li>
       <li>Teams modernizing legacy systems or planning major data migrations</li>
+      <li>Companies needing temporary senior technical leadership</li>
     </ul>
-    <p>You don't need a large project to get started &mdash; a single difficult architecture decision is enough.</p>
+    <p>You do not need a large project to get started &mdash; a single difficult architecture decision is enough.</p>
 
-    <h2 id="contact">Contact</h2>
+    <h2 id="contact">Have a backend or architecture problem?</h2>
+    <p>Let us spend 90 minutes turning it into a concrete technical plan.</p>
     <p>
-      Have a project, architecture problem, or technical challenge you'd like to
-      discuss? Email <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
+      <a class="button primary" href={`mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent("Architecture Consultation")}`}>
+        Book an Architecture Consultation
+      </a>
+    </p>
+    <p>
+      Or email <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a> with a brief
+      description of the problem you are trying to solve.
     </p>
     <p>
       <strong>Location:</strong> DFW / Remote &mdash; I work primarily with startups
