@@ -20,6 +20,7 @@ export const NAV_LINKS = [
   { label: "Home", url: "/" },
   { label: "Articles", url: "/articles/" },
   { label: "Projects", url: "/projects/" },
+  { label: "Consulting", url: "/consulting/" },
   { label: "Tags", url: "/tags/" },
   { label: "About", url: "/about/" },
   { label: "Search", url: "/search/" },
