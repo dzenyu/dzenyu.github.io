@@ -85,39 +85,7 @@ These are different uses of the same Redis infrastructure; they should not be in
 
 ### Unified architecture
 
-```mermaid
----
-config:
-  look: neo
----
-flowchart TD
-
-    subgraph P["Provisioning — Write Path"]
-        U["User<br/>provisions location data"]
-        PS["Provisioning Service"]
-        DB[("RDBMS<br/>location data")]
-
-        U -- "provisions location data" --> PS
-        PS -- "persists location data" --> DB
-    end
-
-    subgraph L["Location Delivery — Read Path"]
-        PSAP["PSAP<br/>receives distress call"]
-        LS["Location Service"]
-        REDIS[("Redis<br/>PIDF-LO key/value data<br/>+ audit Redis List")]
-
-        PSAP -- "fetches location data" --> LS
-        LS -- "fetches PIDF-LO data" --> REDIS
-        LS -- "publishes audit data" --> REDIS
-    end
-
-    DB -- "pulled by" --> CDC["CDC"]
-    CDC -- "hands off to" --> REDIS
-
-    ARS["Audit Replication System"]
-    REDIS -- "dequeues audit data" --> ARS
-    ARS -- "persists audit data" --> DB
-```
+![Unified E911 architecture diagram: the Location Delivery read path (PSAP → Location Service → Redis PIDF-LO data) on the left, the Provisioning write path (User → Provisioning Service → RDBMS) on the right, CDC replicating RDBMS changes into Redis, and the Audit Replication System dequeuing audit data from Redis and persisting it back to the RDBMS](/assets/images/architecting-nextgen-e911-location-delivery-unified-architecture.png)
 
 The important architectural boundary is that the RDBMS and Redis are not application-level dual-write targets.
 
