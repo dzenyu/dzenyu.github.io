@@ -13,15 +13,15 @@ tags:
 featured: false
 ---
 
-Account merging looks like a small feature: a user created two accounts by signing in with two identity providers, and wants one. In a microservices platform it is a distributed consistency problem, because the data for those two accounts is spread across independently deployed services that share no transaction.
+Account merging looks like a small feature: a user created two accounts by signing in with two identity providers, and wants one. In a microservices platform it is a distributed consistency problem, because the data for those two accounts lives in independently deployed services that share no transaction.
 
-This post is a design case study from [AttendOnTime](https://attendontime.com), the event platform described in [Building AttendOnTime](/blog/building-attendontime). It is written for backend engineers and architects who own service boundaries. The architecture and participant contracts are under construction; the full orchestration, the remaining service migrations, and the recovery tests are still planned. Nothing here reports production metrics, and the failure modes are anticipated, not observed.
+This post describes the account merge design for [AttendOnTime](https://attendontime.com), the event platform described in [Building AttendOnTime](/blog/building-attendontime). It is written for backend engineers and architects who own service boundaries. It covers the design decisions and the failure modes they address; it does not report production metrics.
 
 ## TL;DR
 
 - An account merge is a coordinated workflow with durable state, not an identity-table update.
-- A write fence on every participant, combined with a transaction-quiescence check, is what keeps concurrent writes from escaping the migration.
-- Before the fence the merge can be cancelled cleanly. After it, recovery moves **forward only**.
+- A fence that makes the source account resolve to the target at every entry point, combined with a database write guard and a transaction-quiescence barrier, keeps concurrent writes from escaping the migration.
+- Before the fence the merge can be cancelled freely. After data has moved, recovery goes **forward only**.
 
 ## The Problem: One Person, Two Accounts
 
@@ -29,7 +29,7 @@ A user signs up with Google, later signs in with Microsoft, and unintentionally 
 
 To the user these are one person. To the platform they are two accounts with independent identifiers, credentials, sessions, permissions, and data.
 
-The constraint is that each service owns its own database and business rules. No single transaction spans them, so a partial migration can leave some records on the surviving account and others on the retired one. If the design were a naive identity update, the platform would silently orphan data or split a user's authorization across two identities.
+The constraint is that each service owns its own database and business rules. No single transaction spans them, so a partial migration can leave some records on the surviving account and others on the retired one. A naive identity update would silently orphan data or split a user's authorization across two identities.
 
 > **The question:** how do you consolidate two identities across independently deployed services without losing data, weakening authorization, or leaving the platform inconsistent?
 
@@ -41,40 +41,71 @@ The constraint is that each service owns its own database and business rules. No
 | Target account | The surviving account |
 | Coordinator | `auth-service`, the canonical identity authority that drives the merge |
 | Participant | A domain service that migrates its own data |
-| Fence | A participant-local boundary that rejects new source-owned writes |
+| Fence | The point from which the source resolves to the target and participants reject new source-owned writes |
 | `mergeId` | The stable identifier of one merge workflow |
 
-## Design Overview
+## The Happy Path
 
 ```mermaid
 ---
 config:
   look: neo
 ---
-flowchart TD
-  U[User requests merge] --> C[auth-service coordinator]
-  C -->|1 Prepare| P[Participants: read-only assessment]
-  P -->|conflicts| R[Resolution by user or policy]
-  R --> P
-  P -->|clean| F[2 Fence all participants]
-  F --> W1[3 Wave 1: organization, attendee, contributor, notification, file]
-  W1 --> W2[4 Wave 2: event, ticket]
-  W2 --> V[5 Verify all participants]
-  V -->|drift| W1
-  V -->|verified| Z[6 Finalize identity in auth-service]
-  Z --> O[7 Post-commit work and completion event]
+sequenceDiagram
+    autonumber
+    actor U as User
+    participant A as auth-service
+    participant P as Participants
+    participant K as Kafka
+    participant N as notification-service
+    participant AU as audit-service
+
+    U->>A: Request merge, signed in as one account
+    U->>A: Prove control of the other account
+    A->>K: Merge requested notice
+    K->>N: Email every verified address of both accounts
+    loop each participant
+        A->>P: Prepare, read-only
+        P-->>A: Footprint and conflicts
+    end
+    opt conflicts exist
+        U->>A: Resolve each conflict
+    end
+    U->>A: Confirm
+    A->>P: Final Prepare
+    A->>A: Publish alias, source resolves to target
+    loop each participant
+        A->>P: Fence
+        P-->>A: fence_xmax
+    end
+    loop each wave, dependencies first
+        loop until has_more is false
+            A->>P: Execute with checkpoint
+            P-->>A: Counts, conflicts, has_more
+        end
+    end
+    A->>P: Verify
+    P-->>A: No source-owned rows remain
+    A->>A: One local transaction finalizes identity
+    A->>K: Merge completed event from stored snapshot
+    K->>N: Email every verified address of both accounts
+    K->>AU: Record once per mergeId
 ```
+
+The user initiates and confirms. After that, every step is driven by the coordinator; nothing polls on the user's behalf.
 
 ## Before and After
 
 | Aspect | Naive identity update | This design |
 |---|---|---|
 | Data movement | One update, or direct writes into other databases | Each service migrates its own data |
+| Authorization | Whoever holds a source token keeps source roles | Requests resolve to the target with the target's current roles |
 | Atomicity | Assumed | Explicitly absent, replaced by durable state |
-| Concurrent writes | Ignored | Fenced, then verified |
+| Concurrent writes | Ignored | Aliased at the edge, guarded in the database, verified |
 | Conflicts | Last write wins | Explicit policy, user decision, or review state |
-| Failure after partial progress | Undefined | Checkpointed, resumable, forward recovery |
-| Async paths (Kafka, jobs, WebSocket) | Forgotten | Canonical identity at every entry point |
+| Partial failure | Undefined | Checkpointed, resumable, forward recovery |
+| Async paths | Forgotten | Canonical identity at every entry point |
+| Security of the request | Trust the session | Proof of both accounts, notice to every address |
 
 ## 1. Invariants Come Before the API
 
@@ -89,43 +120,72 @@ Before designing orchestration, I fixed the invariants the merge must preserve.
 
 Replacing every occurrence of the source user ID would erase the difference between current ownership and historical fact.
 
-**Each service owns its data.** The coordinator never writes to another service's tables. Participants implement the operations to inspect, prepare, migrate, and verify their own data, so domain rules stay where they belong.
+**Each service owns its data.** The coordinator never writes to another service's tables. Participants implement the operations to inspect, prepare, migrate, and verify their own data.
 
-**No silent data loss or privilege escalation.** Two accounts might hold memberships in the same organization with different roles, or duplicate registrations for the same event. The wrong automatic choice could discard data or grant elevated permissions. Every conflict must end in an explicit policy outcome, a user decision, or a recoverable review state.
+**No silent data loss or privilege escalation.** Two accounts might hold memberships in the same organization with different roles, or duplicate registrations for the same event. Every conflict must end in an explicit policy outcome, a user decision, or a recoverable review state. An elevated-role conflict at finalization goes to manual review, never to an automatic choice.
 
 ## 2. Coordinator and Participant Contract
 
-`auth-service` is the coordinator. Domain services are participants. The contract has four operations, plus one for inspection:
+`auth-service` is the coordinator. Domain services are participants. The contract has these operations:
 
 | Operation | Responsibility | Mutates business data |
 |---|---|---|
-| `Prepare` | Report the data footprint and conflict codes | No |
-| `Fence` | Reject new source-owned writes locally | No |
+| `Prepare` | Report the data footprint, conflicts, and supported conflict codes | No |
+| `Fence` | Commit a local fence and a write guard; return `fence_xmax` | No |
 | `Execute` | Migrate data in repeatable, checkpointed batches | Yes |
-| `Verify` | Confirm no unhandled source-owned records remain | No |
+| `Verify` | Confirm no source-owned rows remain | No |
+| `Unfence` | Lift the fence while nothing has been executed | No |
 | `ListFences` | Inspect fence state for operators and recovery | No |
 
-The abstraction is deliberately narrow. The coordinator manages progress and dependencies; participants enforce domain invariants. That lets heterogeneous services take part without sharing a schema.
+The abstraction is deliberately narrow. The coordinator manages progress and dependencies; participants enforce domain invariants.
 
 ### Decision: Orchestration over Choreography
 
 **Options:**
 
 - Central orchestrator with participant contracts
-- Choreography, where each service reacts to a `MergeRequested` event
+- Choreography, where each service reacts to a merge-requested event
 - A shared migration job that writes directly to every database
 
 **Tradeoffs:**
 
-- Orchestrator: one place for state, ordering, and escalation, but `auth-service` gains a coordination role and becomes a dependency of the merge.
+- Orchestrator: one place for state, ordering, and escalation, but `auth-service` takes on a coordination role.
 - Choreography: loosely coupled, but wave ordering, fence confirmation, and "which participant is stuck" become hard to answer.
 - Shared job: simplest to write, but it breaks service ownership and domain rules.
 
 **Decision:** orchestrator.
 
-**Implication:** the merge needs durable coordinator state and a recovery path for the coordinator itself, covered below.
+**Implication:** the merge needs durable coordinator state, a driver that resumes it after restarts, and its own recovery path.
 
-## 3. The Merge Is a State Machine
+## 3. A Merge Is a Security Event
+
+Merging two accounts is also a path to account takeover, so the request is guarded before any data is examined.
+
+- **Proof of both accounts.** The initiator proves a recent sign-in to the account they are using, and separately proves control of the other account through a step-up sign-in. Proofs expire after minutes, and confirmation rechecks them.
+- **Notice to every address.** A request notice goes to every verified address of both accounts. Each recipient receives a one-time "this was not me" link.
+- **A report stops the merge.** After the fence, a report parks the merge in manual review and blocks finalization until an operator releases it.
+- **One active merge per account.** Concurrent merges involving the same account are refused.
+- **A recommended survivor.** The system suggests which account to keep, and the user can switch before confirming.
+
+### Decision: Proof of Both Accounts over Email Matching
+
+**Options:**
+
+- Step-up proof of both accounts
+- Match on a shared verified email
+- Support-assisted merges only
+
+**Tradeoffs:**
+
+- Both proofs: strongest assurance, but an extra sign-in step and no path for a user who lost access to one account.
+- Email matching: frictionless, but a recycled or compromised address becomes a takeover path.
+- Support-assisted: safe, but it does not scale and delays the user.
+
+**Decision:** require both proofs; accounts the user can no longer reach go through support.
+
+**Implication:** the common case costs one extra sign-in, and the rare locked-out case stays a human process.
+
+## 4. The Merge Is a State Machine
 
 A restart or a lost response must never leave the system unsure what happened, so the workflow has explicit durable states.
 
@@ -134,50 +194,89 @@ A restart or a lost response must never leave the system unsure what happened, s
 config:
   look: neo
 ---
-stateDiagram-v2
-    [*] --> REQUESTED
-    REQUESTED --> PREPARING
-    PREPARING --> NEEDS_RESOLUTION
-    NEEDS_RESOLUTION --> PREPARING
-    PREPARING --> FENCING
-    FENCING --> MIGRATING
-    MIGRATING --> VERIFYING
-    VERIFYING --> MIGRATING: Drift detected
-    VERIFYING --> FINALIZING: All required participants verified
-    FINALIZING --> COMPLETED
-    MIGRATING --> FAILED_RECOVERABLE: Retry limit reached
-    FAILED_RECOVERABLE --> MIGRATING: Operator resumes
-    FAILED_RECOVERABLE --> MANUAL_REVIEW
+flowchart TD
+    START(["User asks to merge"]) --> REQUESTED
+
+    subgraph BEFORE["Before the fence: nothing is locked, nothing has moved"]
+        direction TB
+        REQUESTED["REQUESTED"] -- "first Prepare pass" --> PREPARING["PREPARING"]
+        PREPARING -- "a participant raised a conflict" --> NEEDS["NEEDS_RESOLUTION"]
+        NEEDS -- "user resolved every conflict" --> PREPARING
+    end
+
+    subgraph AFTER["After the fence: the source already resolves to the target"]
+        direction TB
+        FENCING["FENCING"] -- "every participant fenced and quiesced" --> MIGRATING["MIGRATING"]
+        MIGRATING -- "every wave completed" --> VERIFYING["VERIFYING"]
+        VERIFYING -- "source rows left" --> MIGRATING
+        VERIFYING -- "every required participant verified" --> FINALIZING["FINALIZING"]
+    end
+
+    PREPARING -- "user confirms, final Prepare clean, fence committed" --> FENCING
+    FINALIZING -- "one finalization transaction" --> COMPLETED(["COMPLETED"])
+
+    REQUESTED -- "user cancels" --> CANCELLED(["CANCELLED"])
+    NEEDS -- "user cancels" --> CANCELLED
+    PREPARING -- "refused or Prepare failed" --> CANCELLED
+    FENCING -- "operator unfence, nothing executed yet" --> CANCELLED
 ```
 
-The diagram shows the principal path. Production handling also needs cancellation, transient failures, and operator-assisted recovery.
+Retries and escalation add three more states around the post-fence path:
 
-The key distinction is the fence boundary:
+```mermaid
+---
+config:
+  look: neo
+---
+flowchart LR
+    ACTIVE["FENCING, MIGRATING<br/>or VERIFYING"]
+    RETRYING["RETRYING"]
+    FAILED["FAILED_RECOVERABLE"]
+    MANUAL["MANUAL_REVIEW"]
+    NEEDS["NEEDS_RESOLUTION"]
+    CANCELLED(["CANCELLED"])
 
-- **Before the fence**, the system can inspect, ask for decisions, and refuse the merge, with no business records migrated.
-- **After the fence**, the workflow must account for partial execution. Recovery means continuing safely, not assuming a rollback.
+    ACTIVE -- "transient failure" --> RETRYING
+    RETRYING -- "backoff elapsed, resume" --> ACTIVE
+    RETRYING -- "attempts used" --> FAILED
+    FAILED -- "operator resumes" --> RETRYING
+    FAILED -- "operator escalates" --> MANUAL
+    FAILED -- "operator unfence, nothing executed yet" --> CANCELLED
+    ACTIVE -- "late conflict" --> NEEDS
+    NEEDS -- "user resolves" --> ACTIVE
+    NEEDS -- "unresolved too long" --> MANUAL
+    MANUAL -- "operator repairs and resumes" --> ACTIVE
+    FINALIZING["FINALIZING"] -- "elevated role or login subject conflict" --> MANUAL
+```
 
-## 4. Prepare Before Mutating
+The fence is the commit point:
 
-Preparation is a read-only assessment of both accounts. Each participant reports its footprint and supported conflict codes. Typical conflicts:
+- **Before the fence**, nothing has moved and nothing is locked. Any refusal or cancel is free, and both accounts are released at once.
+- **From the fence on**, the source already resolves to the target, so the user is never stuck. The merge moves forward; the only way back is the operator unfence, available while no participant has executed.
+- **Finalization is a single transaction** that also sets `COMPLETED`. There is no half-finalized state.
+
+Operator moves to manual review from other states exist but are not all drawn.
+
+## 5. Prepare Before Mutating
+
+Preparation is a read-only assessment of both accounts. Each participant reports its footprint, conflicts, and the conflict codes it supports. Typical conflicts:
 
 - Duplicate attendee registrations for the same event
 - Memberships that collide under a unique constraint
 - Conflicting contributor profiles
 - Role combinations that need an explicit decision
-- Data in a service whose migration is not yet implemented
 
-The last case matters most. **A merge must be refused if a service holds source-owned data it cannot yet migrate safely**, even though the coordinator knows the service exists.
+A merge is also **refused if either account owns data in a service that cannot yet migrate it**. The coordinator knows the service exists; that is not enough. Until every participant implements `Execute`, the merge is available only to accounts whose data lives in services that do. This keeps an early release safe and widens as each service ships.
 
-After a user resolves a conflict, the relevant check reruns. Immediately before fencing, the coordinator runs a final pass to reduce the chance of acting on stale assumptions. Preparation is a snapshot, so it does not eliminate races; the fence and verification do.
+After a user resolves a conflict, only the owning participant is prepared again. At confirmation the coordinator runs a final pass on every participant, so the plan is as fresh as possible when the fence begins. Preparation is a snapshot, so it does not eliminate races; the fence does.
 
-## 5. Fencing Concurrent Writes
+## 6. Fencing Concurrent Writes
 
-Users and background processes keep writing while the merge is coordinated. A request that started before the merge boundary may commit a new source-owned record after migration has begun. Migrating only the records visible earlier would then leave an orphan.
+The fence is the one place where a distributed change must not leave an unaccounted write. Users and background processes keep writing while the merge is coordinated, so three layers stop new source-owned data, and a barrier proves the old data is accounted for before any row moves.
 
-Each participant therefore records a fence and installs a database-level write guard that rejects new source-owned writes. The coordinator waits until every required participant confirms its fence before any migration starts.
-
-Transactions that began before the fence can still commit. The design records a transaction horizon, `fence_xmax`, and a participant must not execute until every transaction older than that horizon has finished (the quiescence condition).
+1. **Alias at the edge.** At the fence the coordinator publishes a source-to-target alias. Requests, Kafka consumers, and WebSocket handshakes resolve the source to the target from then on.
+2. **Participant fence.** Each participant commits a fence row; a database trigger then rejects new source-owned rows and the participant records `fence_xmax`, the transaction horizon at that moment.
+3. **Quiescence barrier.** `Execute` refuses until the oldest running transaction is at or past `fence_xmax`. Every transaction that began before the fence has finished, so any source-owned row it wrote is visible to `Execute`. A transaction that begins after the fence sees it and is stopped by the trigger.
 
 ```mermaid
 ---
@@ -185,30 +284,46 @@ config:
   look: neo
 ---
 sequenceDiagram
-    participant U as User
-    participant C as auth-service
+    autonumber
+    participant W as Requests and events naming the source
+    participant A as auth-service
     participant P as Participant
     participant D as Participant DB
-    U->>C: Confirm merge
-    C->>P: Fence(mergeId)
-    P->>D: Record fence and record fence_xmax
-    P-->>C: Fenced, quiescence pending
-    Note over P,D: Pre-fence transactions drain
-    C->>P: Execute(mergeId)
-    alt Quiescent
-        P->>D: Migrate checkpointed batch
-        P-->>C: Batch result, more work or done
-    else Pre-fence transactions still open
-        P-->>C: Not yet quiescent, retry later
+
+    A->>A: Set fenced_at, publish alias source to target
+    Note over W,A: Requests and consumers now resolve to the target
+    W->>D: A request that began earlier writes a source-owned row
+    A->>P: Fence
+    P->>D: Commit fence row, trigger rejects new source-owned rows, record fence_xmax
+    P-->>A: fence_xmax
+    Note over A: MIGRATING starts only when every participant is fenced
+    A->>P: Execute
+    alt A pre-fence transaction is still running
+        P-->>A: UNAVAILABLE, wait
+    else Quiescent
+        P->>D: Move rows, including anything written before the fence
+        P-->>A: Counts and new checkpoint
     end
-    C->>P: Verify(mergeId)
+    A->>P: Verify
+    P-->>A: No source-owned rows remain
 ```
 
-The invariant is not that the application stopped sending writes to the source. It is that **no unaccounted source-owned write can escape migration and verification**.
+What a write under the source ID meets at each stage:
+
+| Stage | A write under the source ID | What guarantees it |
+|---|---|---|
+| Before the fence | A normal account; `Prepare` is read-only | Normal rules |
+| Alias published, participant not yet fenced | Resolved to the target at the edge; a request already past the edge may still write a source-owned row | The row exists before the fence, so `Execute` moves it |
+| Fenced, not yet quiesced | New rows rejected; an earlier transaction may still commit one | `Execute` refuses until those transactions finish |
+| Quiesced | No source-owned row can be created or is in flight | `fence_xmax` barrier plus the trigger |
+| After the last `Execute` | Rejected by the trigger | `Verify` proves none remain |
+| After finalization | Rejected; the source resolves through a permanent mapping | The trigger stays as the backstop |
+
+The trigger is the backstop even if every application layer fails.
 
 > **Caution:** transaction-horizon semantics, isolation levels, trigger behavior, and alternate write paths all affect whether this holds. A diagram states the invariant; only the implementation and concurrency tests establish it.
 
-### Decision: Write Fence over Optimistic Verify-and-Retry
+### Decision: Fence and Barrier over Optimistic Verify-and-Retry
 
 **Options:**
 
@@ -218,102 +333,142 @@ The invariant is not that the application stopped sending writes to the source. 
 
 **Tradeoffs:**
 
-- Fence: strongest guarantee, but source writes are rejected during the merge window, and it needs per-service database support.
-- Verify and retry: no write blocking, but a busy account may never converge, and late writes can still slip in after the final pass.
-- Global lock: simple to reason about, but it requires a distributed lock service and couples every service to it.
+- Fence: strongest guarantee, and the aliased source never blocks the user, but it needs a trigger and a quiescence check in every participant database.
+- Verify and retry: no write blocking, but a busy account may never converge, and late writes can slip in after the final pass.
+- Global lock: simple to reason about, but it needs a distributed lock service and couples every service to it.
 
-**Decision:** fence, with verification as a second line of defense.
+**Decision:** fence plus barrier, with `Verify` as the second line of defense.
 
-**Implication:** every participant needs a database guard and a quiescence check, and the user-visible cost is a brief period during which the source account cannot write.
+**Implication:** each participant owns a trigger and a quiescence check, and the database guard remains in place permanently.
 
-## 6. Dependency-Aware Waves
+## 7. Waves, Dependencies, and Non-Participants
 
 Some participants depend on others. Organization membership changes produce member-ID mappings that the event service consumes. Attendee ownership changes produce attendee-ID mappings that the ticket service uses to reconcile denormalized user references.
 
 | Wave | Participants | Reason |
 |---|---|---|
-| 1 | Organization, attendee, contributor, notification, file | Independent of each other; produce ID mappings |
-| 2 | Event, ticket | Consume Wave 1 mappings |
+| 1 | Organization, attendee, contributor, notification, file | Disjoint tables; produce ID mappings |
+| 2 | Event, ticket | Consume wave 1 mappings |
 
-The coordinator completes a wave before starting the next and passes mappings to downstream participants. This is more than a performance choice: it makes reconciliation order explicit and gives recovery a dependency graph to follow.
+A wave starts only when the previous one is complete, so a late conflict in wave 1 cannot invalidate a wave 2 service that has already started. Dependencies are explicit in code and waves are derived from them.
 
-A participant's earlier success is not permanent proof. If verification finds drift, the affected participant and its dependents are reopened and reprocessed in dependency order.
+Two services are deliberately not participants:
+
+- **Payment:** billing is organization-scoped. User columns there are attribution and are left alone, and ticket payments stay linked through the attendee.
+- **Check-in:** it is read-only, and staff and check-in attribution is left in place.
+
+Choosing what **not** to migrate is the invariant from section 1 applied: attribution is history, not ownership.
+
+**Drift.** If the global `Verify` finds source-owned rows in a participant that others already used, that participant and everything that depends on it are reopened and rerun in dependency order. A dependent may have read the earlier answer. Drift should be impossible while the trigger holds, so it also raises an alert.
 
 > **Idempotent execution makes retries safe. Dependency-aware recovery makes the overall result consistent. Both are required.**
 
-## 7. Retries and Partial Failure
+## 8. Retries, Late Conflicts, and Forward Recovery
 
-A timeout does not say whether an operation failed. A participant may commit its transaction while the response is lost.
+A timeout does not say whether an operation failed. A participant may commit a batch while the response is lost.
 
 - `mergeId` is the stable workflow identifier.
-- Participants track progress and execution checkpoints.
-- The execute contract reports whether work remains, and stored responses allow replay after an ambiguous outcome.
+- Each `Execute` call carries a checkpoint, resolved decisions, and detail from upstream participants. The checkpoint advances by compare-and-set, and a stored response allows replay after an ambiguous outcome.
+- The call reports whether more work remains.
 
 Failures are classified:
 
 | Failure | Handling |
 |---|---|
-| Transient infrastructure error | Retry with backoff |
-| Conflict needing a decision | Enter the resolution path |
-| Retry budget exhausted | `FAILED_RECOVERABLE`, resumable by an operator |
+| Transient error | `RETRYING` with growing backoff |
+| Fence not yet quiesced | A wait, never counted as a failed attempt |
+| Attempts exhausted | `FAILED_RECOVERABLE`, alert, operator decides |
+| Late conflict | See below |
+| Verify finds source rows | Reopen the participant and its dependents; alert |
+
+**Late conflicts.** A conflict can surface after the fence, during `Execute`. The conflicted participant waits, and others that do not depend on it keep going. When nothing else can proceed, the merge parks in `NEEDS_RESOLUTION`. The user resolves each conflict, the driver resumes the merge, and the participant runs `Execute` again with the decisions. If the same conflict returns, the merge parks again. A conflict left unresolved too long escalates to manual review.
 
 ### Decision: Forward Recovery over Cross-Service Rollback
 
 **Options:**
 
 - Roll back every participant on failure
-- Roll back only before execution; move forward afterward
+- Roll back only while nothing has executed; move forward afterward
 - Compensate with inverse migrations
 
 **Tradeoffs:**
 
-- Full rollback: attractive in theory, but reversing migrated records can overwrite newer activity or violate domain rules.
-- Rollback before execution only: safe because no business data has moved, but requires a hard boundary.
+- Full rollback: attractive in theory, but reversing migrated rows can overwrite newer activity or violate domain rules.
+- Rollback before execution only: safe because no business data has moved, but it needs a hard boundary.
 - Inverse migrations: double the migration code and still face the newer-activity problem.
 
-**Decision:** before any participant executes, an operator may remove fences and cancel. After execution begins, recover forward.
+**Decision:** while no participant has executed, an operator can unfence, lift every fence, remove the alias, and cancel. Nothing calls this automatically, and a transient failure never lifts a fence. Once any participant has run `Execute`, recovery is forward only.
 
-**Implication:** `Execute` must be resumable and `Verify` must be trustworthy, because they are the only recovery tools once data has moved.
+**Implication:** `Execute` must be convergent and `Verify` must be trustworthy, because they are the only recovery tools once data has moved.
 
-## 8. Finalization Is a Separate Consistency Boundary
+## 9. Finalization Is a Separate Consistency Boundary
 
-When every required participant has migrated and verified, `auth-service` finalizes in one local transaction. It updates identity and role associations, re-points sessions, records the source-to-target mapping and audit data, deactivates the source account, stores the final event snapshot, and marks the merge complete.
+When every required participant has migrated and verified, `auth-service` finalizes in one local transaction. Finalization refuses unless every participant is complete or waived and no conflict is open; it reads that state under the same lock the orchestrator takes when it writes.
 
-That transaction is atomic only inside `auth-service`. Cache eviction, token handling, WebSocket closure, and event publication must still happen afterward.
+The transaction updates identity and role associations, re-points sessions, records the source-to-target mapping and an audit row, deactivates the source, stores the final event snapshot, and sets `COMPLETED`.
 
-The design stores the work still owed in the same transaction, so a crash after commit does not lose the intent. The stored event snapshot can be republished, and consumers deduplicate on `mergeId`. This is an outbox-style pattern: persist the state change and the intent to publish together, then deliver asynchronously.
+That transaction is atomic only inside `auth-service`. Alias publication, cache eviction, token invalidation, socket closure, and event publication must still happen afterward.
+
+The transaction stores what is still owed, in two columns: one for post-commit work and one for event publication. A crash after commit leaves a record the driver and a reconcile worker can resume. The stored snapshot is the outbox. A publish failure never reopens a completed merge. Consumers deduplicate on `mergeId`: notification sends one notice per address and audit records one row.
 
 A broker acknowledgement does not prove every consumer processed the event. Consumer retries, deduplication, and dead-letter handling remain separate responsibilities.
 
-## 9. Identity Resolution Beyond HTTP
+## 10. Identity Resolution on Every Path
 
-A source account ID can arrive through many paths:
+The edge is one of several ways a source ID can arrive. Each path resolves it independently, and the database trigger backs up any path that does not.
 
-- GraphQL and REST requests
-- Internal gRPC calls
-- Kafka messages and dead-letter replays
-- WebSocket handshakes
-- Scheduled and queued jobs
+```mermaid
+---
+config:
+  look: neo
+---
+flowchart LR
+    subgraph IN["Every way a source id can arrive"]
+        HTTP["GraphQL and REST requests"]
+        GRPC["gRPC calls between services"]
+        KAFKA["Kafka consumers and dead-letter replays"]
+        WS["WebSocket handshakes"]
+        JOBS["Scheduled and background jobs"]
+    end
 
-Each path needs a defined behavior for a merging or merged identity, with canonical identity handling at the entry point and database guards as the last line of defense.
+    HTTP --> R1["Edge filter: in-memory alias replica,<br/>principal becomes the target, roles from the target"]
+    GRPC --> R2["Payload carries the canonical user id;<br/>the owning service resolves fields that mean current owner"]
+    KAFKA --> R3["Alias resolver: aliased, none or unknown;<br/>unknown retries and is never processed as the source"]
+    WS --> R4["Principal resolver at the handshake"]
+    JOBS --> R5["Act on rows by their current owner;<br/>sending resolves the recipient"]
 
-Authorization needs special care. A request tied to the source account must not keep exercising stale source permissions after the merge boundary; the target account's current authorization governs. Access tokens, refresh tokens, cached roles, and WebSocket connections expire on different schedules, so deactivating the source record does not instantly invalidate them.
+    R1 --> CAN["Canonical target"]
+    R2 --> CAN
+    R3 --> CAN
+    R4 --> CAN
+    R5 --> CAN
+    CAN --> BACK{{"Database reject trigger"}}
+```
 
-Background jobs are the quiet risk. A job can load an old user ID, wait in a queue, and act on it long after the originating request. **A merge that is correct on the synchronous path can still fail operationally on an asynchronous one.**
+Authorization needs special care. A request tied to the source must not keep exercising stale source permissions after the fence; the target's current roles govern.
 
-## 10. Operations and Recovery
+Credentials do not all expire together:
 
-Architecture without operations is incomplete. The planned operational model:
+| Stage | Source access token | Refresh tokens | WebSockets | Caches |
+|---|---|---|---|---|
+| Alias published | Requests resolve to the target with the target's current roles, never the token's roles | Untouched | Existing sockets continue; a new handshake resolves to the target | Unchanged |
+| Finalization commits | Still resolves to the target until it expires, a matter of minutes | Re-pointed to the target (revoke versus re-point is still an open decision) | Source sockets closed with a code that makes the client reconnect | Evicted after commit, retried |
+| After | Source row disabled and marked merged; its login subjects sign in to the target | As above | As above | Rebuilt from durable state |
 
-- **Observability:** per-merge state, per-participant progress, fence age, and time spent in each state, keyed by `mergeId` in logs and traces.
-- **Operator controls:** list fences, resume a recoverable merge, cancel before execution, and escalate to manual review.
-- **Safe repetition:** every operator action must be documented as safe to repeat or not.
-- **Disaster recovery:** restoring only the coordinator database could leave it disagreeing with participant fences or published events, so restore must run a reconciliation check across all three.
-- **Cost:** the design reuses each service's existing database and the existing Kafka cluster. A fence is a row and a guard, not new infrastructure. Cost measurements will follow once the implementation is running.
+Background jobs are the quiet risk. A job can load an old user ID, wait in a queue, and act on it long after the originating request. **A merge that is correct on the synchronous path can still fail on an asynchronous one**, so scheduled jobs are audited individually.
 
-### Planned Failure-Injection Tests
+## 11. Operations and Recovery
 
-Each test asserts a specific invariant, not just that the workflow eventually succeeds.
+Architecture without operations is incomplete. The operational model:
+
+- **Observability:** per-merge state, per-participant state, fence age, drift alerts, and a gauge of stuck merges, keyed by `mergeId` in logs and traces.
+- **Operator controls:** list fences, resume a recoverable merge, escalate to manual review, repair and resume, and unfence while nothing has executed. Each action is documented as safe to repeat or not.
+- **Disaster recovery:** restoring only the coordinator database could leave it disagreeing with participant fences or published events, so a restore runs a reconciliation across all three.
+- **Cost:** the design reuses each service's existing database and the existing Kafka cluster. A fence is a row and a trigger, not new infrastructure.
+
+### Failure-Injection Tests
+
+Each test asserts an invariant, not merely that the workflow eventually succeeds.
 
 | Scenario | Invariant checked |
 |---|---|
@@ -322,38 +477,41 @@ Each test asserts a specific invariant, not just that the workflow eventually su
 | A completed participant is reopened after downstream work ran | Dependents are reprocessed in order |
 | A completion event is delivered twice | The logical effect happens once |
 | One post-commit step fails while others succeed | Only the failed step is retried |
+| A conflict appears after the fence | Others finish, the merge parks, and it resumes on resolution |
 | Restore yields inconsistent checkpoints or fence state | Reconciliation detects and reports the mismatch |
+
+## Rollout
+
+The first release is deliberately narrow. A merge is refused if either account owns data in a service whose `Execute` is not yet implemented, so initial availability covers accounts whose data lives in services that already migrate. Each additional service widens the set, one use case at a time.
 
 ## Anti-Patterns
 
 1. **Rewriting every user ID.** It destroys historical attribution.
 2. **Reaching into another service's database.** It bypasses domain rules and couples deployments.
 3. **Treating preparation as a guarantee.** It is a snapshot; only the fence closes the race.
-4. **Designing rollback after data has moved.** It can overwrite newer activity.
-5. **Fixing only the HTTP path.** Kafka consumers, jobs, and WebSockets keep acting on the old identity.
-6. **Counting a broker acknowledgement as completion.** Consumers must still process and deduplicate.
+4. **Fixing only the HTTP path.** Kafka consumers, jobs, and WebSockets keep acting on the old identity.
+5. **Designing rollback after data has moved.** It can overwrite newer activity.
+6. **Matching accounts on email alone.** A merge is an account takeover path.
+7. **Counting a broker acknowledgement as completion.** Consumers must still process and deduplicate.
 
 ## Tradeoffs Accepted
 
-- The source account cannot write during the fenced window.
+- Each participant needs a trigger, a quiescence check, and the full contract.
 - `auth-service` takes on a coordination role and must itself be recoverable.
-- Each participant must implement four contract operations plus a database guard.
+- The user pays an extra sign-in to prove the second account.
+- Early availability is limited by which services can migrate.
 - There is no automatic undo once execution begins.
 
 ## Key Takeaways
 
 1. **Fix ownership and attribution rules before changing data.** Replacing IDs blindly erases history.
-2. **Let each service migrate its own records.** Service boundaries are the reason the design is safe.
-3. **Prepare and resolve conflicts before mutation.** Only the pre-fence phase can be cancelled cleanly.
-4. **Fence writes and wait for quiescence.** A snapshot alone cannot stop late commits.
-5. **Execute in dependency-aware waves.** Explicit order gives recovery something to follow.
-6. **Make retries idempotent and progress durable.** A lost response must not change the outcome.
-7. **Verify the distributed result before finalizing identity.** Finalization is atomic only locally.
-8. **Treat post-commit delivery and operations as part of the design.** The completed transaction is not the end of the workflow.
-
-## Status
-
-The architecture and participant foundations are being built incrementally. The complete orchestration, the remaining service migrations, and the recovery testing are planned work. A sound design is a prerequisite for correctness, not proof that every failure mode is eliminated.
+2. **Treat the request as a security event.** Proof of both accounts and a notice to every address prevent a merge from becoming a takeover.
+3. **Let each service migrate its own records.** Service boundaries are why the design is safe.
+4. **Prepare and resolve conflicts before mutation.** Only the pre-fence phase is free to cancel.
+5. **Alias, guard, and wait.** The edge alias, the database trigger, and the quiescence barrier each cover a path the others miss.
+6. **Execute in dependency-aware waves.** Explicit order gives recovery something to follow.
+7. **Make retries idempotent and progress durable.** A lost response must not change the outcome.
+8. **Verify the distributed result before finalizing identity.** Finalization is atomic only locally, so persist what is still owed.
 
 ## Next Steps
 
