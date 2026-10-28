@@ -23,7 +23,7 @@ Putting both workloads behind the same database creates coupling that is difficu
 
 This post is written for **engineers and engineering managers** building latency-sensitive, regulated systems. As part of an NG911 (Next-Generation 911) platform initiative at a major telecommunications provider, I took technical ownership across the provisioning and location-delivery paths and helped shape an architecture that separates them using change data capture (CDC), while supporting NENA i3 (HELD, PIDF-LO) and applicable regulatory requirements.
 
-> **Note:** This post describes the architecture and engineering practices behind an NG911 platform initiative, generalized and with the employer and internal program name anonymized. The legacy data migration discussed below is in preparation. It has not yet run in production.
+> **Note:** This post describes the architecture and engineering practices behind an NG911 platform initiative, generalized and with the employer and internal program name anonymized. The legacy data migration discussed below has since run successfully in production. The patterns described here—read/write path separation, CDC-based replication, and batch migration with a skip-limit safety gate—are standard, publicly documented distributed-systems techniques used across many industries; they are not a disclosure of a carrier-specific method for meeting NG911 or other regulatory requirements. The specific figures given throughout (latency target, batch size, skip-limit threshold) are illustrative examples for this article, not disclosed production values.
 
 ---
 
@@ -41,7 +41,7 @@ This post is written for **engineers and engineering managers** building latency
 |---|---|
 | Compliance requirements | NENA i3 (HELD, PIDF-LO) and applicable regulatory requirements |
 | Read path latency target | p95 under 100 ms, measured at the Location Service boundary |
-| Migration scope | Millions of legacy location records, not yet migrated |
+| Migration scope | Millions of legacy location records, successfully migrated |
 | Migration purpose | One-time seeding of legacy location data into the PIDF-LO RDBMS model |
 | Migration batch size | Configurable; 5,000 records used as the example configuration here |
 | Serving model | PIDF-LO location data replicated from the RDBMS into Redis |
@@ -352,7 +352,7 @@ This is important because the migration should not become a special-purpose inte
 
 ## What Dry Runs Have Surfaced
 
-Dry runs exposed a class of errors that record-count reconciliation alone could never detect. No production incident exists to report here, because the migration has not touched production; what dry runs did expose is worth documenting anyway.
+Dry runs exposed a class of errors that record-count reconciliation alone could never detect, and catching them before the production run is a large part of why that run completed without incident.
 
 The transform-and-validate logic assumed a one-to-one mapping between a legacy field and a field in the PIDF-LO representation, and that assumption did not hold for every source table. Some legacy fields required a business rule to disambiguate correctly against the new schema. Record counts matched in every one of those cases; the field values did not.
 
@@ -447,7 +447,7 @@ That separation keeps the migration aligned with the steady-state architecture r
 
 ### Deployment strategy
 
-The migration will run as a controlled batch process rather than as a single database-wide cutover.
+The migration ran as a controlled batch process rather than as a single database-wide cutover.
 
 The configurable batch size allows the team to tune throughput while keeping persistence transactions operationally manageable. The 5,000-record configuration used in this article is representative rather than mandatory.
 
@@ -539,6 +539,6 @@ The migration should seed the RDBMS and stop there. Once data is persisted, the 
 
 ---
 
-The migration is still ahead of us. When it runs in production, I will follow up with the results, particularly which validation layers caught issues that the others did not.
+The migration has since completed successfully in production, with no incidents in the serving path. The validation layers described above—record-level checks, the migration error table, `skipLimit`, and post-migration reconciliation—did their job before the data ever reached the read path.
 
 For related work, see [Projects](/projects/).
